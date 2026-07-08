@@ -90,4 +90,12 @@ const PASSIVES = {
 
 function weaponLvl(id) { const w = weapons.find(w => w.id === id); return w ? w.lvl : 0; }
 
-export { MAXLVL, WEAPONS, PASSIVES, COMBOS, CHARS, activeCombos, weaponLvl };
+// ------------------------------ Bonus de ravitaillement ------------------------------
+const BONUSES = {
+  bacta:  { rgb: '82,255,122',  name: 'BACTA' },
+  holo:   { rgb: '110,231,255', name: 'HOLOCRON' },
+  ion:    { rgb: '165,130,255', name: 'BOMBE IONIQUE' },
+  magnet: { rgb: '255,209,102', name: 'AIMANT GALACTIQUE' },
+};
+
+export { MAXLVL, WEAPONS, PASSIVES, COMBOS, CHARS, BONUSES, activeCombos, weaponLvl };

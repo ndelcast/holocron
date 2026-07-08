@@ -3,8 +3,8 @@ import { canvas, ctx, view, rand, clamp } from './core.js';
 import { SPR } from './sprites.js';
 import { TILE, STAR_LAYERS, stars, nebula } from './background.js';
 import { LEVELS, getGroundTile } from './levels.js';
-import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, weapons } from './state.js';
-import { WEAPONS, CHARS } from './gamedata.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, weapons } from './state.js';
+import { WEAPONS, CHARS, BONUSES } from './gamedata.js';
 import { screenFlash, ghosts } from './effects.js';
 
 // ------------------------------ Rendu ------------------------------
@@ -141,6 +141,29 @@ function render() {
     drawSprite(g.v >= 5 ? 'gemBig' : 'gem', g.x, g.y + bob, pulse);
   }
   ctx.globalAlpha = 1;
+
+  // caisses de ravitaillement (balise lumineuse + caisse)
+  for (const b of bonuses) {
+    const rgb = BONUSES[b.type].rgb;
+    const bob = Math.sin(b.t * 2.5) * 3;
+    const pulse2 = 0.5 + 0.5 * Math.sin(b.t * 4);
+    ctx.globalCompositeOperation = 'lighter';
+    // colonne balise
+    const bg = ctx.createLinearGradient(0, b.y - 190, 0, b.y + 6);
+    bg.addColorStop(0, `rgba(${rgb},0)`);
+    bg.addColorStop(1, `rgba(${rgb},${0.18 + pulse2 * 0.1})`);
+    ctx.fillStyle = bg;
+    ctx.fillRect(b.x - 7, b.y - 190, 14, 196);
+    // anneau au sol
+    ctx.strokeStyle = `rgba(${rgb},${0.5 - pulse2 * 0.3})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(b.x, b.y + 9, 14 + pulse2 * 8, 6 + pulse2 * 3.5, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalCompositeOperation = 'source-over';
+    // ombre + caisse
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.beginPath(); ctx.ellipse(b.x, b.y + 10, 9, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+    drawSprite('b_' + b.type, b.x, b.y + bob - 4);
+  }
 
   // ondes de Force
   ctx.globalCompositeOperation = 'lighter';
@@ -534,6 +557,70 @@ function render() {
   ambGrd.addColorStop(1, amb[1]);
   ctx.fillStyle = ambGrd;
   ctx.fillRect(0, 0, view.w, view.h);
+
+  // minimap radar
+  if (S.scene === 'play' || S.scene === 'levelup') {
+    const mmS = view.w < 640 ? 92 : 128;
+    const mmX = 18, mmY = 56, half = mmS / 2;
+    const cx = mmX + half, cy = mmY + half;
+    const range = 1500, sc = (half - 6) / range;
+    const cut = 10;
+    ctx.beginPath();
+    ctx.moveTo(mmX + cut, mmY); ctx.lineTo(mmX + mmS, mmY); ctx.lineTo(mmX + mmS, mmY + mmS - cut);
+    ctx.lineTo(mmX + mmS - cut, mmY + mmS); ctx.lineTo(mmX, mmY + mmS); ctx.lineTo(mmX, mmY + cut);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(6,14,24,.62)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(110,231,255,.30)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.save();
+    ctx.clip();
+    // quadrillage
+    ctx.strokeStyle = 'rgba(110,231,255,.08)';
+    ctx.beginPath();
+    ctx.moveTo(cx, mmY); ctx.lineTo(cx, mmY + mmS);
+    ctx.moveTo(mmX, cy); ctx.lineTo(mmX + mmS, cy);
+    ctx.stroke();
+    // balayage radar
+    const sweep = anim * 1.4;
+    for (let k = 0; k < 5; k++) {
+      ctx.strokeStyle = `rgba(110,231,255,${0.12 * (1 - k / 5)})`;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(sweep - k * 0.07) * half, cy + Math.sin(sweep - k * 0.07) * half);
+      ctx.stroke();
+    }
+    // ennemis
+    for (const e of enemies) {
+      const dx = (e.x - player.x) * sc, dy = (e.y - player.y) * sc;
+      if (e.boss) {
+        const bx = clamp(dx, -half + 7, half - 7), by = clamp(dy, -half + 7, half - 7);
+        ctx.fillStyle = e.final ? 'rgba(255,59,59,1)' : 'rgba(255,110,90,.95)';
+        const br = e.final ? 3.5 + Math.sin(anim * 6) * 1 : 3;
+        ctx.beginPath(); ctx.arc(cx + bx, cy + by, br, 0, Math.PI * 2); ctx.fill();
+      } else if (Math.abs(dx) < half - 4 && Math.abs(dy) < half - 4) {
+        ctx.fillStyle = 'rgba(255,90,80,.7)';
+        ctx.fillRect(cx + dx - 1, cy + dy - 1, 2, 2);
+      }
+    }
+    // balises de bonus (plaquées au bord si hors de portée)
+    for (const b of bonuses) {
+      const dx = clamp((b.x - player.x) * sc, -half + 8, half - 8);
+      const dy = clamp((b.y - player.y) * sc, -half + 8, half - 8);
+      const pulse3 = 0.6 + 0.4 * Math.sin(anim * 5 + b.t);
+      ctx.fillStyle = `rgba(${BONUSES[b.type].rgb},${pulse3})`;
+      ctx.save();
+      ctx.translate(cx + dx, cy + dy);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-3, -3, 6, 6);
+      ctx.restore();
+    }
+    // joueur
+    ctx.fillStyle = '#6ee7ff';
+    ctx.beginPath(); ctx.arc(cx, cy, 2.6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
 
   // flèche vers le boss final hors champ
   const fb = enemies.find(e => e.final);

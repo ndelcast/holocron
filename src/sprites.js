@@ -415,6 +415,53 @@ SPR.atst = makeSprite(56, g => {
   g.fillStyle = '#2c3238';
   g.fillRect(-2.4, 2, 1.8, 5); g.fillRect(0.6, 2, 1.8, 5);
 });
+// ---- Caisses de ravitaillement ----
+function makeBonusSprite(rgb, glyph) {
+  return makeSprite(36, g => {
+    glow(g, 16, `rgba(${rgb},.35)`);
+    // conteneur octogonal
+    g.beginPath();
+    const R = 10;
+    for (let i = 0; i < 8; i++) {
+      const a = Math.PI / 8 + i * Math.PI / 4;
+      const px = Math.cos(a) * R, py = Math.sin(a) * R;
+      i === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
+    }
+    g.closePath();
+    g.fillStyle = '#141e2a';
+    g.fill();
+    g.strokeStyle = `rgba(${rgb},.9)`;
+    g.lineWidth = 1.6;
+    g.stroke();
+    g.strokeStyle = `rgba(${rgb},.35)`;
+    g.lineWidth = 1;
+    g.strokeRect(-6.5, -6.5, 13, 13);
+    glyph(g, `rgb(${rgb})`);
+  });
+}
+SPR.b_bacta = makeBonusSprite('82,255,122', (g, c) => {
+  g.fillStyle = c;
+  g.fillRect(-1.7, -5.5, 3.4, 11);
+  g.fillRect(-5.5, -1.7, 11, 3.4);
+});
+SPR.b_holo = makeBonusSprite('110,231,255', (g, c) => {
+  g.fillStyle = c;
+  g.beginPath(); g.moveTo(0, -6); g.lineTo(5, 0); g.lineTo(0, 6); g.lineTo(-5, 0); g.closePath(); g.fill();
+  g.fillStyle = '#e5fbff';
+  g.beginPath(); g.moveTo(0, -6); g.lineTo(5, 0); g.lineTo(0, 0); g.closePath(); g.fill();
+});
+SPR.b_ion = makeBonusSprite('165,130,255', (g, c) => {
+  g.strokeStyle = c; g.lineWidth = 1.6;
+  g.beginPath(); g.arc(0, 0, 5, 0, Math.PI * 2); g.stroke();
+  g.fillStyle = c;
+  g.beginPath(); g.arc(0, 0, 2.2, 0, Math.PI * 2); g.fill();
+});
+SPR.b_magnet = makeBonusSprite('255,209,102', (g, c) => {
+  g.strokeStyle = c; g.lineWidth = 2.6;
+  g.beginPath(); g.arc(0, -1, 4.2, Math.PI, 0, false); g.stroke();
+  g.fillStyle = c;
+  g.fillRect(-5.4, -1.5, 2.6, 5); g.fillRect(2.8, -1.5, 2.6, 5);
+});
 // Éclats de particule laser (bolt)
 SPR.boltRed = makeSprite(24, g => { glow(g, 11, 'rgba(255,80,60,.5)'); g.fillStyle = '#ffb3a0'; g.fillRect(-1.6, -5, 3.2, 10); });
 SPR.boltCyan = makeSprite(24, g => { glow(g, 11, 'rgba(110,231,255,.5)'); g.fillStyle = '#d8f7ff'; g.fillRect(-1.6, -5, 3.2, 10); });

@@ -1,15 +1,48 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick } from './core.js';
 import { keys, touch } from './input.js';
-import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, weapons } from './state.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, weapons, addRing } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
-import { CHARS } from './gamedata.js';
+import { CHARS, BONUSES } from './gamedata.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
 import { tickWeapons, explode } from './combat.js';
-import { damageEnemy, hurtPlayer, addText, burst, sparks, ghosts } from './effects.js';
+import { damageEnemy, hurtPlayer, addText, burst, sparks, flash, ghosts } from './effects.js';
 import { gainXp } from './levelup.js';
 import { sfx } from './audio.js';
 import { endRun } from './lifecycle.js';
+
+// ------------------------------ Bonus de ravitaillement ------------------------------
+function applyBonus(b) {
+  sfx.lvl();
+  addRing(b.x, b.y, 170, BONUSES[b.type].rgb, 4, 0.5);
+  burst(b.x, b.y, '#ffffff', 12, 230);
+  S.zoomKick = Math.max(S.zoomKick, 0.05);
+  switch (b.type) {
+    case 'bacta':
+      player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.4);
+      addText(b.x, b.y - 28, 'BACTA  +40 % PV', '#52ff7a', 18, 1.6);
+      break;
+    case 'holo':
+      addText(b.x, b.y - 28, 'HOLOCRON : NIVEAU SUPÉRIEUR', '#6ee7ff', 17, 1.8);
+      gainXp(Math.max(1, S.xpNext - S.xp + 0.5));
+      break;
+    case 'ion':
+      flash('165,130,255', 0.4);
+      addRing(b.x, b.y, 700, '165,130,255', 6, 0.8);
+      S.shake = Math.max(S.shake, 10);
+      addText(b.x, b.y - 28, 'IMPULSION IONIQUE', '#a582ff', 18, 1.6);
+      for (const e of enemies) {
+        if (e.dead) continue;
+        const d = Math.hypot(e.x - b.x, e.y - b.y);
+        if (d < 700) damageEnemy(e, e.boss ? 150 : 300, Math.atan2(e.y - b.y, e.x - b.x), e.boss ? 0 : 320);
+      }
+      break;
+    case 'magnet':
+      addText(b.x, b.y - 28, 'AIMANT GALACTIQUE', '#ffd166', 18, 1.6);
+      for (const g of gems) g.mag = true;
+      break;
+  }
+}
 
 // ------------------------------ Boucle principale ------------------------------
 function update(dt) {
@@ -69,6 +102,27 @@ function update(dt) {
     spawnFinalBoss();
   }
   if (S.time >= RUN_TIME) { endRun(); return; }
+
+  // --- ravitaillements largués sur la carte (3 max)
+  S.bonusT -= dt;
+  if (S.bonusT <= 0) {
+    S.bonusT = 24;
+    if (bonuses.length < 3) {
+      const a = rand(0, Math.PI * 2), d = rand(700, 1300);
+      bonuses.push({ x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, type: pick(Object.keys(BONUSES)), t: 0 });
+      addText(player.x, player.y - 70, 'RAVITAILLEMENT LARGUÉ — SUIS LA BALISE', '#ffd166', 14, 2.4);
+      sfx.gem();
+    }
+  }
+  for (let i = bonuses.length - 1; i >= 0; i--) {
+    const b = bonuses[i];
+    b.t += dt;
+    if (dist2(b.x, b.y, player.x, player.y) < (player.r + 18) * (player.r + 18)) {
+      bonuses.splice(i, 1);
+      applyBonus(b);
+      if (S.scene !== 'play') return; // holocron : le level-up a ouvert le choix
+    }
+  }
 
   // --- armes
   tickWeapons(dt);
@@ -224,8 +278,8 @@ function update(dt) {
     const g = gems[i];
     g.t += dt * 3;
     const d = Math.hypot(g.x - player.x, g.y - player.y);
-    if (d < player.magnet) {
-      const sp = 260 + (player.magnet - d) * 6;
+    if (g.mag || d < player.magnet) {
+      const sp = g.mag ? 720 : 260 + (player.magnet - d) * 6;
       g.x += (player.x - g.x) / d * sp * dt;
       g.y += (player.y - g.y) / d * sp * dt;
       if (Math.random() < dt * 14 && particles.length < 600) {
