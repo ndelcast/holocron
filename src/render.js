@@ -119,6 +119,20 @@ function render() {
     ctx.setLineDash([]);
   }
 
+  // ombres portées (ancrage au sol)
+  ctx.fillStyle = 'rgba(0,0,0,.26)';
+  for (const e of enemies) {
+    ctx.beginPath(); ctx.ellipse(e.x, e.y + e.r * 0.85, e.r * 0.95, e.r * 0.34, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.beginPath(); ctx.ellipse(player.x, player.y + 13, 11, 4, 0, 0, Math.PI * 2); ctx.fill();
+  for (const dr of drones) {
+    ctx.beginPath(); ctx.ellipse(dr.x, dr.y + 9, 5, 2, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(0,0,0,.16)';
+  for (const g of gems) {
+    ctx.beginPath(); ctx.ellipse(g.x, g.y + 7, 4.5, 1.8, 0, 0, Math.PI * 2); ctx.fill();
+  }
+
   // cristaux (pulsation lumineuse)
   for (const g of gems) {
     const bob = Math.sin(g.t) * 2.5;
@@ -492,15 +506,34 @@ function render() {
 
   // textes flottants
   ctx.textAlign = 'center';
+  ctx.lineJoin = 'round';
   for (const t of texts) {
     ctx.globalAlpha = clamp(t.life / t.maxLife * 1.4, 0, 1);
     ctx.font = `700 ${t.size}px Rajdhani, sans-serif`;
+    ctx.strokeStyle = 'rgba(4,7,14,.8)';
+    ctx.lineWidth = 3;
+    ctx.strokeText(t.str, t.x, t.y);
     ctx.fillStyle = t.color;
     ctx.fillText(t.str, t.x, t.y);
   }
   ctx.globalAlpha = 1;
 
   ctx.restore();
+
+  // étalonnage colorimétrique : lumière directionnelle propre à la destination
+  const AMBIENT = {
+    space:     ['rgba(70,40,140,0.09)', 'rgba(0,8,28,0.20)'],
+    tatooine:  ['rgba(255,190,90,0.13)', 'rgba(110,35,10,0.18)'],
+    deathstar: ['rgba(90,130,170,0.08)', 'rgba(0,0,12,0.24)'],
+    hoth:      ['rgba(170,225,255,0.10)', 'rgba(8,28,70,0.22)'],
+    endor:     ['rgba(190,255,130,0.07)', 'rgba(4,22,10,0.24)'],
+  };
+  const amb = AMBIENT[session.level];
+  const ambGrd = ctx.createLinearGradient(view.w, 0, 0, view.h);
+  ambGrd.addColorStop(0, amb[0]);
+  ambGrd.addColorStop(1, amb[1]);
+  ctx.fillStyle = ambGrd;
+  ctx.fillRect(0, 0, view.w, view.h);
 
   // flèche vers le boss final hors champ
   const fb = enemies.find(e => e.final);

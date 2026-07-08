@@ -293,6 +293,7 @@ function updateHud() {
   document.getElementById('lvl').textContent = S.level;
   document.getElementById('xpfill').style.width = (S.xp / S.xpNext * 100) + '%';
   document.getElementById('hpfill').style.width = clamp(player.hp / player.maxHp * 100, 0, 100) + '%';
+  document.getElementById('hpnum').textContent = Math.max(0, Math.ceil(player.hp)) + ' / ' + Math.round(player.maxHp);
   document.getElementById('lowhp').classList.toggle('on', S.scene === 'play' && player.hp / player.maxHp < 0.3);
 }
 

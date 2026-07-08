@@ -211,3 +211,123 @@
   #bosswarn { position: fixed; inset: 0; pointer-events: none; opacity: 0; box-shadow: inset 0 0 140px rgba(255,59,59,.6); }
   #bosswarn.on { animation: bossPulse .5s ease-in-out 3; }
   @keyframes bossPulse { 50% { opacity: 1; } }
+
+/* ================================================================
+   DA v2 — chrome holographique, menus raffinés
+   ================================================================ */
+
+/* ---------- Équerres de visée aux coins de l'écran ---------- */
+#hudchrome { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+.corner { position: absolute; width: 54px; height: 54px; border: 1.5px solid rgba(110,231,255,.30); animation: holoFlicker 7s linear infinite; }
+.corner::after { content: ''; position: absolute; width: 5px; height: 5px; background: rgba(110,231,255,.55); }
+.corner.tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+.corner.tl::after { top: -3px; left: -3px; }
+.corner.tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+.corner.tr::after { top: -3px; right: -3px; }
+.corner.bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+.corner.bl::after { bottom: -3px; left: -3px; }
+.corner.br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+.corner.br::after { bottom: -3px; right: -3px; }
+@keyframes holoFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: .55; }
+  94% { opacity: 1; }
+  96.5% { opacity: .7; }
+  97% { opacity: 1; }
+}
+
+/* ---------- Bande de balayage holographique ---------- */
+#scanband {
+  position: fixed; left: 0; right: 0; top: -120px; height: 110px; pointer-events: none; z-index: 4;
+  background: linear-gradient(180deg, transparent, rgba(110,231,255,.045) 55%, rgba(110,231,255,.09) 85%, transparent);
+  animation: scanSweep 9s linear infinite;
+}
+@keyframes scanSweep { to { transform: translateY(calc(100vh + 240px)); } }
+
+/* ---------- HUD ---------- */
+#topline { gap: 34px; }
+#timer {
+  padding: 3px 22px 5px; border: 1px solid rgba(110,231,255,.3); border-top: none;
+  background: rgba(8,20,32,.5);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 100%, 0 100%);
+}
+.stat { padding-top: 7px; }
+.stat b { font-size: 17px; margin-left: 3px; }
+
+#lvltag { display: flex; justify-content: space-between; align-items: baseline; animation: holoFlicker 11s linear infinite; }
+#hpnum { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; color: #cfeeff; }
+#hpbar { position: relative; box-shadow: 0 0 14px rgba(255,80,60,.14), inset 0 0 8px rgba(0,0,0,.5); }
+#hpbar::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 21px, rgba(5,8,16,.55) 21px 22.5px);
+}
+#hpfill { background: linear-gradient(180deg, #ff7a5a, #d92b2b 55%, #a81f1f); }
+#xpbar { box-shadow: inset 0 -1px 0 rgba(110,231,255,.15); }
+
+.wslot {
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  box-shadow: inset 0 0 10px rgba(0,0,0,.45);
+  transition: transform .12s;
+}
+.wslot:hover { transform: translateY(-2px); }
+
+#bossbar #bosshp { box-shadow: 0 0 18px rgba(255,59,59,.25); }
+
+/* ---------- Menus ---------- */
+.overlay { backdrop-filter: blur(4px) saturate(1.1); -webkit-backdrop-filter: blur(4px) saturate(1.1); }
+
+.tagline {
+  font-size: 13px; letter-spacing: .5em; color: #5f8299; text-transform: uppercase;
+  margin-bottom: 18px; animation: taglineIn 2.2s ease-out backwards;
+}
+@keyframes taglineIn { from { opacity: 0; letter-spacing: .9em; } }
+
+.rule {
+  width: min(360px, 70vw); height: 1px; margin: 22px auto 4px; position: relative;
+  background: linear-gradient(90deg, transparent, rgba(110,231,255,.5), transparent);
+}
+.rule::after {
+  content: ''; position: absolute; left: 50%; top: -3.5px; width: 7px; height: 7px;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--gold); box-shadow: 0 0 10px rgba(255,209,102,.6);
+}
+
+.sectlabel { position: relative; padding: 0 46px; animation: holoFlicker 9s linear infinite; }
+.sectlabel::before, .sectlabel::after {
+  content: ''; position: absolute; top: 50%; width: 34px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(110,231,255,.4));
+}
+.sectlabel::before { left: 0; }
+.sectlabel::after { right: 0; transform: scaleX(-1); }
+
+/* reflet qui balaye les cartes au survol */
+.cchar, .lvlchip, .card { position: relative; overflow: hidden; }
+.cchar::before, .lvlchip::before, .card::before {
+  content: ''; position: absolute; top: 0; left: -85%; width: 55%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(110,231,255,.13), transparent);
+  transform: skewX(-18deg); transition: left .5s ease; pointer-events: none;
+}
+.cchar:hover::before, .lvlchip:hover::before, .card:hover::before { left: 130%; }
+
+/* médaillon lumineux derrière l'icône des cartes de level-up */
+.card .icon {
+  width: 66px; height: 66px; margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(110,231,255,.16), transparent 72%);
+  border: 1px solid rgba(110,231,255,.3);
+  box-shadow: 0 0 18px rgba(110,231,255,.12), inset 0 0 12px rgba(110,231,255,.08);
+}
+
+/* boutons : liseré interne */
+button.holo { position: relative; }
+button.holo::after {
+  content: ''; position: absolute; inset: 3px;
+  border: 1px solid rgba(110,231,255,.18); pointer-events: none;
+  clip-path: polygon(11px 0, 100% 0, calc(100% - 11px) 100%, 0 100%);
+}
+
+/* hangar : cohérence avec le reste */
+.meta { clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
+.combo { clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
