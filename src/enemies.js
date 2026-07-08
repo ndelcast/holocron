@@ -15,7 +15,7 @@ const ETYPES = {
 function spawnEnemy(typeId, boss = false) {
   const t = ETYPES[typeId] || null;
   const ang = Math.random() * Math.PI * 2;
-  const d = Math.hypot(view.w, view.h) / 2 + 60;
+  const d = Math.hypot(view.w, view.h) / (2 * (view.zoom || 1)) + 80;
   const hpScale = 1 + S.time / 30 * 0.16;
   if (boss) {
     enemies.push({
@@ -43,7 +43,7 @@ function spawnFinalBoss() {
   const bid = LEVELS[session.level].boss;
   const B = BOSSES[bid];
   const ang = Math.random() * Math.PI * 2;
-  const d = Math.hypot(view.w, view.h) / 2 + 80;
+  const d = Math.hypot(view.w, view.h) / (2 * (view.zoom || 1)) + 100;
   enemies.push({
     type: bid, spr: B.spr, boss: true, final: true,
     x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,

@@ -361,7 +361,7 @@ canvas#game { touch-action: none; }
 
 #resumeBtn { margin-top: 20px; }
 
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-height: 520px) {
   h1.title { font-size: 30px; letter-spacing: .07em; max-width: 96vw; }
   .tagline { font-size: 9px; letter-spacing: .32em; padding: 0 10px; }
   .subtitle { font-size: 12px; letter-spacing: .3em; }
@@ -385,8 +385,8 @@ canvas#game { touch-action: none; }
   #weapons { right: 12px; bottom: calc(14px + env(safe-area-inset-bottom)); gap: 5px; }
   .wslot { width: 33px; height: 33px; font-size: 13px; }
   .wslot small { font-size: 9px; }
-  #hudbtns { top: 10px; right: 50px; }
-  .hudbtn { width: 36px; height: 36px; }
+  #hudbtns { top: auto; bottom: calc(56px + env(safe-area-inset-bottom)); right: 12px; }
+  .hudbtn { width: 38px; height: 38px; }
   .corner { width: 28px; height: 28px; }
   #cards { gap: 12px; }
   .card { width: min(80vw, 300px); padding: 16px 16px 14px; }

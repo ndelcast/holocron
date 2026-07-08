@@ -30,7 +30,10 @@ function render() {
 
   const shx = S.shake ? rand(-S.shake, S.shake) * 0.5 : 0;
   const shy = S.shake ? rand(-S.shake, S.shake) * 0.5 : 0;
-  const camX = player.x - view.w / 2 + shx, camY = player.y - view.h / 2 + shy;
+  // zoom monde : dézoom sur petits écrans + impulsion des gros événements
+  const z = (1 + S.zoomKick) * (view.zoom || 1);
+  const vw = view.w / z, vh = view.h / z;
+  const camX = player.x - vw / 2 + shx, camY = player.y - vh / 2 + shy;
 
   if (LV.stars) {
     // nébuleuses + étoiles (tuilées, parallaxe)
@@ -56,14 +59,8 @@ function render() {
       }
     }
     ctx.globalAlpha = 1;
-  } else {
-    // sol thématique, défilement 1:1 avec la caméra
-    const tile = getGroundTile(session.level);
-    const ox = -(((camX % TILE) + TILE) % TILE), oy = -(((camY % TILE) + TILE) % TILE);
-    for (let ix = 0; ix * TILE + ox < view.w; ix++)
-      for (let iy = 0; iy * TILE + oy < view.h; iy++)
-        ctx.drawImage(tile, ox + ix * TILE, oy + iy * TILE);
   }
+  // (le sol des planètes est dessiné dans le repère monde, plus bas)
 
   // soleils jumeaux de Tatooine (fixes à l'écran)
   if (session.level === 'tatooine') {
@@ -78,13 +75,17 @@ function render() {
   }
 
   ctx.save();
-  if (S.zoomKick > 0.001) {
-    const z = 1 + S.zoomKick;
-    ctx.translate(view.w / 2, view.h / 2);
-    ctx.scale(z, z);
-    ctx.translate(-view.w / 2, -view.h / 2);
-  }
+  ctx.scale(z, z);
   ctx.translate(-camX, -camY);
+
+  // sol thématique (repère monde, suit le zoom)
+  if (!LV.stars) {
+    const tile = getGroundTile(session.level);
+    const gx0 = Math.floor(camX / TILE) * TILE, gy0 = Math.floor(camY / TILE) * TILE;
+    for (let gx = gx0; gx < camX + vw; gx += TILE)
+      for (let gy = gy0; gy < camY + vh; gy += TILE)
+        ctx.drawImage(tile, gx, gy);
+  }
 
   // traces de brûlure au sol
   for (const d of decals) {
@@ -560,8 +561,9 @@ function render() {
 
   // minimap radar
   if (S.scene === 'play' || S.scene === 'levelup') {
-    const mmS = view.w < 640 ? 92 : 128;
-    const mmX = 18, mmY = 56, half = mmS / 2;
+    const small = view.w < 640 || view.h < 520;
+    const mmS = small ? 92 : 128;
+    const mmX = 18, mmY = small && enemies.some(e => e.final) ? 104 : 56, half = mmS / 2;
     const cx = mmX + half, cy = mmY + half;
     const range = 1500, sc = (half - 6) / range;
     const cut = 10;
@@ -625,7 +627,7 @@ function render() {
   // flèche vers le boss final hors champ
   const fb = enemies.find(e => e.final);
   if (fb && S.scene === 'play') {
-    const sx = fb.x - (player.x - view.w / 2), sy = fb.y - (player.y - view.h / 2);
+    const sx = view.w / 2 + (fb.x - player.x) * z, sy = view.h / 2 + (fb.y - player.y) * z;
     if (sx < -20 || sx > view.w + 20 || sy < -20 || sy > view.h + 20) {
       const a = Math.atan2(sy - view.h / 2, sx - view.w / 2);
       const ex = clamp(view.w / 2 + Math.cos(a) * (Math.min(view.w, view.h) / 2 - 46), 34, view.w - 34);
