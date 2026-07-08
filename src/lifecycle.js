@@ -1,6 +1,6 @@
 // Holocron Survivors — boucle rAF, début/fin de partie, pause
 import { clamp } from './core.js';
-import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, weapons, passives } from './state.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, weapons, passives } from './state.js';
 import { CHARS, activeCombos } from './gamedata.js';
 import { BOSSES } from './levels.js';
 import { metaLvl, bankRewards } from './meta.js';
@@ -17,6 +17,7 @@ function frame(now) {
   const rawDt = clamp((now - lastT) / 1000, 0, 0.05);
   lastT = now;
   screenFlash.a = Math.max(0, screenFlash.a - rawDt * 2.4);
+  S.zoomKick = S.zoomKick > 0.001 ? S.zoomKick * Math.pow(0.0005, rawDt) : 0;
   let dt = rawDt;
   if (S.freeze > 0) { S.freeze -= rawDt; dt = rawDt * 0.15; } // ralenti dramatique
   if (S.scene === 'play' && !S.paused) update(dt);
@@ -29,6 +30,7 @@ function resetGame() {
   S.spawnT = 0; S.bossT = 90; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; screenFlash.a = 0;
+  S.zoomKick = 0; S.streak = 0; S.streakT = 0; S.afterT = 0;
   document.getElementById('levelup').classList.remove('on');
   document.getElementById('paused').classList.remove('on');
   document.getElementById('victory').classList.remove('on');
@@ -45,7 +47,7 @@ function resetGame() {
   player.xpMult += 0.05 * metaLvl('xp');
   player.armor *= Math.pow(0.96, metaLvl('armor'));
   S.rewarded = false; S.reviveUsed = false;
-  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts]) arr.length = 0;
+  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals]) arr.length = 0;
   activeCombos.clear();
   runtime.ionAura = null;
   weapons.length = 0;

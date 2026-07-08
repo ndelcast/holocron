@@ -1,13 +1,16 @@
 // Holocron Survivors — dessin de la scène
-import { ctx, view, rand, clamp } from './core.js';
+import { canvas, ctx, view, rand, clamp } from './core.js';
 import { SPR } from './sprites.js';
 import { TILE, STAR_LAYERS, stars, nebula } from './background.js';
 import { LEVELS, getGroundTile } from './levels.js';
-import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, weapons } from './state.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, weapons } from './state.js';
 import { WEAPONS, CHARS } from './gamedata.js';
 import { screenFlash, ghosts } from './effects.js';
 
 // ------------------------------ Rendu ------------------------------
+// tampon de bloom : copie réduite du canvas ré-agrandie en additif
+const bloomCanvas = document.createElement('canvas');
+const bloomCtx = bloomCanvas.getContext('2d');
 function drawSprite(spr, x, y, scale = 1, flip = 1) {
   const c = SPR[spr];
   const w = c.width / 2 * scale, h = c.height / 2 * scale;
@@ -75,7 +78,24 @@ function render() {
   }
 
   ctx.save();
+  if (S.zoomKick > 0.001) {
+    const z = 1 + S.zoomKick;
+    ctx.translate(view.w / 2, view.h / 2);
+    ctx.scale(z, z);
+    ctx.translate(-view.w / 2, -view.h / 2);
+  }
   ctx.translate(-camX, -camY);
+
+  // traces de brûlure au sol
+  for (const d of decals) {
+    const a = Math.min(1, d.life / d.max * 2.5) * 0.4;
+    const grd = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
+    grd.addColorStop(0, `rgba(8,6,4,${a})`);
+    grd.addColorStop(0.7, `rgba(8,6,4,${a * 0.75})`);
+    grd.addColorStop(1, 'rgba(8,6,4,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(d.x - d.r, d.y - d.r, d.r * 2, d.r * 2);
+  }
 
   // nappes de feu
   for (const fp of firePools) {
@@ -154,6 +174,13 @@ function render() {
 
   // ennemis
   for (const e of enemies) {
+    if (e.boss) {
+      ctx.globalCompositeOperation = 'lighter';
+      const pa = 0.14 + 0.06 * Math.sin(anim * 4);
+      ctx.fillStyle = `rgba(255,59,59,${pa})`;
+      ctx.beginPath(); ctx.ellipse(e.x, e.y + e.r * 0.8, e.r * 1.5, e.r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
     const sc = e.boss ? 1 : 1;
     drawSprite(e.spr, e.x, e.y, sc);
     if (e.flash > 0) {
@@ -263,14 +290,36 @@ function render() {
   ctx.globalCompositeOperation = 'lighter';
   for (const gh of ghosts) {
     const lr = 1 - gh.t / 0.22;
-    ctx.globalAlpha = lr * 0.7;
-    drawSprite(gh.spr, gh.x, gh.y, 1 + (1 - lr) * 0.8);
+    if (gh.kind === 'after') {
+      ctx.globalAlpha = lr * 0.22;
+      drawSprite(gh.spr, gh.x, gh.y, 1, gh.flip || 1);
+    } else {
+      ctx.globalAlpha = lr * 0.7;
+      drawSprite(gh.spr, gh.x, gh.y, 1 + (1 - lr) * 0.8);
+    }
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
 
   // droïdes alliés
   for (const dr of drones) drawSprite('drone', dr.x, dr.y);
+
+  // rayons divins rotatifs du level-up
+  if (S.beamT > 0) {
+    const lr2 = S.beamT / 0.7;
+    ctx.globalCompositeOperation = 'lighter';
+    const rot = anim * 1.5;
+    ctx.fillStyle = `rgba(255,209,102,${lr2 * 0.07})`;
+    for (let i = 0; i < 6; i++) {
+      const a = rot + i * Math.PI / 3;
+      ctx.beginPath();
+      ctx.moveTo(player.x + Math.cos(a) * 24, player.y + Math.sin(a) * 24);
+      ctx.lineTo(player.x + Math.cos(a + 0.22) * 175, player.y + Math.sin(a + 0.22) * 175);
+      ctx.lineTo(player.x + Math.cos(a - 0.22) * 175, player.y + Math.sin(a - 0.22) * 175);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
 
   // colonne de lumière du level-up
   if (S.beamT > 0) {
@@ -505,6 +554,25 @@ function render() {
     ctx.fillRect(0, 0, view.w, view.h);
     ctx.globalCompositeOperation = 'source-over';
   }
+
+  // bloom : copie réduite du canvas ré-agrandie en additif (lueur douce)
+  const bw = Math.max(1, Math.floor(view.w / 4)), bh = Math.max(1, Math.floor(view.h / 4));
+  if (bloomCanvas.width !== bw || bloomCanvas.height !== bh) { bloomCanvas.width = bw; bloomCanvas.height = bh; }
+  bloomCtx.globalCompositeOperation = 'copy';
+  bloomCtx.drawImage(canvas, 0, 0, bw, bh);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.20;
+  ctx.drawImage(bloomCanvas, 0, 0, view.w, view.h);
+
+  // écho chromatique pendant les fortes secousses
+  if (S.shake > 3) {
+    const off = clamp(S.shake * 0.35, 1, 5);
+    ctx.globalAlpha = 0.07;
+    ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, off, 0, view.w, view.h);
+    ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, -off, 0, view.w, view.h);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 export { render };

@@ -64,6 +64,14 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
     e.dead = true;
     S.kills++;
     sfx.die();
+    S.streak++; S.streakT = 1.2;
+    const MILESTONES = { 10: 'SÉRIE ×10 !', 25: 'CARNAGE ×25 !', 50: 'MASSACRE ×50 !', 100: 'LÉGENDE ×100 !', 200: 'ÉLU(E) DE LA FORCE ×200 !' };
+    if (MILESTONES[S.streak]) {
+      addText(player.x, player.y - 95, MILESTONES[S.streak], '#ffd166', 24, 1.6);
+      flash('255,209,102', 0.12);
+      S.zoomKick = Math.max(S.zoomKick, 0.05);
+      sfx.lvl();
+    }
     burst(e.x, e.y, e.boss ? '#ff3b3b' : '#9fdcff', e.boss ? 40 : 10, e.boss ? 280 : 140);
     sparks(e.x, e.y, e.boss ? '255,120,90' : '150,225,255', e.boss ? 16 : 5, e.boss ? 420 : 260);
     addGhost(e);
@@ -75,6 +83,7 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
       fireball(e.x, e.y, 130);
       flash('255,255,255', 0.5);
       S.freeze = 0.9;
+      S.zoomKick = Math.max(S.zoomKick, 0.16);
       S.shake = 18;
       player.hp = Math.min(player.maxHp, player.hp + 50);
       victory(e);
@@ -85,6 +94,7 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
       fireball(e.x, e.y, 80);
       flash('255,120,90', 0.28);
       S.freeze = 0.3;
+      S.zoomKick = Math.max(S.zoomKick, 0.08);
       S.shake = 14;
     }
   } else {
@@ -103,6 +113,7 @@ function hurtPlayer(dmg) {
   sfx.hurt();
   S.shake = Math.max(S.shake, 6);
   flash('255,50,40', 0.15);
+  S.zoomKick = Math.max(S.zoomKick, 0.04);
   sparks(player.x, player.y, '255,120,110', 6, 240);
   const fl = document.getElementById('dmgflash');
   fl.style.opacity = 1; setTimeout(() => fl.style.opacity = 0, 90);

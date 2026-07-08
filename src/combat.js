@@ -1,6 +1,6 @@
 // Holocron Survivors — tir des armes, explosions
 import { rand, irand, dist2, angleDiff, pick } from './core.js';
-import { S, player, runtime, enemies, bullets, waves, arcs, grenades, drones, particles, booms, firePools, weapons, addRing } from './state.js';
+import { S, player, runtime, enemies, bullets, waves, arcs, grenades, drones, particles, booms, firePools, decals, weapons, addRing } from './state.js';
 import { WEAPONS, activeCombos, weaponLvl } from './gamedata.js';
 import { sfx, tone } from './audio.js';
 import { damageEnemy, burst, sparks, fireball, flash, addText } from './effects.js';
@@ -30,6 +30,8 @@ function explode(x, y, dmg, radius) {
   fireball(x, y, radius);
   booms.push({ x, y, r: radius, life: 0.25 });
   addRing(x, y, radius * 1.3, '255,170,90', 4, 0.35);
+  if (decals.length > 30) decals.shift();
+  decals.push({ x, y, r: radius * 0.65, life: 12, max: 12 });
   const dp = Math.hypot(player.x - x, player.y - y);
   if (dp < 800) flash('255,190,120', 0.05 + 0.14 * (1 - dp / 800));
   S.shake = Math.max(S.shake, 7);

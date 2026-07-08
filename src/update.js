@@ -1,8 +1,9 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick } from './core.js';
 import { keys } from './input.js';
-import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, weapons } from './state.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, weapons } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
+import { CHARS } from './gamedata.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
 import { tickWeapons, explode } from './combat.js';
 import { damageEnemy, hurtPlayer, addText, burst, sparks, ghosts } from './effects.js';
@@ -24,6 +25,13 @@ function update(dt) {
     player.x += mx / l * player.speed * dt;
     player.y += my / l * player.speed * dt;
     if (mx) player.face = Math.sign(mx);
+    // image rémanente
+    S.afterT -= dt;
+    if (S.afterT <= 0) {
+      S.afterT = 0.09;
+      if (ghosts.length > 30) ghosts.shift();
+      ghosts.push({ spr: CHARS[session.char].spr, x: player.x, y: player.y, t: 0, kind: 'after', flip: player.face });
+    }
     // poussière de déplacement
     if (Math.random() < 0.55 && particles.length < 500) {
       particles.push({
@@ -86,6 +94,10 @@ function update(dt) {
     if (e.dead) { enemies.splice(i, 1); continue; }
     e.flash = Math.max(0, e.flash - dt);
     e.slowT = Math.max(0, e.slowT - dt);
+    if (e.boss && Math.random() < dt * 10 && particles.length < 600) {
+      const life = rand(0.4, 0.8);
+      particles.push({ type: 'glow', x: e.x + rand(-e.r, e.r), y: e.y + rand(-e.r * 0.5, e.r), vx: rand(-10, 10), vy: -rand(25, 55), life, max: life, rgb: '255,80,60', size: rand(2, 4) });
+    }
     const skipMove = e.final ? bossAI(e, dt) : false;
     if (!skipMove) {
       const esp = e.spd * (e.slowT > 0 ? e.slow : 1);
@@ -215,6 +227,9 @@ function update(dt) {
       const sp = 260 + (player.magnet - d) * 6;
       g.x += (player.x - g.x) / d * sp * dt;
       g.y += (player.y - g.y) / d * sp * dt;
+      if (Math.random() < dt * 14 && particles.length < 600) {
+        particles.push({ type: 'streak', x: g.x, y: g.y, vx: (player.x - g.x) / d * 90, vy: (player.y - g.y) / d * 90, life: 0.18, max: 0.18, rgb: '120,225,255', size: 1.4 });
+      }
     }
     if (d < player.r + 10) {
       gems.splice(i, 1);
@@ -249,6 +264,12 @@ function update(dt) {
     if (ghosts[i].t > 0.22) ghosts.splice(i, 1);
   }
   S.beamT = Math.max(0, (S.beamT || 0) - dt);
+  S.streakT -= dt;
+  if (S.streakT <= 0) S.streak = 0;
+  for (let i = decals.length - 1; i >= 0; i--) {
+    decals[i].life -= dt;
+    if (decals[i].life <= 0) decals.splice(i, 1);
+  }
   S.shake = Math.max(0, S.shake - 40 * dt);
 
   updateHud();

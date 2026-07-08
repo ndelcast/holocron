@@ -20,6 +20,7 @@ function gainXp(v) {
     sparks(player.x, player.y, '255,220,140', 12, 320);
     flash('255,209,102', 0.22);
     S.beamT = 0.7;
+    S.zoomKick = Math.max(S.zoomKick, 0.06);
   }
   if (runtime.pendingLvls > 0 && S.scene === 'play') openLevelUp();
 }
