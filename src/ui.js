@@ -3,9 +3,9 @@ import { S, session } from './state.js';
 import { SPR } from './sprites.js';
 import { CHARS } from './gamedata.js';
 import { LEVELS } from './levels.js';
-import { tone, sfx } from './audio.js';
+import { tone, sfx, toggleMute } from './audio.js';
 import { META, META_STATE, saveMeta, metaLvl, metaCost, updateCreditsUI } from './meta.js';
-import { startGame, resetFrameClock } from './lifecycle.js';
+import { startGame, resetFrameClock, togglePause } from './lifecycle.js';
 
 // ------------------------------ Sélection de personnage ------------------------------
 function buildCharSelect() {
@@ -120,3 +120,12 @@ document.getElementById('menuBtn3').onclick = () => {
 };
 
 export { buildHangar };
+
+// ------------------------------ Contrôles tactiles ------------------------------
+document.getElementById('pauseBtn').onclick = () => togglePause();
+document.getElementById('resumeBtn').onclick = () => togglePause();
+document.getElementById('muteBtn').onclick = function () { this.classList.toggle('off', toggleMute()); };
+if (window.matchMedia('(pointer: coarse)').matches) {
+  document.querySelector('#menu .hint').innerHTML =
+    'Glisse ton pouce sur l\'écran pour te déplacer · attaques automatiques · ⏸ pause et liste des combos';
+}

@@ -29,9 +29,10 @@ const sfx = {
 };
 window.addEventListener('keydown', e => { if (e.code === 'KeyM') muted = !muted; });
 
+function toggleMute() { muted = !muted; return muted; }
 function audioResume() {
   audioInit();
   if (AC && AC.state === 'suspended') AC.resume();
 }
 
-export { tone, sfx, audioResume };
+export { tone, sfx, audioResume, toggleMute };

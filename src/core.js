@@ -2,8 +2,9 @@
 export const canvas = document.getElementById('game');
 export const ctx = canvas.getContext('2d');
 export const view = { w: 0, h: 0, dpr: 1 };
+export const isTouch = window.matchMedia('(pointer: coarse)').matches;
 function resize() {
-  view.dpr = Math.min(window.devicePixelRatio || 1, 2);
+  view.dpr = Math.min(window.devicePixelRatio || 1, isTouch ? 1.5 : 2); // plafond plus bas sur mobile
   view.w = window.innerWidth; view.h = window.innerHeight;
   canvas.width = view.w * view.dpr; canvas.height = view.h * view.dpr;
   ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);

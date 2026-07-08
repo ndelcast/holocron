@@ -2,7 +2,10 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Holocron Survivors</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +22,7 @@
   <div class="corner bl"></div><div class="corner br"></div>
 </div>
 <div id="scanband"></div>
+<div id="joy"><div id="joyStick"></div></div>
 
 <div id="hud">
   <div id="xpbar"><div id="xpfill"></div></div>
@@ -36,6 +40,10 @@
     <div id="hpbar"><div id="hpfill"></div></div>
   </div>
   <div id="weapons"></div>
+  <div id="hudbtns">
+    <button id="pauseBtn" class="hudbtn" aria-label="Pause">⏸</button>
+    <button id="muteBtn" class="hudbtn" aria-label="Son">♪</button>
+  </div>
 </div>
 
 <div id="menu" class="overlay on">
@@ -94,6 +102,7 @@
   <h2>PAUSE</h2>
   <div class="subtitle">Combinaisons d'armes</div>
   <div id="combolist"></div>
+  <button class="holo" id="resumeBtn">REPRENDRE</button>
   <div class="hint"><kbd>P</kbd> pour reprendre</div>
 </div>
 

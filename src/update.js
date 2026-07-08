@@ -1,6 +1,6 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick } from './core.js';
-import { keys } from './input.js';
+import { keys, touch } from './input.js';
 import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, weapons } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
 import { CHARS } from './gamedata.js';
@@ -20,6 +20,7 @@ function update(dt) {
   if (keys.KeyS || keys.ArrowDown) my += 1;
   if (keys.KeyA || keys.ArrowLeft) mx -= 1;
   if (keys.KeyD || keys.ArrowRight) mx += 1;
+  if (touch.active && Math.hypot(touch.dx, touch.dy) > 0.12) { mx = touch.dx; my = touch.dy; }
   if (mx || my) {
     const l = Math.hypot(mx, my);
     player.x += mx / l * player.speed * dt;
