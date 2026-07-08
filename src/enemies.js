@@ -31,8 +31,9 @@ function spawnEnemy(typeId, boss = false) {
     setTimeout(() => bw.classList.remove('on'), 1600);
     return;
   }
+  const skin = (LEVELS[session.level].mobs || {})[typeId] || t.spr;
   enemies.push({
-    type: typeId, spr: t.spr, boss: false,
+    type: typeId, spr: skin, boss: false,
     x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,
     r: t.r, hp: t.hp * hpScale, maxHp: t.hp * hpScale,
     spd: t.spd * rand(0.9, 1.1) * (LEVELS[session.level].spdMult || 1), dmg: t.dmg, xp: t.xp, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,

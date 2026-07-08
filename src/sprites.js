@@ -247,6 +247,174 @@ SPR.palpatine = makeSprite(62, g => {
   g.beginPath(); g.moveTo(-13, 6); g.lineTo(-17, 2); g.moveTo(-13, 6); g.lineTo(-18, 7); g.stroke();
   g.beginPath(); g.moveTo(13, 6); g.lineTo(17, 2); g.moveTo(13, 6); g.lineTo(18, 7); g.stroke();
 });
+// ---- Bestiaire par destination ----
+// Jawa : robe brune, yeux jaunes luisants (Tatooine, basique)
+SPR.jawa = makeSprite(36, g => {
+  glow(g, 15, 'rgba(255,200,80,.12)');
+  g.fillStyle = '#5a4228';
+  g.beginPath(); g.moveTo(-8, 12); g.quadraticCurveTo(-10, -8, 0, -12); g.quadraticCurveTo(10, -8, 8, 12); g.closePath(); g.fill();
+  g.fillStyle = '#6d5232';
+  g.beginPath(); g.arc(0, -7, 6.5, Math.PI * 0.9, Math.PI * 2.1); g.fill();
+  g.fillStyle = '#0a0805';
+  g.beginPath(); g.arc(0, -5.5, 4.6, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#ffd84a';
+  g.beginPath(); g.arc(-2, -6, 1.4, 0, Math.PI * 2); g.arc(2, -6, 1.4, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#3a2c18'; g.lineWidth = 2.4;
+  g.beginPath(); g.moveTo(-7, 0); g.lineTo(7, 6); g.stroke();
+});
+// Tusken : bandelettes sable, yeux cylindriques, bâton gaffi (Tatooine, rapide)
+SPR.tusken = makeSprite(40, g => {
+  g.fillStyle = '#9c8a62';
+  g.beginPath(); g.moveTo(-9, 12); g.quadraticCurveTo(-11, -8, 0, -12); g.quadraticCurveTo(11, -8, 9, 12); g.closePath(); g.fill();
+  g.fillStyle = '#b5a276';
+  g.beginPath(); g.arc(0, -6, 6.5, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#8a7852'; g.lineWidth = 1.2;
+  g.beginPath(); g.moveTo(-5, -9); g.lineTo(5, -7); g.moveTo(-5, -5); g.lineTo(5, -3); g.stroke();
+  g.fillStyle = '#2a2318';
+  g.beginPath(); g.arc(-2.6, -6.5, 1.9, 0, Math.PI * 2); g.arc(2.6, -6.5, 1.9, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#6a5c3a';
+  g.beginPath(); g.arc(-2.6, -6.5, 0.8, 0, Math.PI * 2); g.arc(2.6, -6.5, 0.8, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#5a4a2c'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(9, 10); g.lineTo(13, -10); g.stroke();
+  g.fillStyle = '#3a3020';
+  g.beginPath(); g.moveTo(13, -13); g.lineTo(10.6, -8.6); g.lineTo(15, -9.4); g.closePath(); g.fill();
+});
+// Rodien : peau verte, museau, grands yeux (Tatooine, moyen)
+SPR.rodian = makeSprite(40, g => {
+  g.fillStyle = '#3a4a5c';
+  g.beginPath(); g.moveTo(-9, 12); g.quadraticCurveTo(-11, -6, 0, -9); g.quadraticCurveTo(11, -6, 9, 12); g.closePath(); g.fill();
+  g.fillStyle = '#4a8a4a';
+  g.beginPath(); g.arc(0, -8, 6.2, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#3d7440';
+  g.beginPath(); g.ellipse(0, -4.5, 2.4, 3.4, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#10141c';
+  g.beginPath(); g.ellipse(-3.4, -9.5, 2.6, 3, -0.3, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(3.4, -9.5, 2.6, 3, 0.3, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#4a8a4a'; g.lineWidth = 1.4;
+  g.beginPath(); g.moveTo(-2, -13.5); g.lineTo(-3.4, -16.5); g.moveTo(2, -13.5); g.lineTo(3.4, -16.5); g.stroke();
+  g.fillStyle = '#4a8a4a';
+  g.beginPath(); g.arc(-3.4, -16.5, 1.2, 0, Math.PI * 2); g.arc(3.4, -16.5, 1.2, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#22262c';
+  g.fillRect(6, -1, 6.5, 2.2);
+});
+// Garde gamorréen : porcin vert en armure, hache (Tatooine, tank)
+SPR.gamorrean = makeSprite(52, g => {
+  glow(g, 22, 'rgba(140,190,90,.10)');
+  g.fillStyle = '#5d7a3a';
+  g.beginPath(); g.moveTo(-13, 14); g.quadraticCurveTo(-15, -6, 0, -8); g.quadraticCurveTo(15, -6, 13, 14); g.quadraticCurveTo(0, 17, -13, 14); g.closePath(); g.fill();
+  g.fillStyle = '#4a3a26';
+  g.fillRect(-8, 2, 16, 8);
+  g.fillStyle = '#6d5a3c'; g.fillRect(-8, 2, 16, 2.6);
+  g.fillStyle = '#6d8a48';
+  g.beginPath(); g.ellipse(0, -10, 8, 6.5, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#597539';
+  g.beginPath(); g.ellipse(0, -7.5, 3.6, 2.4, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#31461d';
+  g.beginPath(); g.arc(-1.3, -7.5, 0.7, 0, Math.PI * 2); g.arc(1.3, -7.5, 0.7, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#e8e0c8';
+  g.beginPath(); g.moveTo(-4.5, -6); g.lineTo(-6, -3.4); g.lineTo(-3, -4.6); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(4.5, -6); g.lineTo(6, -3.4); g.lineTo(3, -4.6); g.closePath(); g.fill();
+  g.fillStyle = '#1a1408';
+  g.beginPath(); g.arc(-3.4, -11.5, 1.1, 0, Math.PI * 2); g.arc(3.4, -11.5, 1.1, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#3f3120';
+  g.beginPath(); g.moveTo(-7, -14); g.lineTo(-9, -18); g.lineTo(-5.4, -15.6); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(7, -14); g.lineTo(9, -18); g.lineTo(5.4, -15.6); g.closePath(); g.fill();
+  g.strokeStyle = '#4a3a26'; g.lineWidth = 2.2;
+  g.beginPath(); g.moveTo(11, 12); g.lineTo(16, -8); g.stroke();
+  g.fillStyle = '#9aa4ac';
+  g.beginPath(); g.moveTo(16, -12); g.quadraticCurveTo(21, -8, 16, -4); g.lineTo(14.6, -8); g.closePath(); g.fill();
+});
+// Officier impérial : uniforme gris-vert, casquette (Étoile de la Mort, rapide)
+SPR.officer = makeSprite(40, g => {
+  g.fillStyle = '#4a5248';
+  g.beginPath(); g.moveTo(-8, 12); g.quadraticCurveTo(-10, -6, 0, -8); g.quadraticCurveTo(10, -6, 8, 12); g.closePath(); g.fill();
+  g.fillStyle = '#1a1c1a'; g.fillRect(-8, 4, 16, 2.6);
+  g.fillStyle = '#8a8f8a'; g.fillRect(-1.4, 4, 2.8, 2.6);
+  g.fillStyle = '#e3c9a3';
+  g.beginPath(); g.arc(0, -8, 4.8, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#3d453c';
+  g.beginPath(); g.arc(0, -10.5, 5.4, Math.PI, 0); g.fill();
+  g.fillRect(-5.4, -11, 10.8, 2.2);
+  g.fillStyle = '#c0392b'; g.fillRect(-4, -3, 2.2, 1.4);
+  g.fillStyle = '#2980b9'; g.fillRect(-1.4, -3, 2.2, 1.4);
+});
+// Garde royal : robe écarlate intégrale, pique (Étoile de la Mort, tank)
+SPR.royalguard = makeSprite(52, g => {
+  glow(g, 22, 'rgba(255,60,50,.14)');
+  g.fillStyle = '#8f1d1d';
+  g.beginPath(); g.moveTo(-11, 16); g.quadraticCurveTo(-14, -8, 0, -12); g.quadraticCurveTo(14, -8, 11, 16); g.quadraticCurveTo(0, 19, -11, 16); g.closePath(); g.fill();
+  g.fillStyle = '#a92626';
+  g.beginPath(); g.moveTo(-6, -8); g.quadraticCurveTo(-7, -19, 0, -19.5); g.quadraticCurveTo(7, -19, 6, -8); g.quadraticCurveTo(0, -5.5, -6, -8); g.closePath(); g.fill();
+  g.fillStyle = '#12080a';
+  g.fillRect(-4, -14.5, 8, 2);
+  g.strokeStyle = '#5c5c66'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(10, 14); g.lineTo(14, -14); g.stroke();
+  g.fillStyle = '#8a8f9a';
+  g.fillRect(12.6, -18, 2.6, 5);
+});
+// Snowtrooper : casque à visière fendue, jupe thermique (Hoth, basique)
+SPR.snowtrooper = makeSprite(40, g => {
+  g.fillStyle = '#dfe4e8';
+  g.beginPath(); g.moveTo(-9, 12); g.quadraticCurveTo(-11, -8, 0, -11); g.quadraticCurveTo(11, -8, 9, 12); g.closePath(); g.fill();
+  g.fillStyle = '#c9d1d8';
+  g.beginPath(); g.moveTo(-8, 6); g.lineTo(8, 6); g.lineTo(9.5, 13); g.lineTo(-9.5, 13); g.closePath(); g.fill();
+  g.fillStyle = '#eef2f5';
+  g.beginPath(); g.arc(0, -6.5, 6.4, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#1a2027';
+  g.fillRect(-5, -8, 10, 2.6);
+  g.fillStyle = '#aab4bc';
+  g.fillRect(-8.6, -2, 3, 7);
+});
+// Wampa : bête des neiges, cornes et gueule rouge (Hoth, tank)
+SPR.wampa = makeSprite(54, g => {
+  glow(g, 23, 'rgba(200,230,255,.12)');
+  g.fillStyle = '#e8edf2';
+  g.beginPath(); g.moveTo(-14, 14); g.quadraticCurveTo(-17, -8, 0, -11); g.quadraticCurveTo(17, -8, 14, 14); g.quadraticCurveTo(0, 18, -14, 14); g.closePath(); g.fill();
+  g.strokeStyle = '#cbd6de'; g.lineWidth = 1.4;
+  g.beginPath(); g.moveTo(-10, 2); g.lineTo(-12, 6); g.moveTo(-4, 4); g.lineTo(-5, 8); g.moveTo(6, 3); g.lineTo(8, 7); g.stroke();
+  g.fillStyle = '#f2f6f9';
+  g.beginPath(); g.ellipse(0, -8, 8.5, 7, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#8a7a5c';
+  g.beginPath(); g.moveTo(-6.5, -12); g.lineTo(-11, -17); g.lineTo(-5.5, -14.5); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(6.5, -12); g.lineTo(11, -17); g.lineTo(5.5, -14.5); g.closePath(); g.fill();
+  g.fillStyle = '#2c3a46';
+  g.beginPath(); g.arc(-3, -10, 1.3, 0, Math.PI * 2); g.arc(3, -10, 1.3, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#8f2a2a';
+  g.beginPath(); g.ellipse(0, -4.5, 3.6, 2, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#fff';
+  g.beginPath(); g.moveTo(-2.6, -5.5); g.lineTo(-1.6, -3.6); g.lineTo(-0.6, -5.5); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(0.6, -5.5); g.lineTo(1.6, -3.6); g.lineTo(2.6, -5.5); g.closePath(); g.fill();
+});
+// Scout trooper : visière anguleuse, combinaison sombre (Endor, basique)
+SPR.scout = makeSprite(40, g => {
+  g.fillStyle = '#3a4038';
+  g.beginPath(); g.moveTo(-8, 12); g.quadraticCurveTo(-10, -6, 0, -8); g.quadraticCurveTo(10, -6, 8, 12); g.closePath(); g.fill();
+  g.fillStyle = '#e6eae6';
+  g.fillRect(-6, -3, 12, 6);
+  g.fillStyle = '#eef1ec';
+  g.beginPath(); g.arc(0, -8, 6, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#14181c';
+  g.beginPath(); g.moveTo(-5.4, -9.5); g.lineTo(5.4, -9.5); g.lineTo(3, -5.8); g.lineTo(-3, -5.8); g.closePath(); g.fill();
+  g.fillStyle = '#c9cfc7';
+  g.fillRect(-2.4, -6.2, 4.8, 3);
+});
+// AT-ST : marcheur bipède impérial (Endor, tank)
+SPR.atst = makeSprite(56, g => {
+  glow(g, 24, 'rgba(160,180,200,.10)');
+  g.strokeStyle = '#5c646c'; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(-7, 2); g.lineTo(-10, 9); g.lineTo(-8, 16); g.stroke();
+  g.beginPath(); g.moveTo(7, 2); g.lineTo(10, 9); g.lineTo(8, 16); g.stroke();
+  g.fillStyle = '#4c545c';
+  g.fillRect(-11.5, 15, 7, 2.6); g.fillRect(4.5, 15, 7, 2.6);
+  g.fillStyle = '#6d7680';
+  g.beginPath(); g.moveTo(-11, -14); g.lineTo(11, -14); g.lineTo(13, -4); g.lineTo(9, 2); g.lineTo(-9, 2); g.lineTo(-13, -4); g.closePath(); g.fill();
+  g.fillStyle = '#59626b';
+  g.fillRect(-14.5, -10, 4, 7); g.fillRect(10.5, -10, 4, 7);
+  g.fillStyle = '#14181e';
+  g.fillRect(-7, -11, 5.5, 3.2); g.fillRect(1.5, -11, 5.5, 3.2);
+  g.fillStyle = '#2c3238';
+  g.fillRect(-2.4, 2, 1.8, 5); g.fillRect(0.6, 2, 1.8, 5);
+});
 // Éclats de particule laser (bolt)
 SPR.boltRed = makeSprite(24, g => { glow(g, 11, 'rgba(255,80,60,.5)'); g.fillStyle = '#ffb3a0'; g.fillRect(-1.6, -5, 3.2, 10); });
 SPR.boltCyan = makeSprite(24, g => { glow(g, 11, 'rgba(110,231,255,.5)'); g.fillStyle = '#d8f7ff'; g.fillRect(-1.6, -5, 3.2, 10); });
