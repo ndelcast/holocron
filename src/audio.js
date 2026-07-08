@@ -1,5 +1,4 @@
 // Holocron Survivors — sons synthétisés en WebAudio
-'use strict';
 
 // ------------------------------ Audio (synthétisé) ------------------------------
 let AC = null, muted = false;
@@ -29,3 +28,10 @@ const sfx = {
   throw: () => tone(500, 0.08, 'triangle', 0.03, -220),
 };
 window.addEventListener('keydown', e => { if (e.code === 'KeyM') muted = !muted; });
+
+function audioResume() {
+  audioInit();
+  if (AC && AC.state === 'suspended') AC.resume();
+}
+
+export { tone, sfx, audioResume };

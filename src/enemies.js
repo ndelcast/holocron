@@ -1,5 +1,9 @@
 // Holocron Survivors — types, apparition, IA des boss
-'use strict';
+import { rand, irand, view } from './core.js';
+import { S, player, session, enemies, ebullets, addRing } from './state.js';
+import { LEVELS, BOSSES } from './levels.js';
+import { sfx } from './audio.js';
+import { addText, burst, flash } from './effects.js';
 
 // ------------------------------ Ennemis ------------------------------
 const ETYPES = {
@@ -11,14 +15,14 @@ const ETYPES = {
 function spawnEnemy(typeId, boss = false) {
   const t = ETYPES[typeId] || null;
   const ang = Math.random() * Math.PI * 2;
-  const d = Math.hypot(W, H) / 2 + 60;
+  const d = Math.hypot(view.w, view.h) / 2 + 60;
   const hpScale = 1 + S.time / 30 * 0.16;
   if (boss) {
     enemies.push({
       type: 'sith', spr: 'sith', boss: true,
       x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,
       r: 24, hp: 380 * (1 + S.time / 70), maxHp: 380 * (1 + S.time / 70),
-      spd: 62 * (LEVELS[selectedLevel].spdMult || 1), dmg: 26, xp: 40, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
+      spd: 62 * (LEVELS[session.level].spdMult || 1), dmg: 26, xp: 40, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
     });
     sfx.boss();
     addText(player.x, player.y - 70, 'UN SEIGNEUR SITH APPROCHE', '#ff3b3b', 20, 2.4);
@@ -31,14 +35,14 @@ function spawnEnemy(typeId, boss = false) {
     type: typeId, spr: t.spr, boss: false,
     x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,
     r: t.r, hp: t.hp * hpScale, maxHp: t.hp * hpScale,
-    spd: t.spd * rand(0.9, 1.1) * (LEVELS[selectedLevel].spdMult || 1), dmg: t.dmg, xp: t.xp, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
+    spd: t.spd * rand(0.9, 1.1) * (LEVELS[session.level].spdMult || 1), dmg: t.dmg, xp: t.xp, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
   });
 }
 function spawnFinalBoss() {
-  const bid = LEVELS[selectedLevel].boss;
+  const bid = LEVELS[session.level].boss;
   const B = BOSSES[bid];
   const ang = Math.random() * Math.PI * 2;
-  const d = Math.hypot(W, H) / 2 + 80;
+  const d = Math.hypot(view.w, view.h) / 2 + 80;
   enemies.push({
     type: bid, spr: B.spr, boss: true, final: true,
     x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,
@@ -174,3 +178,5 @@ function pickEnemyType() {
   for (const [id, w] of pool) { roll -= w; if (roll <= 0) return id; }
   return 'trooper';
 }
+
+export { ETYPES, spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType };

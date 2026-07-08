@@ -1,5 +1,11 @@
 // Holocron Survivors — dessin de la scène
-'use strict';
+import { ctx, view, rand, clamp } from './core.js';
+import { SPR } from './sprites.js';
+import { TILE, STAR_LAYERS, stars, nebula } from './background.js';
+import { LEVELS, getGroundTile } from './levels.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, weapons } from './state.js';
+import { WEAPONS, CHARS } from './gamedata.js';
+import { screenFlash, ghosts } from './effects.js';
 
 // ------------------------------ Rendu ------------------------------
 function drawSprite(spr, x, y, scale = 1, flip = 1) {
@@ -14,21 +20,21 @@ function drawSprite(spr, x, y, scale = 1, flip = 1) {
   }
 }
 function render() {
-  const LV = LEVELS[selectedLevel];
+  const LV = LEVELS[session.level];
   const anim = performance.now() / 1000; // horloge d'ambiance (continue même en pause/menu)
   ctx.fillStyle = LV.base;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, view.w, view.h);
 
   const shx = S.shake ? rand(-S.shake, S.shake) * 0.5 : 0;
   const shy = S.shake ? rand(-S.shake, S.shake) * 0.5 : 0;
-  const camX = player.x - W / 2 + shx, camY = player.y - H / 2 + shy;
+  const camX = player.x - view.w / 2 + shx, camY = player.y - view.h / 2 + shy;
 
   if (LV.stars) {
     // nébuleuses + étoiles (tuilées, parallaxe)
     for (const par of [0.12, 0.3]) {
       const ox = -((camX * par) % TILE), oy = -((camY * par) % TILE);
-      for (let ix = -1; ix <= Math.ceil(W / TILE); ix++)
-        for (let iy = -1; iy <= Math.ceil(H / TILE); iy++)
+      for (let ix = -1; ix <= Math.ceil(view.w / TILE); ix++)
+        for (let iy = -1; iy <= Math.ceil(view.h / TILE); iy++)
           ctx.drawImage(nebula, ox + ix * TILE, oy + iy * TILE);
     }
     const now = anim;
@@ -38,8 +44,8 @@ function render() {
       for (const st of stars[li]) {
         let sx = (st.x - camX * L.par) % TILE, sy = (st.y - camY * L.par) % TILE;
         if (sx < 0) sx += TILE; if (sy < 0) sy += TILE;
-        for (let ix = 0; ix * TILE + sx < W + 4; ix++) {
-          for (let iy = 0; iy * TILE + sy < H + 4; iy++) {
+        for (let ix = 0; ix * TILE + sx < view.w + 4; ix++) {
+          for (let iy = 0; iy * TILE + sy < view.h + 4; iy++) {
             ctx.globalAlpha = L.alpha * (0.55 + 0.45 * Math.sin(now * 1.7 + st.tw));
             ctx.fillRect(ix * TILE + sx, iy * TILE + sy, L.size, L.size);
           }
@@ -49,16 +55,16 @@ function render() {
     ctx.globalAlpha = 1;
   } else {
     // sol thématique, défilement 1:1 avec la caméra
-    const tile = getGroundTile(selectedLevel);
+    const tile = getGroundTile(session.level);
     const ox = -(((camX % TILE) + TILE) % TILE), oy = -(((camY % TILE) + TILE) % TILE);
-    for (let ix = 0; ix * TILE + ox < W; ix++)
-      for (let iy = 0; iy * TILE + oy < H; iy++)
+    for (let ix = 0; ix * TILE + ox < view.w; ix++)
+      for (let iy = 0; iy * TILE + oy < view.h; iy++)
         ctx.drawImage(tile, ox + ix * TILE, oy + iy * TILE);
   }
 
   // soleils jumeaux de Tatooine (fixes à l'écran)
-  if (selectedLevel === 'tatooine') {
-    for (const [sx, sy, sr, col] of [[W - 150, 110, 38, '255,236,180'], [W - 240, 64, 22, '255,180,110']]) {
+  if (session.level === 'tatooine') {
+    for (const [sx, sy, sr, col] of [[view.w - 150, 110, 38, '255,236,180'], [view.w - 240, 64, 22, '255,180,110']]) {
       const grd = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 3);
       grd.addColorStop(0, `rgba(${col},.85)`); grd.addColorStop(0.35, `rgba(${col},.28)`); grd.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = grd;
@@ -82,14 +88,14 @@ function render() {
   }
 
   // aura ionique
-  if (ionAura && (S.scene === 'play' || S.scene === 'levelup')) {
+  if (runtime.ionAura && (S.scene === 'play' || S.scene === 'levelup')) {
     ctx.fillStyle = 'rgba(110,231,255,.045)';
-    ctx.beginPath(); ctx.arc(player.x, player.y, ionAura.radius, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(player.x, player.y, runtime.ionAura.radius, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = 'rgba(110,231,255,.35)';
     ctx.lineWidth = 1.5;
     ctx.setLineDash([7, 9]);
     ctx.lineDashOffset = -anim * 40;
-    ctx.beginPath(); ctx.arc(player.x, player.y, ionAura.radius, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(player.x, player.y, runtime.ionAura.radius, 0, Math.PI * 2); ctx.stroke();
     ctx.setLineDash([]);
   }
 
@@ -295,7 +301,7 @@ function render() {
 
   // joueur (clignote si invulnérable)
   if (player.invuln <= 0 || Math.floor(S.time * 18) % 2 === 0) {
-    drawSprite(CHARS[selectedChar].spr, player.x, player.y, 1, player.face);
+    drawSprite(CHARS[session.char].spr, player.x, player.y, 1, player.face);
   }
 
   // traînées lumineuses des projectiles
@@ -450,11 +456,11 @@ function render() {
   // flèche vers le boss final hors champ
   const fb = enemies.find(e => e.final);
   if (fb && S.scene === 'play') {
-    const sx = fb.x - (player.x - W / 2), sy = fb.y - (player.y - H / 2);
-    if (sx < -20 || sx > W + 20 || sy < -20 || sy > H + 20) {
-      const a = Math.atan2(sy - H / 2, sx - W / 2);
-      const ex = clamp(W / 2 + Math.cos(a) * (Math.min(W, H) / 2 - 46), 34, W - 34);
-      const ey = clamp(H / 2 + Math.sin(a) * (Math.min(W, H) / 2 - 46), 34, H - 34);
+    const sx = fb.x - (player.x - view.w / 2), sy = fb.y - (player.y - view.h / 2);
+    if (sx < -20 || sx > view.w + 20 || sy < -20 || sy > view.h + 20) {
+      const a = Math.atan2(sy - view.h / 2, sx - view.w / 2);
+      const ex = clamp(view.w / 2 + Math.cos(a) * (Math.min(view.w, view.h) / 2 - 46), 34, view.w - 34);
+      const ey = clamp(view.h / 2 + Math.sin(a) * (Math.min(view.w, view.h) / 2 - 46), 34, view.h - 34);
       const pulse2 = 0.6 + 0.4 * Math.sin(anim * 7);
       ctx.save();
       ctx.translate(ex, ey);
@@ -466,19 +472,19 @@ function render() {
   }
 
   // météo d'ambiance (espace écran)
-  if (selectedLevel === 'hoth') {
+  if (session.level === 'hoth') {
     ctx.fillStyle = 'rgba(225,240,255,.55)';
     for (let i = 0; i < 70; i++) {
-      const fx = (((i * 137.9 + anim * (14 + (i % 5) * 9) + Math.sin(anim + i) * 8) % W) + W) % W;
-      const fy = (((i * 89.3 + anim * (50 + (i % 7) * 12)) % H) + H) % H;
+      const fx = (((i * 137.9 + anim * (14 + (i % 5) * 9) + Math.sin(anim + i) * 8) % view.w) + view.w) % view.w;
+      const fy = (((i * 89.3 + anim * (50 + (i % 7) * 12)) % view.h) + view.h) % view.h;
       const fs = 1 + (i % 3);
       ctx.fillRect(fx, fy, fs, fs);
     }
-  } else if (selectedLevel === 'endor') {
+  } else if (session.level === 'endor') {
     for (let i = 0; i < 18; i++) {
       const a = 0.2 + 0.4 * (0.5 + 0.5 * Math.sin(anim * 2 + i * 1.7));
-      const fx = (((i * 173.3 + Math.sin(anim * 0.35 + i) * 70) % W) + W) % W;
-      const fy = (((i * 111.7 + Math.cos(anim * 0.3 + i * 2) * 50) % H) + H) % H;
+      const fx = (((i * 173.3 + Math.sin(anim * 0.35 + i) * 70) % view.w) + view.w) % view.w;
+      const fy = (((i * 111.7 + Math.cos(anim * 0.3 + i * 2) * 50) % view.h) + view.h) % view.h;
       ctx.fillStyle = `rgba(190,255,140,${a})`;
       ctx.beginPath(); ctx.arc(fx, fy, 1.8, 0, Math.PI * 2); ctx.fill();
     }
@@ -487,8 +493,8 @@ function render() {
   // poussières en suspension (premier plan, tous niveaux)
   ctx.fillStyle = 'rgba(190,225,255,.10)';
   for (let i = 0; i < 20; i++) {
-    const mx2 = (((i * 211.7 + anim * (6 + (i % 4) * 3)) % (W + 40)) + (W + 40)) % (W + 40) - 20;
-    const my2 = (((i * 149.3 + Math.sin(anim * 0.4 + i) * 30 + anim * 2.5) % (H + 40)) + (H + 40)) % (H + 40) - 20;
+    const mx2 = (((i * 211.7 + anim * (6 + (i % 4) * 3)) % (view.w + 40)) + (view.w + 40)) % (view.w + 40) - 20;
+    const my2 = (((i * 149.3 + Math.sin(anim * 0.4 + i) * 30 + anim * 2.5) % (view.h + 40)) + (view.h + 40)) % (view.h + 40) - 20;
     ctx.beginPath(); ctx.arc(mx2, my2, 1.5 + (i % 3), 0, Math.PI * 2); ctx.fill();
   }
 
@@ -496,7 +502,9 @@ function render() {
   if (screenFlash.a > 0.004) {
     ctx.globalCompositeOperation = 'lighter';
     ctx.fillStyle = `rgba(${screenFlash.rgb},${Math.min(screenFlash.a, 0.6)})`;
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(0, 0, view.w, view.h);
     ctx.globalCompositeOperation = 'source-over';
   }
 }
+
+export { render };

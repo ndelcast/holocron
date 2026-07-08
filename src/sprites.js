@@ -1,5 +1,4 @@
 // Holocron Survivors — sprites dessinés en canvas (héros, ennemis, boss, projectiles)
-'use strict';
 
 // ------------------------------ Sprites pré-rendus ------------------------------
 function makeSprite(size, draw) {
@@ -293,3 +292,5 @@ SPR.drone = makeSprite(30, g => {
   g.fillStyle = '#6ee7ff';
   g.beginPath(); g.arc(0, -1, 1.8, 0, Math.PI * 2); g.fill();
 });
+
+export { SPR };

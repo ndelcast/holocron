@@ -1,5 +1,5 @@
 // Holocron Survivors — crédits, sauvegarde localStorage, hangar (logique)
-'use strict';
+import { S } from './state.js';
 
 // ------------------------------ Méta-progression (crédits persistants) ------------------------------
 const META = {
@@ -38,3 +38,5 @@ function updateCreditsUI() {
   document.getElementById('creditsLabel').textContent = META_STATE.credits;
   document.querySelector('#hangarcredits b').textContent = META_STATE.credits;
 }
+
+export { META, META_STATE, saveMeta, metaLvl, metaCost, bankRewards, updateCreditsUI };

@@ -1,5 +1,11 @@
 // Holocron Survivors — menus : héros, destinations, hangar
-'use strict';
+import { S, session } from './state.js';
+import { SPR } from './sprites.js';
+import { CHARS } from './gamedata.js';
+import { LEVELS } from './levels.js';
+import { tone, sfx } from './audio.js';
+import { META, META_STATE, saveMeta, metaLvl, metaCost, updateCreditsUI } from './meta.js';
+import { startGame, resetFrameClock } from './lifecycle.js';
 
 // ------------------------------ Sélection de personnage ------------------------------
 function buildCharSelect() {
@@ -8,7 +14,7 @@ function buildCharSelect() {
   for (const id in CHARS) {
     const c = CHARS[id];
     const card = document.createElement('div');
-    card.className = 'cchar' + (id === selectedChar ? ' sel' : '');
+    card.className = 'cchar' + (id === session.char ? ' sel' : '');
     const cv = document.createElement('canvas');
     cv.width = cv.height = 58;
     const g = cv.getContext('2d');
@@ -19,7 +25,7 @@ function buildCharSelect() {
     const desc = document.createElement('div'); desc.className = 'cdesc'; desc.innerHTML = c.desc;
     card.appendChild(name); card.appendChild(desc);
     card.onclick = () => {
-      selectedChar = id;
+      session.char = id;
       for (const el2 of document.querySelectorAll('.cchar')) el2.classList.remove('sel');
       card.classList.add('sel');
       tone(700, 0.06, 'sine', 0.03, 200);
@@ -81,10 +87,10 @@ function buildLevelSelect() {
   for (const id in LEVELS) {
     const lv = LEVELS[id];
     const chip = document.createElement('div');
-    chip.className = 'lvlchip' + (id === selectedLevel ? ' sel' : '');
+    chip.className = 'lvlchip' + (id === session.level ? ' sel' : '');
     chip.innerHTML = `<div class="lico">${lv.icon}</div><div class="lname">${lv.name}</div><div class="ldesc">${lv.desc}</div>`;
     chip.onclick = () => {
-      selectedLevel = id;
+      session.level = id;
       for (const el2 of document.querySelectorAll('.lvlchip')) el2.classList.remove('sel');
       chip.classList.add('sel');
       tone(560, 0.06, 'sine', 0.03, 160);
@@ -105,10 +111,12 @@ document.getElementById('continueBtn').onclick = () => {
   document.getElementById('victory').classList.remove('on');
   document.getElementById('hud').classList.add('on');
   S.scene = 'play';
-  lastT = performance.now();
+  resetFrameClock();
 };
 document.getElementById('menuBtn3').onclick = () => {
   document.getElementById('victory').classList.remove('on');
   document.getElementById('menu').classList.add('on');
   S.scene = 'menu';
 };
+
+export { buildHangar };

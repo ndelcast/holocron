@@ -1,5 +1,9 @@
 // Holocron Survivors — tir des armes, explosions
-'use strict';
+import { rand, irand, dist2, angleDiff, pick } from './core.js';
+import { S, player, runtime, enemies, bullets, waves, arcs, grenades, drones, particles, booms, firePools, weapons, addRing } from './state.js';
+import { WEAPONS, activeCombos, weaponLvl } from './gamedata.js';
+import { sfx, tone } from './audio.js';
+import { damageEnemy, burst, sparks, fireball, flash, addText } from './effects.js';
 
 // ------------------------------ Armes : tick ------------------------------
 function nearestEnemy(x, y, maxD = 1e9) {
@@ -37,9 +41,8 @@ function explode(x, y, dmg, radius) {
   // combo Inferno : nappe de feu persistante
   if (activeCombos.has('inferno')) firePools.push({ x, y, r: radius * 0.7, life: 3, tick: 0, dmg: 6 });
 }
-let waveIdCounter = 0;
 function tickWeapons(dt) {
-  ionAura = null;
+  runtime.ionAura = null;
   for (const w of weapons) {
     const def = WEAPONS[w.id];
     const st = def.stats(w.lvl);
@@ -89,7 +92,7 @@ function tickWeapons(dt) {
         if (w.t <= 0 && enemies.length) {
           w.t = st.cd * player.cdMult;
           sfx.wave();
-          waves.push({ x: player.x, y: player.y, r: 20, maxR: st.radius, dmg: st.dmg, id: ++waveIdCounter });
+          waves.push({ x: player.x, y: player.y, r: 20, maxR: st.radius, dmg: st.dmg, id: ++runtime.waveId });
           S.shake = Math.max(S.shake, 5);
         }
         break;
@@ -209,7 +212,7 @@ function tickWeapons(dt) {
         break;
       }
       case 'ion': {
-        ionAura = st;
+        runtime.ionAura = st;
         w.tick = (w.tick || 0) - dt;
         const doTick = w.tick <= 0;
         if (doTick) w.tick = 0.5;
@@ -251,3 +254,5 @@ function tickWeapons(dt) {
     }
   }
 }
+
+export { nearestEnemy, fireBolt, explode, tickWeapons };

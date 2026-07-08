@@ -1,5 +1,5 @@
 // Holocron Survivors — armes, passifs, combos, personnages
-'use strict';
+import { player, weapons } from './state.js';
 
 // ------------------------------ Définition des armes ------------------------------
 const MAXLVL = 6;
@@ -67,7 +67,6 @@ const COMBOS = {
   ionSurge:     { name: 'Surcharge ionique', icon: '💫', parts: ['ion', 'lightning'], desc: 'Les ennemis dans le champ ionique subissent +30 % de dégâts, toutes sources confondues.' },
 };
 const activeCombos = new Set();
-let ionAura = null;
 
 // ------------------------------ Personnages ------------------------------
 const CHARS = {
@@ -76,7 +75,6 @@ const CHARS = {
   mando:    { name: 'MANDALORIEN', spr: 'mando', weapon: 'rocket', hp: 140, speed: 158, r: 14, armor: 0.8, desc: 'Roquettes · armure<br>Dégâts subis -20 %' },
   smuggler: { name: 'CONTREBANDIER', spr: 'smuggler', weapon: 'blaster', hp: 95, speed: 188, r: 13, desc: 'Blaster<br>Dégâts +15 % · véloce', mods: p => { p.dmgMult = 1.15; } },
 };
-let selectedChar = 'jedi';
 const PASSIVES = {
   speed:  { name: 'Bottes de pilote', icon: '👢', tag: 'Passif', max: 5, desc: () => 'Vitesse de déplacement +8 %.', apply: () => { player.speed *= 1.08; } },
   vital:  { name: 'Entraînement Jedi', icon: '💚', tag: 'Passif', max: 5, desc: () => 'PV max +25 et soigne 25 PV.', apply: () => { player.maxHp += 25; player.hp = Math.min(player.maxHp, player.hp + 25); } },
@@ -91,3 +89,5 @@ const PASSIVES = {
 };
 
 function weaponLvl(id) { const w = weapons.find(w => w.id === id); return w ? w.lvl : 0; }
+
+export { MAXLVL, WEAPONS, PASSIVES, COMBOS, CHARS, activeCombos, weaponLvl };

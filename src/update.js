@@ -1,5 +1,14 @@
 // Holocron Survivors — simulation par frame, HUD
-'use strict';
+import { rand, irand, dist2, clamp, pick } from './core.js';
+import { keys } from './input.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, weapons } from './state.js';
+import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
+import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
+import { tickWeapons, explode } from './combat.js';
+import { damageEnemy, hurtPlayer, addText, burst, sparks, ghosts } from './effects.js';
+import { gainXp } from './levelup.js';
+import { sfx } from './audio.js';
+import { endRun } from './lifecycle.js';
 
 // ------------------------------ Boucle principale ------------------------------
 function update(dt) {
@@ -20,7 +29,7 @@ function update(dt) {
       particles.push({
         x: player.x - mx / l * 10 + rand(-5, 5), y: player.y + 10 + rand(-3, 3),
         vx: -mx / l * rand(20, 55) + rand(-12, 12), vy: -my / l * rand(20, 55) - rand(4, 18),
-        life: rand(0.25, 0.5), color: LEVELS[selectedLevel].dust, size: rand(1.5, 3.2),
+        life: rand(0.25, 0.5), color: LEVELS[session.level].dust, size: rand(1.5, 3.2),
       });
     }
   }
@@ -29,7 +38,7 @@ function update(dt) {
 
   // --- spawn
   S.spawnT -= dt;
-  const interval = Math.max(0.16, (1.15 - S.time * 0.0032) * (LEVELS[selectedLevel].spawnMult || 1));
+  const interval = Math.max(0.16, (1.15 - S.time * 0.0032) * (LEVELS[session.level].spawnMult || 1));
   const perSpawn = 1 + Math.floor(S.time / 55);
   if (S.spawnT <= 0 && enemies.length < 230) {
     S.spawnT = interval;
@@ -265,3 +274,5 @@ function updateHud() {
   document.getElementById('hpfill').style.width = clamp(player.hp / player.maxHp * 100, 0, 100) + '%';
   document.getElementById('lowhp').classList.toggle('on', S.scene === 'play' && player.hp / player.maxHp < 0.3);
 }
+
+export { update, updateHud };

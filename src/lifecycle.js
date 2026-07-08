@@ -1,5 +1,14 @@
 // Holocron Survivors — boucle rAF, début/fin de partie, pause
-'use strict';
+import { clamp } from './core.js';
+import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, weapons, passives } from './state.js';
+import { CHARS, activeCombos } from './gamedata.js';
+import { BOSSES } from './levels.js';
+import { metaLvl, bankRewards } from './meta.js';
+import { audioResume, sfx } from './audio.js';
+import { screenFlash, ghosts } from './effects.js';
+import { xpFor, renderWeaponSlots, buildComboList } from './levelup.js';
+import { update, updateHud } from './update.js';
+import { render } from './render.js';
 
 // ------------------------------ Cycle de vie ------------------------------
 let lastT = performance.now();
@@ -17,13 +26,13 @@ requestAnimationFrame(frame);
 
 function resetGame() {
   S.time = 0; S.kills = 0; S.level = 1; S.xp = 0; S.xpNext = xpFor(1);
-  S.spawnT = 0; S.bossT = 90; S.shake = 0; S.paused = false; pendingLevelUps = 0;
+  S.spawnT = 0; S.bossT = 90; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
-  S.freeze = 0; S.beamT = 0; screenFlash.a = 0; ghosts = [];
+  S.freeze = 0; S.beamT = 0; screenFlash.a = 0;
   document.getElementById('levelup').classList.remove('on');
   document.getElementById('paused').classList.remove('on');
   document.getElementById('victory').classList.remove('on');
-  const c = CHARS[selectedChar];
+  const c = CHARS[session.char];
   Object.assign(player, { x: 0, y: 0, hp: c.hp, maxHp: c.hp, speed: c.speed, r: c.r, armor: c.armor || 1, magnet: 90, dmgMult: 1, cdMult: 1, invuln: 0, face: 1, comboWaveCd: 0, regen: 0, xpMult: 1, dodge: 0, crit: 0 });
   if (c.mods) c.mods(player);
   // améliorations permanentes du hangar
@@ -36,17 +45,17 @@ function resetGame() {
   player.xpMult += 0.05 * metaLvl('xp');
   player.armor *= Math.pow(0.96, metaLvl('armor'));
   S.rewarded = false; S.reviveUsed = false;
-  enemies = []; bullets = []; gems = []; particles = []; texts = []; waves = []; arcs = []; drones = []; booms = []; grenades = []; firePools = []; rings = []; ebullets = [];
+  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts]) arr.length = 0;
   activeCombos.clear();
-  ionAura = null;
-  weapons = [{ id: c.weapon, lvl: 1, t: 0, angle: 0 }];
+  runtime.ionAura = null;
+  weapons.length = 0;
+  weapons.push({ id: c.weapon, lvl: 1, t: 0, angle: 0 });
   for (const k in passives) delete passives[k];
   renderWeaponSlots();
   updateHud();
 }
 function startGame() {
-  audioInit();
-  if (AC && AC.state === 'suspended') AC.resume();
+  audioResume();
   resetGame();
   document.getElementById('menu').classList.remove('on');
   document.getElementById('gameover').classList.remove('on');
@@ -107,3 +116,7 @@ function togglePause() {
   document.getElementById('paused').classList.toggle('on', S.paused);
   if (!S.paused) lastT = performance.now();
 }
+
+function resetFrameClock() { lastT = performance.now(); }
+
+export { resetGame, startGame, runStats, victory, endRun, gameOver, togglePause, resetFrameClock };

@@ -1,5 +1,6 @@
 // Holocron Survivors — destinations, boss associés, sols procéduraux
-'use strict';
+import { rand } from './core.js';
+import { TILE } from './background.js';
 
 // ------------------------------ Niveaux ------------------------------
 const RUN_TIME = 1200;        // 20 minutes, fin de partie
@@ -18,7 +19,6 @@ const BOSSES = {
   boba:      { name: 'BOBA FETT', spr: 'boba', hp: 2200, spd: 85, dmg: 26, r: 19, xp: 160 },
   palpatine: { name: 'L\'EMPEREUR', spr: 'palpatine', hp: 2600, spd: 50, dmg: 30, r: 21, xp: 160 },
 };
-let selectedLevel = 'space';
 const groundTiles = {};
 function getGroundTile(id) {
   if (!groundTiles[id]) groundTiles[id] = makeGroundTile(id);
@@ -170,3 +170,5 @@ function makeGroundTile(id) {
   }
   return c;
 }
+
+export { RUN_TIME, FINAL_BOSS_TIME, LEVELS, BOSSES, getGroundTile };

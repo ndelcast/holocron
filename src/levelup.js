@@ -1,23 +1,27 @@
 // Holocron Survivors — expérience, choix d'améliorations, listes UI
-'use strict';
+import { S, player, session, runtime, weapons, passives, addRing } from './state.js';
+import { MAXLVL, WEAPONS, PASSIVES, COMBOS, activeCombos, weaponLvl } from './gamedata.js';
+import { LEVELS } from './levels.js';
+import { sfx } from './audio.js';
+import { addText, burst, sparks, flash } from './effects.js';
+import { resetFrameClock } from './lifecycle.js';
 
 // ------------------------------ Level up ------------------------------
 function xpFor(level) { return Math.floor(8 * Math.pow(1.28, level - 1) + level * 2); }
-let pendingLevelUps = 0;
 function gainXp(v) {
-  S.xp += v * (player.xpMult || 1) * (LEVELS[selectedLevel].xpMult || 1);
+  S.xp += v * (player.xpMult || 1) * (LEVELS[session.level].xpMult || 1);
   while (S.xp >= S.xpNext) {
     S.xp -= S.xpNext;
     S.level++;
     S.xpNext = xpFor(S.level);
-    pendingLevelUps++;
+    runtime.pendingLvls++;
     addRing(player.x, player.y, 240, '255,209,102', 4, 0.6);
     burst(player.x, player.y, '#ffd166', 18, 260);
     sparks(player.x, player.y, '255,220,140', 12, 320);
     flash('255,209,102', 0.22);
     S.beamT = 0.7;
   }
-  if (pendingLevelUps > 0 && S.scene === 'play') openLevelUp();
+  if (runtime.pendingLvls > 0 && S.scene === 'play') openLevelUp();
 }
 function buildChoices() {
   const opts = [];
@@ -73,11 +77,11 @@ function applyChoice(opt) {
   }
   checkCombos();
   renderWeaponSlots();
-  pendingLevelUps = Math.max(0, pendingLevelUps - 1);
-  if (pendingLevelUps > 0) { openLevelUp(); return; } // niveaux en attente
+  runtime.pendingLvls = Math.max(0, runtime.pendingLvls - 1);
+  if (runtime.pendingLvls > 0) { openLevelUp(); return; } // niveaux en attente
   document.getElementById('levelup').classList.remove('on');
   S.scene = 'play';
-  lastT = performance.now(); // évite un gros dt après la pause
+  resetFrameClock(); // évite un gros dt après la pause
 }
 function checkCombos() {
   for (const id in COMBOS) {
@@ -117,3 +121,5 @@ function buildComboList() {
     el.appendChild(div);
   }
 }
+
+export { xpFor, gainXp, openLevelUp, applyChoice, checkCombos, renderWeaponSlots, buildComboList };

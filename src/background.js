@@ -1,5 +1,5 @@
 // Holocron Survivors — champ d'étoiles et nébuleuses
-'use strict';
+import { rand } from './core.js';
 
 // ------------------------------ Fond étoilé ------------------------------
 const STAR_LAYERS = [
@@ -29,3 +29,5 @@ const nebula = (() => {
   }
   return c;
 })();
+
+export { STAR_LAYERS, TILE, stars, nebula };

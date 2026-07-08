@@ -1,5 +1,10 @@
 // Holocron Survivors — particules, anneaux, flashs, dégâts
-'use strict';
+import { rand, dist2, pick } from './core.js';
+import { S, player, session, runtime, enemies, gems, particles, texts, waves, addRing } from './state.js';
+import { WEAPONS, activeCombos, weaponLvl } from './gamedata.js';
+import { sfx } from './audio.js';
+import { metaLvl } from './meta.js';
+import { victory, gameOver } from './lifecycle.js';
 
 // ------------------------------ Effets ------------------------------
 function addText(x, y, str, color = '#fff', size = 13, life = 0.7) {
@@ -37,18 +42,18 @@ function fireball(x, y, r) {
   }
 }
 // flash plein écran (additif), décroît dans frame()
-let screenFlash = { rgb: '255,255,255', a: 0 };
-function flash(rgb, a) { if (a > screenFlash.a) screenFlash = { rgb, a }; }
+const screenFlash = { rgb: '255,255,255', a: 0 };
+function flash(rgb, a) { if (a > screenFlash.a) { screenFlash.rgb = rgb; screenFlash.a = a; } }
 // fantômes lumineux des ennemis abattus
-let ghosts = [];
+const ghosts = [];
 function addGhost(e) {
   if (ghosts.length > 30) ghosts.shift();
   ghosts.push({ spr: e.spr, x: e.x, y: e.y, t: 0 });
 }
 function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
   dmg *= player.dmgMult;
-  if (activeCombos.has('ionSurge') && ionAura &&
-      dist2(e.x, e.y, player.x, player.y) < (ionAura.radius + e.r) * (ionAura.radius + e.r)) dmg *= 1.3;
+  if (activeCombos.has('ionSurge') && runtime.ionAura &&
+      dist2(e.x, e.y, player.x, player.y) < (runtime.ionAura.radius + e.r) * (runtime.ionAura.radius + e.r)) dmg *= 1.3;
   let crit = false;
   if (player.crit > 0 && Math.random() < player.crit) { dmg *= 2; crit = true; }
   e.hp -= dmg;
@@ -105,7 +110,7 @@ function hurtPlayer(dmg) {
   if (activeCombos.has('jediMaster') && player.comboWaveCd <= 0) {
     player.comboWaveCd = 3;
     const wst = WEAPONS.wave.stats(weaponLvl('wave'));
-    waves.push({ x: player.x, y: player.y, r: 20, maxR: wst.radius, dmg: wst.dmg, id: ++waveIdCounter });
+    waves.push({ x: player.x, y: player.y, r: 20, maxR: wst.radius, dmg: wst.dmg, id: ++runtime.waveId });
     sfx.wave();
   }
   if (player.hp <= 0) {
@@ -139,3 +144,5 @@ function dropGems(e) {
     gems.push({ x: e.x + rand(-10, 10), y: e.y + rand(-10, 10), v: g, t: Math.random() * Math.PI * 2 });
   }
 }
+
+export { addText, burst, sparks, fireball, screenFlash, flash, ghosts, addGhost, damageEnemy, hurtPlayer, dropGems };
