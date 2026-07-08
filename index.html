@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holocron Survivors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="vignette"></div>
+<div id="dmgflash"></div>
+<div id="lowhp"></div>
+<div id="bosswarn"></div>
+
+<div id="hud">
+  <div id="xpbar"><div id="xpfill"></div></div>
+  <div id="topline">
+    <span class="stat">ÉLIMINATIONS <b id="kills">0</b></span>
+    <span id="timer">00:00</span>
+    <span class="stat">NIVEAU <b id="lvl">1</b></span>
+  </div>
+  <div id="bossbar">
+    <div id="bossname"></div>
+    <div id="bosshp"><div id="bosshpfill"></div></div>
+  </div>
+  <div id="hpwrap">
+    <div id="lvltag">INTÉGRITÉ</div>
+    <div id="hpbar"><div id="hpfill"></div></div>
+  </div>
+  <div id="weapons"></div>
+</div>
+
+<div id="menu" class="overlay on">
+  <h1 class="title">HOLOCRON<br>SURVIVORS</h1>
+  <div class="subtitle">Survis à l'Empire</div>
+  <p class="crawl">
+    Dernier espoir face à l'Empire, tu es traqué aux confins de la galaxie.
+    Survis <b>20 minutes</b> aux légions impériales. À <b>15:00</b>, le seigneur
+    du secteur viendra en personne. Terrasse-le pour libérer la destination.
+  </p>
+  <div id="creditline">CRÉDITS : <b id="creditsLabel">0</b> ©</div>
+  <button class="holo" id="hangarBtn" style="margin-top:10px; font-size:13px; padding:10px 30px;">HANGAR — AMÉLIORATIONS</button>
+  <div class="sectlabel">CHAMPION</div>
+  <div id="chars"></div>
+  <div class="sectlabel">DESTINATION</div>
+  <div id="levels"></div>
+  <button class="holo" id="startBtn">LANCER LA PARTIE</button>
+  <div class="hint">
+    <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour bouger ·
+    attaques automatiques · <kbd>P</kbd> pause et liste des combos · <kbd>M</kbd> son
+  </div>
+</div>
+
+<div id="levelup" class="overlay">
+  <h2>LA FORCE GRANDIT</h2>
+  <div id="cards"></div>
+</div>
+
+<div id="gameover" class="overlay">
+  <h1 class="title">TERRASSÉ</h1>
+  <div class="subtitle">L'holocron est perdu</div>
+  <div id="gostats"></div>
+  <button class="holo" id="retryBtn">RETENTER SA CHANCE</button>
+  <button class="holo" id="menuBtn" style="margin-top:14px">CHANGER DE HÉROS</button>
+</div>
+
+<div id="hangar" class="overlay">
+  <h2 id="hangartitle">HANGAR</h2>
+  <div class="subtitle">Améliorations permanentes</div>
+  <div id="hangarcredits">CRÉDITS : <b>0</b> ©</div>
+  <div id="metalist"></div>
+  <button class="holo" id="hangarBack">RETOUR</button>
+</div>
+
+<div id="victory" class="overlay">
+  <h1 class="title" id="victtitle">VICTOIRE</h1>
+  <div class="subtitle" id="victsub"></div>
+  <div id="victstats"></div>
+  <button class="holo" id="continueBtn">POURSUIVRE JUSQU'À 20:00</button>
+  <button class="holo" id="menuBtn3" style="margin-top:14px">CHANGER DE DESTINATION</button>
+</div>
+
+<div id="paused" class="overlay">
+  <h2>PAUSE</h2>
+  <div class="subtitle">Combinaisons d'armes</div>
+  <div id="combolist"></div>
+  <div class="hint"><kbd>P</kbd> pour reprendre</div>
+</div>
+
+<div id="scan"></div>
+
+<script src="js/core.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/background.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/input.js"></script>
+<script src="js/state.js"></script>
+<script src="js/gamedata.js"></script>
+<script src="js/meta.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/levelup.js"></script>
+<script src="js/update.js"></script>
+<script src="js/render.js"></script>
+<script src="js/lifecycle.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
