@@ -10,7 +10,7 @@ import { WEAPONS, PASSIVES, CHARS, COMBOS, activeCombos, weaponLvl } from './gam
 import { LEVELS, BOSSES } from './levels.js';
 import { startGame, togglePause, resetGame } from './lifecycle.js';
 import { update, updateHud } from './update.js';
-import { render } from './render.js';
+import { render } from './render-pixi.js';
 import { touch } from './input.js';
 import { spawnEnemy, spawnFinalBoss } from './enemies.js';
 import { checkCombos } from './levelup.js';

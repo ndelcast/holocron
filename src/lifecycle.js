@@ -8,7 +8,7 @@ import { audioResume, sfx } from './audio.js';
 import { screenFlash, ghosts } from './effects.js';
 import { xpFor, renderWeaponSlots, buildComboList } from './levelup.js';
 import { update, updateHud } from './update.js';
-import { render } from './render.js';
+import { render } from './render-pixi.js';
 
 // ------------------------------ Cycle de vie ------------------------------
 // compteur FPS (?fps=1)
