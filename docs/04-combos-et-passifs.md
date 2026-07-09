@@ -14,9 +14,11 @@ coup (arme partagée), les modals s'enchaînent (`runtime.comboQueue`), puis
 la file de level-up reprend. Icône dorée dans le HUD, liste consultable en
 pause.
 
-Chaque combo associe **deux armes du même arsenal** : deux combos par héros.
+Chaque combo associe **deux armes du même arsenal** : trois combos par héros.
 La liste en pause ne montre que les combos accessibles aux arsenaux de
-l'équipe.
+l'équipe. Quatre combos peuvent **évoluer** : leurs deux armes au palier 10
+débloquent une carte de FUSION vers une arme légendaire
+(voir [03-armes.md](03-armes.md)).
 
 | Combo | Héros | Armes requises | Effet |
 |---|---|---|---|
@@ -28,9 +30,14 @@ l'équipe.
 | 💫 Surcharge ionique | Contrebandier | Champ ionique + Arc électrique | +30 % de dégâts (toutes sources) sur les ennemis dans l'aura |
 | 🪓 Guérilla d'Endor | Ewok | Lances + Tambours | Les lances explosent en fin de course (60 % des dégâts/zone du détonateur niv 0) |
 | 🪤 Ruse ewok | Ewok | Fronde + Wisties | Les wisties crachent des rafales de 3 |
+| 🔮 Cœur de kyber | Jedi | Sabre lancé + Éclat kyber | Les sabres lancés explosent en fin de course |
+| 🍯 Essaim furieux | Ewok | Ruche + Tambours | Les explosions laissent une nuée qui pique (3 s) |
+| ✈️ Escadrille de chasse | Mandalorien | Drone traqueur + Gantelet | Les drones traqueurs tirent des rafales de 3 |
+| 🌩️ Onde ionique | Contrebandier | Générateur de choc + Champ ionique | Subir un coup déclenche une onde de choc (3 s max) |
 
-Avec 4 slots d'armes sur un arsenal de 5, les **2 combos du héros** sont
-atteignables dans la même partie (les paires partagent souvent une arme).
+Avec 4 slots d'armes sur un arsenal de 6, **2 des 3 combos du héros** sont
+atteignables dans la même partie (les paires partagent souvent une arme) —
+et une fusion libère un slot pour aller chercher le troisième.
 
 ## Passifs
 

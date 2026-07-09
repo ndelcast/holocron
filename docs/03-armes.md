@@ -4,8 +4,9 @@ Source : `src/gamedata.js` (`WEAPONS`), tir dans `src/combat.js` (`tickWeapons`)
 
 Règles générales :
 
-- Chaque héros possède un **arsenal exclusif de 5 armes** (`CHARS[..].pool`) :
-  seules celles-ci sont proposées à son level-up.
+- Chaque héros possède un **arsenal exclusif de 6 armes** (`CHARS[..].pool`) :
+  seules celles-ci sont proposées à son level-up — plus les **armes évoluées**
+  qu'il possède (voir Évolutions).
 - **4 armes maximum** par partie, **10 niveaux** chacune (`MAXLVL = 10`).
 - Chaque palier est **conséquent** (+20-30 % sur une stat majeure) et tous
   les 3-4 niveaux apporte un **jalon spectaculaire** (lame, tir, droïde,
@@ -19,10 +20,26 @@ Règles générales :
 
 | Héros | Départ | Arsenal |
 |---|---|---|
-| **Jedi** | ⚔️ Sabre laser | 🌀 Onde de Force · ⚡ Éclairs de Force · 🪃 Sabre lancé · 💠 Emprise de la Force |
-| **Ewok** | 🏹 Lances ewoks | 🪨 Fronde · 🧚 Nuée de wisties · 🥁 Tambours de guerre · 🪵 Tronc roulant |
-| **Mandalorien** | 🚀 Roquettes | 🔥 Lance-flammes · 🧤 Laser de gantelet · 🧿 Mines soniques · 🕊️ Oiseaux siffleurs |
-| **Contrebandier** | 🔫 Blaster | 🛰️ Droïde de combat · 💣 Détonateur thermique · 🌐 Champ ionique · 🔌 Arc électrique |
+| **Jedi** | ⚔️ Sabre laser | 🌀 Onde de Force · ⚡ Éclairs de Force · 🪃 Sabre lancé · 💠 Emprise de la Force · 💎 Éclat kyber |
+| **Ewok** | 🏹 Lances ewoks | 🪨 Fronde · 🧚 Nuée de wisties · 🥁 Tambours de guerre · 🪵 Tronc roulant · 🐝 Ruche piquante |
+| **Mandalorien** | 🚀 Roquettes | 🔥 Lance-flammes · 🧤 Laser de gantelet · 🧿 Mines soniques · 🕊️ Oiseaux siffleurs · 🛸 Drone traqueur |
+| **Contrebandier** | 🔫 Blaster | 🛰️ Droïde de combat · 💣 Détonateur thermique · 🌐 Champ ionique · 🔌 Arc électrique · 📡 Générateur de choc |
+
+## Évolutions (fusions)
+
+Quand un **combo est actif** et que ses **deux armes atteignent le palier
+10**, le level-up propose une carte dorée **ÉVOLUTION — FUSION**
+(garantie tant qu'elle n'est pas prise) : les deux armes fondent en une
+**arme légendaire** qui démarre au palier 1 et se réaméliore jusqu'au 10 —
+et libère un slot d'arme. Le combo reste actif. `EVOLUTIONS` dans
+`src/gamedata.js` :
+
+| Héros | Combo (palier 10 + 10) | Arme légendaire |
+|---|---|---|
+| Jedi | ☯️ Voie du Jedi (Sabre + Onde) | ☀️ **Avatar de la Force** — lames géantes (jusqu'à 7) |
+| Ewok | 🪓 Guérilla d'Endor (Lances + Tambours) | 🌳 **Colère de la forêt** — jusqu'à 6 lances explosives |
+| Mandalorien | ☄️ Inferno (Lance-flammes + Roquettes) | 🌋 **Tempête de feu** — jusqu'à 5 roquettes lourdes |
+| Contrebandier | 🛩️ Escadron rogue (Droïde + Blaster) | 🪐 **Escadre rogue** — jusqu'à 7 drones en rafale |
 
 ## Variantes d'arsenal (`type`)
 
@@ -42,6 +59,10 @@ w.id`), avec leurs propres stats :
 | 🧿 Mines soniques (Mando) | `detonator` | 20 dégâts, zone 75, cd 2,5 |
 | 🕊️ Oiseaux siffleurs (Mando) | `spear` | légers (9) et fréquents (1,1) |
 | 🔌 Arc électrique (Contrebandier) | `lightning` | 15 dégâts, cd 2,2, +1 rebond/niv |
+| 💎 Éclat kyber (Jedi) | `rocket` | cristal explosif (17, zone 68) |
+| 🐝 Ruche piquante (Ewok) | `detonator` | 22 dégâts, zone 78 |
+| 🛸 Drone traqueur (Mando) | `drone` | 9 dégâts, cadence 1,05 |
+| 📡 Générateur de choc (Contrebandier) | `wave` | onde 135, cd 4,0 |
 
 ## Les 10 armes de base
 

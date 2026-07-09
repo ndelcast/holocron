@@ -1,9 +1,9 @@
 // Holocron Survivors — expérience, choix d'améliorations, listes UI
 import { S, session, runtime, players, alivePlayers, PLAYER_TINT, addRing, coopSpawnMult } from './state.js';
-import { MAXLVL, WEAPONS, PASSIVES, COMBOS, CHARS, weaponLvl } from './gamedata.js';
+import { MAXLVL, WEAPONS, PASSIVES, COMBOS, EVOLUTIONS, CHARS, weaponLvl } from './gamedata.js';
 import { LEVELS } from './levels.js';
 import { sfx } from './audio.js';
-import { burst, sparks, flash } from './effects.js';
+import { addText, burst, sparks, flash } from './effects.js';
 import { resetFrameClock } from './lifecycle.js';
 import { t } from './i18n.js';
 
@@ -50,6 +50,21 @@ function buildChoices(p) {
     if (lvl === 0 && p.weapons.length >= 4) continue; // 4 armes max par joueur
     if (lvl < MAXLVL) opts.push({ kind: 'weapon', id, lvl });
   }
+  // armes évoluées possédées (hors pool) : toujours améliorables
+  for (const w of p.weapons) {
+    if (CHARS[p.char].pool.includes(w.id)) continue;
+    if (w.lvl < MAXLVL) opts.push({ kind: 'weapon', id: w.id, lvl: w.lvl });
+  }
+  // FUSION : combo actif dont les deux armes sont au palier max → évolution
+  let evo = null;
+  for (const cid in EVOLUTIONS) {
+    if (!p.combos.has(cid)) continue;
+    if (weaponLvl(p, EVOLUTIONS[cid]) > 0) continue;
+    if (COMBOS[cid].parts.every(part => weaponLvl(p, part) >= MAXLVL)) {
+      evo = { kind: 'evolution', id: EVOLUTIONS[cid], combo: cid };
+      break;
+    }
+  }
   for (const id in PASSIVES) {
     const lvl = p.passives[id] || 0;
     if (lvl === 0 && Object.keys(p.passives).length >= 4) continue; // 4 passifs max par joueur
@@ -60,6 +75,7 @@ function buildChoices(p) {
     [opts[i], opts[j]] = [opts[j], opts[i]];
   }
   const out = opts.slice(0, 3);
+  if (evo) out[0] = evo; // la fusion est toujours proposée quand elle est prête
   if (!out.length) out.push({ kind: 'heal' });
   return out;
 }
@@ -97,6 +113,12 @@ function openLevelUp() {
     let icon, name, tag, desc;
     if (opt.kind === 'heal') {
       icon = '✨'; name = t('Sérénité'); tag = t('Bonus'); desc = t('Restaure entièrement tes PV.');
+    } else if (opt.kind === 'evolution') {
+      const d = WEAPONS[opt.id];
+      const [pa, pb] = COMBOS[opt.combo].parts.map(x => t(WEAPONS[x].name));
+      icon = d.icon; name = t(d.name); tag = t('ÉVOLUTION — FUSION');
+      desc = t('Fusionne {0} + {1} en une arme légendaire.', pa, pb);
+      card.classList.add('evo');
     } else if (opt.kind === 'weapon') {
       const d = WEAPONS[opt.id];
       icon = d.icon; name = t(d.name);
@@ -163,6 +185,18 @@ function applyChoice(opt) {
   if (!p) { closeLevelUp(); return; }
   runtime.lvlQueue.shift();
   if (opt.kind === 'heal') p.hp = p.maxHp;
+  else if (opt.kind === 'evolution') {
+    // fusion : les deux armes du combo fondent en une arme légendaire
+    for (const part of COMBOS[opt.combo].parts) {
+      const i = p.weapons.findIndex(w => w.id === part);
+      if (i >= 0) p.weapons.splice(i, 1);
+    }
+    p.weapons.push({ id: opt.id, lvl: 1, t: 0, angle: 0 });
+    addText(p.x, p.y - 50, t('ÉVOLUTION : {0} !', t(WEAPONS[opt.id].name)), '#ffd166', 20, 3);
+    addRing(p.x, p.y, 380, '255,209,102', 6, 1);
+    burst(p.x, p.y, '#ffd166', 30, 380);
+    flash('255,209,102', 0.4);
+  }
   else if (opt.kind === 'weapon') {
     const w = p.weapons.find(w => w.id === opt.id);
     if (w) w.lvl++;

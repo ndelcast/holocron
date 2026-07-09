@@ -42,7 +42,7 @@ function explode(x, y, dmg, radius, owner = null) {
     if (d < radius + e.r) damageEnemy(e, dmg, Math.atan2(e.y - y, e.x - x), e.boss ? 0 : 200, false, owner);
   }
   // combo Inferno : nappe de feu persistante
-  if (owner && owner.combos.has('inferno')) firePools.push({ x, y, r: radius * 0.7, life: 3, tick: 0, dmg: 6, owner: owner.idx });
+  if (owner && (owner.combos.has('inferno') || owner.combos.has('essaim'))) firePools.push({ x, y, r: radius * 0.7, life: 3, tick: 0, dmg: 6, owner: owner.idx });
 }
 function tickWeapons(dt) {
   for (const p of players) p.ionAura = null;
@@ -147,7 +147,7 @@ function tickPlayerWeapons(p, dt) {
             sfx.throw();
             const base = Math.atan2(tgt.y - player.y, tgt.x - player.x);
             // combo Guérilla d'Endor : les lances explosent en fin de course
-            const endor = activeCombos.has('endor');
+            const endor = activeCombos.has('endor') || activeCombos.has('kyberheart'); // lances/sabres explosifs
             let edmg = 0, eradius = 0;
             if (endor) {
               const ds = WEAPONS.detonator.stats(weaponLvl(p, 'detonator'));
@@ -261,7 +261,7 @@ function tickPlayerWeapons(p, dt) {
             if (tgt) {
               dr.t = st.cd * player.cdMult;
               sfx.pew();
-              const burstN = activeCombos.has('squadron') || activeCombos.has('ruse') ? 3 : 1;
+              const burstN = activeCombos.has('squadron') || activeCombos.has('ruse') || activeCombos.has('chasse') ? 3 : 1;
               for (let s = 0; s < burstN; s++) {
                 fireBolt(dr.x, dr.y, tgt.x + rand(-16, 16) * s, tgt.y + rand(-16, 16) * s, st.dmg, 'boltRed', 560, p.idx);
               }

@@ -130,10 +130,11 @@ function hurtPlayer(p, dmg) {
   sparks(p.x, p.y, '255,120,110', 6, 240);
   const fl = document.getElementById('dmgflash');
   fl.style.opacity = 1; setTimeout(() => fl.style.opacity = 0, 90);
-  // combo Voie du Jedi : onde de riposte
-  if (p.combos.has('jediMaster') && p.comboWaveCd <= 0) {
+  // combos Voie du Jedi / Onde ionique : onde de riposte
+  if ((p.combos.has('jediMaster') || p.combos.has('ondeion')) && p.comboWaveCd <= 0) {
     p.comboWaveCd = 3;
-    const wst = WEAPONS.wave.stats(weaponLvl(p, 'wave'));
+    const wid = p.combos.has('jediMaster') ? 'wave' : 'shockwave';
+    const wst = WEAPONS[wid].stats(Math.max(1, weaponLvl(p, wid)));
     waves.push({ x: p.x, y: p.y, r: 20, maxR: wst.radius, dmg: wst.dmg, id: ++runtime.waveId, owner: p.idx });
     sfx.wave();
   }

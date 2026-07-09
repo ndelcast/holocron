@@ -138,6 +138,62 @@ const WEAPONS = {
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(18, 1.2, l), cd: g(2.4, 0.94, l), radius: 70 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
+  kyber: {
+    type: 'rocket', name: 'Éclat kyber', icon: '💎', tag: 'Pouvoir',
+    desc: l => l === 0 ? 'Un cristal instable qui explose en éclats de lumière.'
+      : (l + 1) % 4 === 0 ? 'Éclat supplémentaire !'
+      : 'Zone +12 % · dégâts +20 %',
+    stats: l => ({ dmg: g(17, 1.2, l), cd: g(2.2, 0.94, l), radius: 68 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
+  },
+  hive: {
+    type: 'detonator', name: 'Ruche piquante', icon: '🐝', tag: 'Arme',
+    desc: l => l === 0 ? 'Une ruche lobée qui éclate en essaim vengeur.'
+      : (l + 1) % 4 === 0 ? 'Ruche supplémentaire !'
+      : 'Zone +12 % · dégâts +20 %',
+    stats: l => ({ dmg: g(22, 1.2, l), cd: g(2.7, 0.93, l), radius: 78 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
+  },
+  seeker: {
+    type: 'drone', name: 'Drone traqueur', icon: '🛸', tag: 'Allié',
+    desc: l => l === 0 ? 'Un drone de chasse mandalorien qui traque tes cibles.'
+      : (l + 1) % 3 === 0 ? '+1 drone !'
+      : 'Dégâts +18 % · cadence +9 %',
+    stats: l => ({ dmg: g(9, 1.18, l), cd: g(1.05, 0.91, l), count: 1 + Math.floor(l / 3) }),
+  },
+  shockwave: {
+    type: 'wave', name: 'Générateur de choc', icon: '📡', tag: 'Gadget',
+    desc: l => l === 0 ? 'Une décharge concentrique de contrebande.' : 'Rayon +15 % · dégâts +22 % · recharge -7 %',
+    stats: l => ({ dmg: g(14, 1.22, l), cd: g(4.0, 0.93, l), radius: 135 * (1 + 0.15 * (l - 1)) }),
+  },
+
+  // --- armes évoluées : obtenues par FUSION (combo actif + deux armes au palier max)
+  avatar: {
+    type: 'saber', evolved: true, name: 'Avatar de la Force', icon: '☀️', tag: 'Évolution',
+    desc: l => l === 0 ? 'La Force incarnée : des lames géantes orbitent sans fin.'
+      : (l + 1) % 3 === 0 ? '+1 lame géante !'
+      : 'Dégâts +20 % · taille +10 %',
+    stats: l => ({ dmg: g(40, 1.2, l), len: 200 * (1 + 0.1 * (l - 1)), spd: 5 + l * 0.3, blades: 4 + Math.floor(l / 3) }),
+  },
+  forestwrath: {
+    type: 'spear', evolved: true, name: 'Colère de la forêt', icon: '🌳', tag: 'Évolution',
+    desc: l => l === 0 ? 'La forêt entière se soulève et transperce tout.'
+      : (l + 1) % 3 === 0 ? '+1 lance !'
+      : 'Dégâts +18 % · cadence +6 %',
+    stats: l => ({ dmg: g(45, 1.18, l), cd: g(0.7, 0.94, l), count: 3 + Math.floor(l / 3) }),
+  },
+  firestorm: {
+    type: 'rocket', evolved: true, name: 'Tempête de feu', icon: '🌋', tag: 'Évolution',
+    desc: l => l === 0 ? 'Un déluge de feu qui rase des pans entiers de horde.'
+      : (l + 1) % 3 === 0 ? 'Roquette supplémentaire !'
+      : 'Zone +10 % · dégâts +20 %',
+    stats: l => ({ dmg: g(70, 1.2, l), cd: g(1.4, 0.95, l), radius: 130 * (1 + 0.1 * (l - 1)), count: 2 + Math.floor(l / 3) }),
+  },
+  roguewing: {
+    type: 'drone', evolved: true, name: 'Escadre rogue', icon: '🪐', tag: 'Évolution',
+    desc: l => l === 0 ? 'Une escadre entière en orbite de combat.'
+      : (l + 1) % 3 === 0 ? '+1 drone !'
+      : 'Dégâts +18 % · cadence +6 %',
+    stats: l => ({ dmg: g(30, 1.18, l), cd: g(0.5, 0.94, l), count: 4 + Math.floor(l / 3) }),
+  },
 };
 
 // ------------------------------ Combos d'armes ------------------------------
@@ -151,15 +207,29 @@ const COMBOS = {
   ionSurge:     { name: 'Surcharge ionique', icon: '💫', parts: ['ion', 'taser'], desc: 'Les ennemis dans le champ ionique subissent +30 % de dégâts, toutes sources confondues.' },
   endor:        { name: 'Guérilla d\'Endor', icon: '🪓', parts: ['spear', 'drums'], desc: 'Les lances explosent en fin de course.' },
   ruse:         { name: 'Ruse ewok', icon: '🪤', parts: ['sling', 'wisties'], desc: 'Les wisties crachent des rafales de trois étincelles.' },
+  kyberheart:   { name: 'Cœur de kyber', icon: '🔮', parts: ['throwsaber', 'kyber'], desc: 'Les sabres lancés explosent en fin de course.' },
+  essaim:       { name: 'Essaim furieux', icon: '🍯', parts: ['hive', 'drums'], desc: 'Les explosions laissent une nuée furieuse qui pique pendant 3 s.' },
+  chasse:       { name: 'Escadrille de chasse', icon: '✈️', parts: ['seeker', 'gauntlet'], desc: 'Les drones traqueurs tirent des rafales de trois tirs.' },
+  ondeion:      { name: 'Onde ionique', icon: '🌩️', parts: ['shockwave', 'ion'], desc: 'Subir un coup déclenche une onde de choc vengeresse (toutes les 3 s max).' },
+};
+
+// ------------------------------ Évolutions (fusions) ------------------------------
+// Combo actif + ses deux armes au palier max → carte de FUSION au level-up :
+// les deux armes fondent en une arme légendaire (libère un slot d'arme).
+const EVOLUTIONS = {
+  jediMaster: 'avatar',      // Sabre laser + Onde de Force → Avatar de la Force
+  endor: 'forestwrath',      // Lances + Tambours → Colère de la forêt
+  inferno: 'firestorm',      // Lance-flammes + Roquettes → Tempête de feu
+  squadron: 'roguewing',     // Droïde + Blaster → Escadre rogue
 };
 
 // ------------------------------ Personnages ------------------------------
 // pool : arsenal exclusif du héros — seules ces armes sont proposées au level-up
 const CHARS = {
-  jedi:     { name: 'JEDI', spr: 'player', weapon: 'saber', pool: ['saber', 'wave', 'lightning', 'throwsaber', 'forcegrip'], hp: 100, speed: 175, r: 13, desc: 'Sabre laser<br>Recharge -10 %', mods: p => { p.cdMult = 0.9; } },
-  ewok:     { name: 'EWOK', spr: 'ewok', weapon: 'spear', pool: ['spear', 'sling', 'wisties', 'drums', 'log'], hp: 85, speed: 200, r: 11, desc: 'Lances perforantes<br>Agile · aimant +40 %', mods: p => { p.magnet *= 1.4; } },
-  mando:    { name: 'MANDALORIEN', spr: 'mando', weapon: 'rocket', pool: ['rocket', 'flame', 'gauntlet', 'mines', 'birds'], hp: 140, speed: 158, r: 14, armor: 0.8, desc: 'Roquettes · armure<br>Dégâts subis -20 %' },
-  smuggler: { name: 'CONTREBANDIER', spr: 'smuggler', weapon: 'blaster', pool: ['blaster', 'drone', 'detonator', 'ion', 'taser'], hp: 95, speed: 188, r: 13, desc: 'Blaster<br>Dégâts +15 % · véloce', mods: p => { p.dmgMult = 1.15; } },
+  jedi:     { name: 'JEDI', spr: 'player', weapon: 'saber', pool: ['saber', 'wave', 'lightning', 'throwsaber', 'forcegrip', 'kyber'], hp: 100, speed: 175, r: 13, desc: 'Sabre laser<br>Recharge -10 %', mods: p => { p.cdMult = 0.9; } },
+  ewok:     { name: 'EWOK', spr: 'ewok', weapon: 'spear', pool: ['spear', 'sling', 'wisties', 'drums', 'log', 'hive'], hp: 85, speed: 200, r: 11, desc: 'Lances perforantes<br>Agile · aimant +40 %', mods: p => { p.magnet *= 1.4; } },
+  mando:    { name: 'MANDALORIEN', spr: 'mando', weapon: 'rocket', pool: ['rocket', 'flame', 'gauntlet', 'mines', 'birds', 'seeker'], hp: 140, speed: 158, r: 14, armor: 0.8, desc: 'Roquettes · armure<br>Dégâts subis -20 %' },
+  smuggler: { name: 'CONTREBANDIER', spr: 'smuggler', weapon: 'blaster', pool: ['blaster', 'drone', 'detonator', 'ion', 'taser', 'shockwave'], hp: 95, speed: 188, r: 13, desc: 'Blaster<br>Dégâts +15 % · véloce', mods: p => { p.dmgMult = 1.15; } },
 };
 const PASSIVES = {
   speed:  { name: 'Bottes de pilote', icon: '👢', tag: 'Passif', max: 5, desc: () => 'Vitesse de déplacement +8 %.', apply: p => { p.speed *= 1.08; } },
@@ -197,4 +267,4 @@ const BONUSES = {
   magnet: { rgb: '255,209,102', name: 'AIMANT GALACTIQUE' },
 };
 
-export { MAXLVL, WEAPONS, PASSIVES, COMBOS, CHARS, BONUSES, VEHICLES, weaponLvl };
+export { MAXLVL, WEAPONS, PASSIVES, COMBOS, EVOLUTIONS, CHARS, BONUSES, VEHICLES, weaponLvl };
