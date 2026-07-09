@@ -4,17 +4,20 @@ Source : `src/render.js` ; styles UI dans `src/style.css`.
 
 ## Direction artistique
 
-**Hologramme cartoon** : cyan hologramme (`#6ee7ff`) sur fond spatial
-sombre, or (`#ffd166`) pour le précieux (XP, crédits, victoires), rouge
-(`#ff3b3b`) pour la menace, vert sabre (`#52ff7a`). Scanlines, équerres de
-visée aux coins (arrondies), bande de balayage, flicker holo occasionnel.
+**Comics spatial** (couche « DA v4 » de `style.css`, qui écrase la v3) :
+fond indigo **tramé de points** façon page de BD, panneaux **papier crème**
+(`--paper`) à gros traits d'encre (`--inkline`, 3 px) et **ombres portées
+franches** (offset plein, aucun glow néon), titres en **Bangers** avec
+contour d'encre et ombre décalée, encadrés de narration inclinés (crawl,
+descriptions), boutons pastilles pleines or à socle d'encre, rayons
+d'action en éventail derrière la modal de combo. Accents : or `#ffd166`,
+rouge `--red #ff4954`, violet BD pour les emphases. Typos : Bangers
+(titres), Baloo 2 (UI), Rajdhani (texte courant). Les textes flottants
+en jeu passent en Baloo 2 avec contour d'encre épais (BitmapFont).
+Le chrome holo (scanlines, équerres, balayage) est retiré.
 
-La couche « DA v3 » de `style.css` apporte le ton cartoon : typographie
-**Baloo 2** (remplace Orbitron sur tout le display), coins arrondis à la
-place des découpes `clip-path`, boutons pastilles avec socle 3D qui
-s'enfoncent au clic, cartes qui rebondissent et penchent au survol
-(`popIn`, `wiggle`), titres légèrement inclinés. Rajdhani reste la typo
-de texte courant.
+Historique : v2 = chrome holographique, v3 = rondeurs cartoon (Baloo 2,
+`popIn`, `wiggle` — les animations restent actives sous la v4).
 
 ## Pipeline PixiJS (une frame)
 

@@ -105,12 +105,12 @@ async function init() {
   }
 
   // police bitmap pour les textes flottants (mise à jour bon marché)
-  try { await document.fonts.load('700 32px Rajdhani'); } catch (e) { /* fallback système */ }
+  try { await document.fonts.load('800 32px "Baloo 2"'); } catch (e) { /* fallback système */ }
   BitmapFont.install({
     name: 'holo',
     style: new TextStyle({
-      fontFamily: 'Rajdhani, sans-serif', fontSize: 32, fontWeight: '700',
-      fill: 0xffffff, stroke: { color: 0x04070e, width: 4, join: 'round' },
+      fontFamily: '"Baloo 2", Rajdhani, sans-serif', fontSize: 32, fontWeight: '800',
+      fill: 0xffffff, stroke: { color: 0x120e1c, width: 5, join: 'round' },
     }),
     chars: [['a', 'z'], ['A', 'Z'], ['0', '9'], ' ÉÈÊÀÇÙÔ×—…©%+-:!?/.,\'’´`'],
   });

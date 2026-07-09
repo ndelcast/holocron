@@ -612,3 +612,147 @@ button.holo:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(58,150
   .cfop { font-size: 26px; }
   #combodesc { font-size: 14px; }
 }
+
+
+/* ================================================================
+   DA v4 — comics : panneaux papier, traits d'encre, ombres franches
+   Écrase la v3 : fini le glow néon, place à la BD.
+   ================================================================ */
+:root {
+  --paper: #fff3dc;
+  --paper2: #ffe9c2;
+  --inkline: #1b1430;
+  --inktxt: #241c3a;
+  --red: #ff4954;
+}
+
+/* ---------- Fond : indigo tramé façon page de comics ---------- */
+.overlay {
+  background:
+    radial-gradient(rgba(255,255,255,.055) 1.6px, transparent 1.6px) 0 0 / 22px 22px,
+    radial-gradient(ellipse at 50% 35%, #232048, #12102a 75%);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+#scan, #scanband, #hudchrome { display: none; } /* la trame remplace le chrome holo */
+.sectlabel, #lvltag { animation: none; }
+
+/* ---------- Titres : Bangers, contour d'encre, ombre portée ---------- */
+h1.title {
+  font-family: 'Bangers', 'Baloo 2', sans-serif; font-weight: 400;
+  letter-spacing: .06em;
+  background: none; -webkit-text-fill-color: var(--gold); color: var(--gold);
+  -webkit-text-stroke: 2.5px var(--inkline);
+  filter: none; animation: none;
+  text-shadow: 6px 6px 0 var(--inkline), 12px 12px 0 rgba(0,0,0,.28);
+  transform: rotate(-2.5deg);
+}
+#gameover h1 { -webkit-text-fill-color: var(--red); color: var(--red); text-shadow: 6px 6px 0 var(--inkline); }
+#levelup h2, #paused h2, #hangar h2, #optionstitle, #combotitle {
+  font-family: 'Bangers', 'Baloo 2', sans-serif; font-weight: 400;
+  letter-spacing: .08em; font-size: 40px;
+  -webkit-text-stroke: 1.8px var(--inkline);
+  text-shadow: 4px 4px 0 var(--inkline);
+  animation: none;
+}
+#levelup h2 { color: var(--gold); }
+#combotitle { font-size: clamp(40px, 7vw, 64px); animation: comboPop .5s cubic-bezier(.2, 1.9, .4, 1) backwards; }
+.subtitle { color: #ffd166; text-shadow: 2px 2px 0 var(--inkline); letter-spacing: .22em; }
+
+/* ---------- Encadré de narration (crawl, description de combo) ---------- */
+.crawl, #combodesc {
+  background: var(--paper); color: var(--inktxt);
+  border: 3px solid var(--inkline); border-radius: 14px;
+  box-shadow: 6px 6px 0 rgba(0,0,0,.35);
+  padding: 14px 20px; transform: rotate(-.6deg);
+}
+.crawl b, #combodesc b { color: #8a2be2; }
+
+/* ---------- Panneaux papier : cartes, héros, destinations, salon ---------- */
+.card, .cchar, .lvlchip, .pslot, .combo, .meta, .cf {
+  background: var(--paper);
+  border: 3px solid var(--inkline);
+  box-shadow: 5px 5px 0 rgba(0,0,0,.35);
+}
+.card:nth-child(odd) { transform: rotate(-.8deg); }
+.card:nth-child(even) { transform: rotate(.8deg); }
+.card:hover, .card.sel { transform: translateY(-8px) rotate(-1.2deg) scale(1.04); border-color: var(--inkline); box-shadow: 8px 10px 0 rgba(0,0,0,.35), 0 0 0 4px var(--gold); }
+.card .name, .cchar .cname, .lvlchip .lname, .pslot .pname, .combo .cn, .meta .mn, .cf .cfn { color: var(--inktxt); }
+.card .desc, .cchar .cdesc, .lvlchip .ldesc, .combo .cdesc2, .meta .md, .pslot .phint { color: #5c527a; }
+.card .tag { color: #b05f00; }
+.card .icon { background: var(--paper2); border: 2.5px solid var(--inkline); box-shadow: none; }
+.cchar.sel, .lvlchip.sel { background: var(--paper2); box-shadow: 5px 5px 0 rgba(0,0,0,.35), 0 0 0 4px var(--gold); border-color: var(--inkline); }
+.cchar.sel .cname, .lvlchip.sel .lname { color: #b05f00; }
+.card.evo { background: linear-gradient(180deg, #ffe9a8, #ffd166); border-color: var(--inkline); box-shadow: 5px 5px 0 rgba(0,0,0,.35), 0 0 0 4px var(--red); }
+.card.evo .name { color: #7a2800; }
+.pslot { border-style: solid; background: var(--paper); }
+.pslot.empty { background: rgba(255,243,220,.14); border: 3px dashed rgba(255,243,220,.5); }
+.pslot.empty .pname, .pslot.empty .ptag { color: #cbbfa4; }
+.pslot .ptag { text-shadow: 1px 1px 0 var(--inkline); }
+.combo.locked { opacity: .55; }
+.combo.active { background: var(--paper2); box-shadow: 5px 5px 0 rgba(0,0,0,.35), 0 0 0 3px var(--gold); }
+.combo .req { color: #8a2be2; }
+.meta .pip { background: #d8c9a8; }
+.meta .pip.on { background: var(--red); box-shadow: none; border: 1px solid var(--inkline); }
+
+/* ---------- Boutons : pastilles pleines à l'encre ---------- */
+button.holo {
+  color: var(--inkline); background: var(--gold);
+  border: 3px solid var(--inkline);
+  text-shadow: none; animation: none;
+  box-shadow: 0 6px 0 var(--inkline);
+}
+button.holo::after { display: none; }
+button.holo:hover { background: #ffdf8a; transform: translateY(-2px) rotate(-1deg) scale(1.03); box-shadow: 0 8px 0 var(--inkline); }
+button.holo:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--inkline); }
+.meta button.buy { color: var(--inkline); background: var(--gold); border: 2.5px solid var(--inkline); box-shadow: 0 4px 0 var(--inkline); }
+.meta button.buy:hover:not(:disabled) { background: #ffdf8a; }
+.meta button.buy:disabled { background: #cbbfa4; color: #7a7264; border-color: #7a7264; box-shadow: none; }
+.tchip { color: var(--inktxt); background: var(--paper); border: 2.5px solid var(--inkline); box-shadow: 0 3px 0 var(--inkline); }
+.tchip.sel { background: var(--gold); box-shadow: 0 3px 0 var(--inkline), 0 0 0 3px var(--gold); }
+.gfocus { outline: 4px solid var(--red); outline-offset: 3px; box-shadow: none; border-radius: 18px; }
+
+/* ---------- Modal de combo : explosion de rayons ---------- */
+#combomodal {
+  background:
+    repeating-conic-gradient(from 0deg at 50% 42%, rgba(255,209,102,.14) 0deg 7deg, transparent 7deg 16deg),
+    radial-gradient(rgba(255,255,255,.05) 1.6px, transparent 1.6px) 0 0 / 22px 22px,
+    radial-gradient(ellipse at 50% 42%, #3a2c12, #14102a 78%);
+}
+#combostars { text-shadow: 2px 2px 0 var(--inkline); }
+.cf .cfico { filter: none; }
+.cf.cfres { background: linear-gradient(180deg, #ffe9a8, #ffd166); border-color: var(--inkline); box-shadow: 5px 5px 0 rgba(0,0,0,.35), 0 0 0 4px var(--red); transform: scale(1.12) rotate(1.2deg); }
+.cf.cfres .cfn { color: #7a2800; }
+.cfop { color: var(--paper); -webkit-text-stroke: 1.5px var(--inkline); text-shadow: 3px 3px 0 var(--inkline); }
+#comboOk { border-color: var(--inkline); color: var(--inkline); background: var(--gold); box-shadow: 0 6px 0 var(--inkline); }
+#comboOk:hover { background: #ffdf8a; box-shadow: 0 8px 0 var(--inkline); }
+#comboOk:active { box-shadow: 0 2px 0 var(--inkline); }
+
+/* ---------- HUD : lisible, contours d'encre ---------- */
+#timer { background: var(--paper); color: var(--inktxt); border: 3px solid var(--inkline); border-top: none; text-shadow: none; box-shadow: 0 4px 0 rgba(0,0,0,.3); }
+.stat { color: #efe4c8; text-shadow: 1px 1px 0 var(--inkline); }
+.stat b { color: #ffd166; text-shadow: 1px 1px 0 var(--inkline); }
+#hpbar, .pbar, #bosshp { border: 2.5px solid var(--inkline); background: rgba(20,14,36,.75); box-shadow: 3px 3px 0 rgba(0,0,0,.3); }
+#hpbar::after, .pbar::after { background: repeating-linear-gradient(90deg, transparent 0 21px, rgba(27,20,48,.5) 21px 23px); }
+#lvltag, .plabel { text-shadow: 1px 1px 0 var(--inkline); }
+.wslot { background: var(--paper); border: 2.5px solid var(--inkline); box-shadow: 2px 3px 0 rgba(0,0,0,.3); }
+.wslot small { color: #b05f00; }
+.hudbtn { background: var(--paper); color: var(--inktxt); border: 2.5px solid var(--inkline); box-shadow: 0 3px 0 var(--inkline); }
+#frags { text-shadow: 2px 2px 0 var(--inkline); }
+#xpbar { background: rgba(20,14,36,.7); border-bottom: 2px solid var(--inkline); box-shadow: none; }
+#xpfill { background: linear-gradient(90deg, #ffb03b, var(--gold)); box-shadow: none; }
+#bossname { text-shadow: 2px 2px 0 var(--inkline); }
+
+/* ---------- Divers ---------- */
+.hint kbd { background: var(--paper); color: var(--inktxt); border: 2px solid var(--inkline); box-shadow: 0 2px 0 var(--inkline); }
+.rule { background: linear-gradient(90deg, transparent, rgba(255,209,102,.7), transparent); }
+.rule::after { background: var(--red); box-shadow: none; border: 2px solid var(--inkline); width: 9px; height: 9px; top: -4.5px; }
+#creditline, #hangarcredits { text-shadow: 2px 2px 0 var(--inkline); }
+.optrow input[type=range] { accent-color: var(--red); }
+.optval { text-shadow: 1px 1px 0 var(--inkline); }
+#jumpchips .lvlchip { background: var(--paper); }
+.teamhint, .hint, .legal { color: #a99cc7; }
+#options h2 { color: var(--gold); }
+
+@media (max-width: 640px), (max-height: 520px) {
+  #levelup h2, #paused h2, #hangar h2, #optionstitle { font-size: 28px; }
+}
