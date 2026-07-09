@@ -13,6 +13,7 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 | `gamedata.js` | définitions : armes, passifs, combos, personnages, bonus |
 | `levels.js` | destinations, boss, tuiles de sol procédurales, constantes de temps |
 | `meta.js` | crédits persistants (`localStorage`), coûts du hangar |
+| `i18n.js` | bilingue FR/EN : `t()` traduit à l'affichage (le français reste la source dans le code), textes statiques du menu, langue persistée |
 | `sprites.js` | sprites pré-rendus en canvas (2× pour la netteté) |
 | `background.js` | étoiles, nébuleuses, constante `TILE` (1400) |
 | `audio.js` | sons synthétisés WebAudio (aucun asset) |

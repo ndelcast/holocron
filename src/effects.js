@@ -5,6 +5,7 @@ import { WEAPONS, weaponLvl } from './gamedata.js';
 import { sfx } from './audio.js';
 import { metaLvl } from './meta.js';
 import { victory, gameOver } from './lifecycle.js';
+import { t } from './i18n.js';
 
 // ------------------------------ Effets ------------------------------
 function addText(x, y, str, color = '#fff', size = 13, life = 0.7) {
@@ -71,7 +72,7 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false, owner = n
     const MILESTONES = { 10: 'SÉRIE ×10 !', 25: 'CARNAGE ×25 !', 50: 'MASSACRE ×50 !', 100: 'LÉGENDE ×100 !', 200: 'ÉLU(E) DE LA FORCE ×200 !' };
     if (MILESTONES[S.streak]) {
       const tc = teamCenter();
-      addText(tc.x, tc.y - 95, MILESTONES[S.streak], '#ffd166', 24, 1.6);
+      addText(tc.x, tc.y - 95, t(MILESTONES[S.streak]), '#ffd166', 24, 1.6);
       flash('255,209,102', 0.12);
       S.zoomKick = Math.max(S.zoomKick, 0.05);
       sfx.lvl();
@@ -93,7 +94,7 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false, owner = n
       victory(e);
     } else if (e.boss) {
       for (const pl of alivePlayers()) pl.hp = Math.min(pl.maxHp, pl.hp + 30);
-      addText(e.x, e.y - 30, 'SEIGNEUR SITH VAINCU  +30 PV', '#ffd166', 18, 2);
+      addText(e.x, e.y - 30, t('SEIGNEUR SITH VAINCU  +30 PV'), '#ffd166', 18, 2);
       addRing(e.x, e.y, 340, '255,209,102', 4, 0.9);
       fireball(e.x, e.y, 80);
       flash('255,120,90', 0.28);
@@ -110,7 +111,7 @@ function hurtPlayer(p, dmg) {
   if (!p || p.dead || p.invuln > 0 || S.scene !== 'play') return;
   if (p.dodge > 0 && Math.random() < p.dodge) {
     p.invuln = 0.35;
-    addText(p.x, p.y - 24, 'ESQUIVE', '#6ee7ff', 12);
+    addText(p.x, p.y - 24, t('ESQUIVE'), '#6ee7ff', 12);
     return;
   }
   p.invuln = 0.5;
@@ -135,7 +136,7 @@ function hurtPlayer(p, dmg) {
       p.reviveUsed = true;
       p.hp = p.maxHp * 0.5;
       p.invuln = 2;
-      addText(p.x, p.y - 40, 'LA FORCE VEILLE SUR TOI', '#6ee7ff', 20, 2.5);
+      addText(p.x, p.y - 40, t('LA FORCE VEILLE SUR TOI'), '#6ee7ff', 20, 2.5);
       addRing(p.x, p.y, 320, '110,231,255', 5, 0.8);
       flash('150,230,255', 0.45);
       S.freeze = 0.5;
@@ -151,7 +152,7 @@ function hurtPlayer(p, dmg) {
     p.hp = 0;
     p.dead = true;
     addGhost(p);
-    addText(p.x, p.y - 30, 'JOUEUR ' + (p.idx + 1) + ' À TERRE', '#ff8f6b', 16, 2);
+    addText(p.x, p.y - 30, t('JOUEUR {0} À TERRE', p.idx + 1), '#ff8f6b', 16, 2);
     flash('255,60,50', 0.3);
     if (alivePlayers().length === 0) gameOver();
   }

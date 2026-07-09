@@ -4,6 +4,7 @@ import { S, session, players, nearestPlayer, teamCenter, enemies, ebullets, addR
 import { LEVELS, BOSSES } from './levels.js';
 import { sfx } from './audio.js';
 import { addText, burst, flash } from './effects.js';
+import { t } from './i18n.js';
 
 // ------------------------------ Ennemis ------------------------------
 const ETYPES = {
@@ -12,10 +13,10 @@ const ETYPES = {
   probe:    { spr: 'probe', r: 13, hp: 30, spd: 42, dmg: 11, xp: 3, minT: 110 },
   droideka: { spr: 'droideka', r: 16, hp: 70, spd: 34, dmg: 15, xp: 6, minT: 200 },
 };
-function spawnEnemy(typeId, boss = false) {
-  const t = ETYPES[typeId] || null;
+function spawnEnemy(typeId, boss = false, fixedAng = null) {
+  const et = ETYPES[typeId] || null;
   const tc = teamCenter();
-  const ang = Math.random() * Math.PI * 2;
+  const ang = fixedAng != null ? fixedAng : Math.random() * Math.PI * 2;
   const spawnZoom = session.count > 1 ? Math.min(view.zoom || 1, 0.6) : (view.zoom || 1);
   const d = Math.hypot(view.w, view.h) / (2 * spawnZoom) + 80;
   // PV liés au temps, au niveau d'équipe et au secteur de campagne
@@ -29,18 +30,18 @@ function spawnEnemy(typeId, boss = false) {
       spd: 62 * (LEVELS[session.level].spdMult || 1), dmg: 26, xp: 40, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
     });
     sfx.boss();
-    addText(tc.x, tc.y - 70, 'UN SEIGNEUR SITH APPROCHE', '#ff3b3b', 20, 2.4);
+    addText(tc.x, tc.y - 70, t('UN SEIGNEUR SITH APPROCHE'), '#ff3b3b', 20, 2.4);
     const bw = document.getElementById('bosswarn');
     bw.classList.remove('on'); void bw.offsetWidth; bw.classList.add('on');
     setTimeout(() => bw.classList.remove('on'), 1600);
     return;
   }
-  const skin = (LEVELS[session.level].mobs || {})[typeId] || t.spr;
+  const skin = (LEVELS[session.level].mobs || {})[typeId] || et.spr;
   enemies.push({
     type: typeId, spr: skin, boss: false,
     x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
-    r: t.r, hp: t.hp * hpScale, maxHp: t.hp * hpScale,
-    spd: t.spd * rand(0.9, 1.1) * (LEVELS[session.level].spdMult || 1), dmg: t.dmg, xp: t.xp, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
+    r: et.r, hp: et.hp * hpScale, maxHp: et.hp * hpScale,
+    spd: et.spd * rand(0.9, 1.1) * (LEVELS[session.level].spdMult || 1), dmg: et.dmg, xp: et.xp, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
   });
 }
 function spawnFinalBoss() {
@@ -59,7 +60,7 @@ function spawnFinalBoss() {
     atk1T: 2.5, atk2T: 6, windup: 0, dash: 0, grip: 0,
   });
   sfx.boss();
-  addText(tc.x, tc.y - 70, B.name + ' VOUS DÉFIE', '#ff3b3b', 22, 3);
+  addText(tc.x, tc.y - 70, t('{0} VOUS DÉFIE', t(B.name)), '#ff3b3b', 22, 3);
   flash('255,59,59', 0.4);
   S.freeze = 0.5;
   addRing(tc.x, tc.y, 480, '255,59,59', 5, 1);
@@ -113,7 +114,7 @@ function bossAI(e, dt) {
       if (e.atk2T <= 0) {
         e.atk2T = 9;
         for (let i = 0; i < 4; i++) spawnEnemy(Math.random() < 0.5 ? 'trooper' : 'droid');
-        addText(e.x, e.y - e.r - 16, 'RENFORTS !', '#ffd166', 14, 1.2);
+        addText(e.x, e.y - e.r - 16, t('RENFORTS !'), '#ffd166', 14, 1.2);
       }
       return false;
     }
@@ -127,7 +128,7 @@ function bossAI(e, dt) {
       if (e.atk2T <= 0 && distP < 480 && distP > 130) {
         e.atk2T = 9;
         e.grip = 0.9;
-        addText(player.x, player.y - 32, 'POIGNE DE LA FORCE', '#ff3b3b', 14, 1);
+        addText(player.x, player.y - 32, t('POIGNE DE LA FORCE'), '#ff3b3b', 14, 1);
       }
       if (e.grip > 0) {
         e.grip -= dt;

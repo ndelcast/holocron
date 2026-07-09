@@ -10,6 +10,7 @@ import { damageEnemy, hurtPlayer, addText, burst, sparks, flash, ghosts } from '
 import { gainXp } from './levelup.js';
 import { sfx } from './audio.js';
 import { endRun } from './lifecycle.js';
+import { t } from './i18n.js';
 
 // ------------------------------ Bonus de ravitaillement ------------------------------
 function applyBonus(b, taker) {
@@ -25,23 +26,23 @@ function applyBonus(b, taker) {
           p.dead = false;
           p.hp = p.maxHp * 0.5;
           p.invuln = 2;
-          addText(p.x, p.y - 30, 'RÉANIMÉ !', '#52ff7a', 18, 2);
+          addText(p.x, p.y - 30, t('RÉANIMÉ !'), '#52ff7a', 18, 2);
           addRing(p.x, p.y, 240, '82,255,122', 4, 0.6);
         } else {
           p.hp = Math.min(p.maxHp, p.hp + p.maxHp * 0.4);
         }
       }
-      addText(b.x, b.y - 28, 'BACTA  +40 % PV', '#52ff7a', 18, 1.6);
+      addText(b.x, b.y - 28, t('BACTA  +40 % PV'), '#52ff7a', 18, 1.6);
       break;
     case 'holo':
-      addText(b.x, b.y - 28, 'HOLOCRON : NIVEAU SUPÉRIEUR', '#6ee7ff', 17, 1.8);
+      addText(b.x, b.y - 28, t('HOLOCRON : NIVEAU SUPÉRIEUR'), '#6ee7ff', 17, 1.8);
       gainXp(Math.max(1, S.xpNext - S.xp + 0.5), taker);
       break;
     case 'ion':
       flash('165,130,255', 0.4);
       addRing(b.x, b.y, 700, '165,130,255', 6, 0.8);
       S.shake = Math.max(S.shake, 10);
-      addText(b.x, b.y - 28, 'IMPULSION IONIQUE', '#a582ff', 18, 1.6);
+      addText(b.x, b.y - 28, t('IMPULSION IONIQUE'), '#a582ff', 18, 1.6);
       for (const e of enemies) {
         if (e.dead) continue;
         const d = Math.hypot(e.x - b.x, e.y - b.y);
@@ -49,10 +50,40 @@ function applyBonus(b, taker) {
       }
       break;
     case 'magnet':
-      addText(b.x, b.y - 28, 'AIMANT GALACTIQUE', '#ffd166', 18, 1.6);
+      addText(b.x, b.y - 28, t('AIMANT GALACTIQUE'), '#ffd166', 18, 1.6);
       for (const g of gems) g.mag = true;
       break;
   }
+}
+
+// ------------------------------ Assauts aléatoires ------------------------------
+// Vague-surprise toutes les 40-80 s : encerclement, ruée rapide ou blindés.
+// Taille liée au temps, à la coop et au secteur ; suspendu pendant le duel final.
+function spawnSurge(tc) {
+  const kind = pick(['ring', 'rush', 'heavy']);
+  let n = Math.round((10 + S.time / 60 * 3) * coopSpawnMult() * campaignMult());
+  n = Math.max(6, Math.min(n, 700 - enemies.length));
+  if (n <= 0) return;
+  const base = Math.random() * Math.PI * 2;
+  if (kind === 'ring') {
+    for (let i = 0; i < n; i++) spawnEnemy(pickEnemyType(), false, base + i / n * Math.PI * 2);
+    addText(tc.x, tc.y - 80, t('ENCERCLEMENT !'), '#ff8f6b', 20, 2.2);
+  } else if (kind === 'rush') {
+    for (let i = 0; i < n; i++) spawnEnemy('droid', false, base + rand(-0.35, 0.35));
+    addText(tc.x, tc.y - 80, t('RUÉE DE DROÏDES !'), '#ff8f6b', 20, 2.2);
+  } else {
+    for (let i = 0; i < Math.ceil(n / 2); i++) {
+      const type = S.time >= 200 && Math.random() < 0.5 ? 'droideka' : 'probe';
+      spawnEnemy(type, false, base + rand(-0.6, 0.6));
+    }
+    addText(tc.x, tc.y - 80, t('BLINDÉS EN APPROCHE !'), '#ff8f6b', 20, 2.2);
+  }
+  flash('255,110,60', 0.22);
+  sfx.boss();
+  S.shake = Math.max(S.shake, 8);
+  const bw = document.getElementById('bosswarn');
+  bw.classList.remove('on'); void bw.offsetWidth; bw.classList.add('on');
+  setTimeout(() => bw.classList.remove('on'), 1600);
 }
 
 // ------------------------------ Boucle principale ------------------------------
@@ -128,10 +159,16 @@ function update(dt) {
     if (finalAlive) S.bossT = 15; // pas d'élite pendant le duel final
     else { S.bossT = 90; spawnEnemy(null, true); }
   }
+  // --- assaut aléatoire (voir spawnSurge)
+  S.surgeT -= dt;
+  if (S.surgeT <= 0) {
+    S.surgeT = 40 + Math.random() * 40;
+    if (!finalAlive) spawnSurge(tc0);
+  }
   // boss de fin de niveau et limite de 20 minutes
   if (!S.finalWarn && S.time >= FINAL_BOSS_TIME - 10) {
     S.finalWarn = true;
-    addText(tc0.x, tc0.y - 80, 'UNE PRÉSENCE PUISSANTE APPROCHE…', '#ff8f6b', 16, 3);
+    addText(tc0.x, tc0.y - 80, t('UNE PRÉSENCE PUISSANTE APPROCHE…'), '#ff8f6b', 16, 3);
   }
   if (!S.finalSpawned && S.time >= FINAL_BOSS_TIME) {
     S.finalSpawned = true;
@@ -146,7 +183,7 @@ function update(dt) {
     if (bonuses.length < 3) {
       const a = rand(0, Math.PI * 2), d = rand(700, 1300);
       bonuses.push({ x: tc0.x + Math.cos(a) * d, y: tc0.y + Math.sin(a) * d, type: pick(Object.keys(BONUSES)), t: 0 });
-      addText(tc0.x, tc0.y - 70, 'RAVITAILLEMENT LARGUÉ — SUIS LA BALISE', '#ffd166', 14, 2.4);
+      addText(tc0.x, tc0.y - 70, t('RAVITAILLEMENT LARGUÉ — SUIS LA BALISE'), '#ffd166', 14, 2.4);
       sfx.gem();
     }
   }
@@ -394,7 +431,7 @@ function updateHud() {
   const bb = document.getElementById('bossbar');
   if (fb) {
     bb.style.display = 'block';
-    document.getElementById('bossname').textContent = BOSSES[fb.type].name;
+    document.getElementById('bossname').textContent = t(BOSSES[fb.type].name);
     document.getElementById('bosshpfill').style.width = clamp(fb.hp / fb.maxHp * 100, 0, 100) + '%';
   } else bb.style.display = 'none';
   document.getElementById('kills').textContent = S.kills;
@@ -407,7 +444,7 @@ function updateHud() {
   const rows = document.querySelectorAll('#hpwrap .prow');
   players.forEach((p, i) => {
     if (fills[i]) fills[i].style.width = clamp(p.hp / p.maxHp * 100, 0, 100) + '%';
-    if (nums[i]) nums[i].textContent = p.dead ? 'À TERRE' : Math.max(0, Math.ceil(p.hp)) + ' / ' + Math.round(p.maxHp);
+    if (nums[i]) nums[i].textContent = p.dead ? t('À TERRE') : Math.max(0, Math.ceil(p.hp)) + ' / ' + Math.round(p.maxHp);
     if (rows[i]) rows[i].classList.toggle('dead', !!p.dead);
   });
   const anyLow = alivePlayers().some(p => p.hp / p.maxHp < 0.3);

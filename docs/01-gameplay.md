@@ -44,6 +44,15 @@ La modal de combo se ferme avec A / Entrée.
 
 Les attaques sont **entièrement automatiques** : le seul input est le déplacement.
 
+## Langue
+
+Sélecteur **FR / EN** au menu (`#langsel`), persisté en `localStorage`.
+Le français est la langue source du code ; `src/i18n.js` traduit toutes les
+chaînes au moment de l'affichage (`t()`, repli sur le français si une
+traduction manque). Les textes statiques du menu sont réécrits par
+`applyStatics()`, les menus dynamiques reconstruits au changement de langue,
+et les textes en jeu traduits en direct.
+
 ## Coop local (1 à 4 joueurs)
 
 **Salon au menu** (`session.roster`) : J2-J4 rejoignent en appuyant sur

@@ -7,6 +7,7 @@ import { tone, sfx, toggleMute } from './audio.js';
 import { META, META_STATE, saveMeta, metaLvl, metaCost, updateCreditsUI } from './meta.js';
 import { startGame, resetFrameClock, togglePause } from './lifecycle.js';
 import { startMusic } from './music.js';
+import { t, getLang, setLang, applyStatics } from './i18n.js';
 
 // ------------------------------ Sélection de personnage ------------------------------
 function buildCharSelect() {
@@ -22,8 +23,8 @@ function buildCharSelect() {
     const spr = SPR[c.spr];
     g.drawImage(spr, 0, 0, spr.width, spr.height, 0, 0, 58, 58);
     card.appendChild(cv);
-    const name = document.createElement('div'); name.className = 'cname'; name.textContent = c.name;
-    const desc = document.createElement('div'); desc.className = 'cdesc'; desc.innerHTML = c.desc;
+    const name = document.createElement('div'); name.className = 'cname'; name.textContent = t(c.name);
+    const desc = document.createElement('div'); desc.className = 'cdesc'; desc.innerHTML = t(c.desc);
     card.appendChild(name); card.appendChild(desc);
     card.onclick = () => {
       session.char = id;
@@ -50,10 +51,10 @@ function buildHangar() {
     row.className = 'meta' + (maxed ? ' maxed' : '');
     const pips = Array.from({ length: m.max }, (_, i) => `<div class="pip${i < lvl ? ' on' : ''}"></div>`).join('');
     row.innerHTML = `<div class="mico">${m.icon}</div>
-      <div class="mbody"><div class="mn">${m.name}</div><div class="md">${m.desc}</div><div class="pips">${pips}</div></div>`;
+      <div class="mbody"><div class="mn">${t(m.name)}</div><div class="md">${t(m.desc)}</div><div class="pips">${pips}</div></div>`;
     const btn = document.createElement('button');
     btn.className = 'buy';
-    if (maxed) { btn.textContent = 'MAX'; btn.disabled = true; }
+    if (maxed) { btn.textContent = t('MAX'); btn.disabled = true; }
     else {
       btn.textContent = `${cost} ©`;
       btn.disabled = META_STATE.credits < cost;
@@ -90,7 +91,7 @@ function buildLevelSelect() {
     const lv = LEVELS[id];
     const chip = document.createElement('div');
     chip.className = 'lvlchip' + (id === session.level ? ' sel' : '');
-    chip.innerHTML = `<div class="lico">${lv.icon}</div><div class="lname">${lv.name}</div><div class="ldesc">${lv.desc}</div>`;
+    chip.innerHTML = `<div class="lico">${lv.icon}</div><div class="lname">${t(lv.name)}</div><div class="ldesc">${t(lv.desc)}</div>`;
     chip.onclick = () => {
       session.level = id;
       for (const el2 of document.querySelectorAll('.lvlchip')) el2.classList.remove('sel');
@@ -126,13 +127,13 @@ function buildLobby() {
     if (s) {
       slot.className = 'pslot filled';
       slot.style.borderColor = PLAYER_TINT[i];
-      slot.innerHTML = `<div class="ptag" style="color:${PLAYER_TINT[i]}">J${i + 1} · ${i === 0 ? 'CLAVIER' : 'MANETTE'}</div>` +
-        `<div class="pname">${CHARS[s.char].name}</div>` +
-        `<div class="phint">${i === 0 ? 'héros via CHAMPION ci-dessus' : '◄ ► héros · B quitte'}</div>`;
+      slot.innerHTML = `<div class="ptag" style="color:${PLAYER_TINT[i]}">J${i + 1} · ${i === 0 ? t('CLAVIER') : t('MANETTE')}</div>` +
+        `<div class="pname">${t(CHARS[s.char].name)}</div>` +
+        `<div class="phint">${i === 0 ? t('héros via CHAMPION ci-dessus') : t('◄ ► héros · B quitte')}</div>`;
       slot.insertBefore(heroCanvas(s.char), slot.children[1]);
     } else {
       slot.className = 'pslot empty';
-      slot.innerHTML = `<div class="ptag">J${i + 1}</div><div class="pjoin">🎮</div><div class="pname">APPUIE SUR A</div>`;
+      slot.innerHTML = `<div class="ptag">J${i + 1}</div><div class="pjoin">🎮</div><div class="pname">${t('APPUIE SUR A')}</div>`;
     }
     el.appendChild(slot);
   }
@@ -197,7 +198,27 @@ export { buildHangar };
 document.getElementById('pauseBtn').onclick = () => togglePause();
 document.getElementById('resumeBtn').onclick = () => togglePause();
 document.getElementById('muteBtn').onclick = function () { this.classList.toggle('off', toggleMute()); };
-if (window.matchMedia('(pointer: coarse)').matches) {
-  document.querySelector('#menu .hint').innerHTML =
-    'Glisse ton pouce sur l\'écran pour te déplacer · attaques automatiques · ⏸ pause et liste des combos';
+
+// ------------------------------ Langue (FR / EN) ------------------------------
+// Le français est la langue source ; le dictionnaire i18n traduit à l'affichage.
+function applyLanguage() {
+  applyStatics();
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    document.querySelector('#menu .hint').innerHTML =
+      t('Glisse ton pouce sur l\'écran pour te déplacer · attaques automatiques · ⏸ pause et liste des combos');
+  }
+  document.querySelectorAll('#langsel .tchip').forEach(ch => ch.classList.toggle('sel', ch.dataset.lang === getLang()));
+  buildCharSelect();
+  buildLevelSelect();
+  buildLobby();
+  buildHangar();
+  updateCreditsUI();
 }
+document.querySelectorAll('#langsel .tchip').forEach(ch => {
+  ch.onclick = () => {
+    setLang(ch.dataset.lang);
+    applyLanguage();
+    tone(700, 0.06, 'sine', 0.03, 200);
+  };
+});
+applyLanguage(); // applique la langue persistée au chargement

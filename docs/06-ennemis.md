@@ -29,6 +29,22 @@ déclenche la horde, pour que les armes à 10 paliers aient de quoi faucher.
 - **Plafond** : `min(650 ; 230 + 4×niveau + 40×(joueurs − 1))` ennemis vivants
   simultanément (530 au niveau 75 en solo).
 
+## Assauts aléatoires
+
+Toutes les **40 à 80 s** (tirage aléatoire, timer `S.surgeT`), une
+vague-surprise s'abat sur l'équipe — annonce, flash rouge, secousse,
+son de boss. Trois motifs équiprobables :
+
+| Motif | Annonce | Composition |
+|---|---|---|
+| Encerclement | « ENCERCLEMENT ! » | anneau complet autour de l'équipe, types du tirage courant |
+| Ruée | « RUÉE DE DROÏDES ! » | colonne dense de droïdes rapides depuis une direction |
+| Blindés | « BLINDÉS EN APPROCHE ! » | moitié d'effectif en sondes/droïdekas depuis un arc |
+
+Taille : `(10 + t/60 × 3) × densité coop × pression de secteur`, plafonnée
+pour ne jamais dépasser ~700 ennemis vivants. Suspendu pendant le duel
+contre le boss final (comme l'élite). Premier assaut entre 0:45 et 1:15.
+
 ## Comportement
 
 - Poursuite directe du joueur ; séparation approximative entre voisins

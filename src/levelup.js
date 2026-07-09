@@ -5,6 +5,7 @@ import { LEVELS } from './levels.js';
 import { sfx } from './audio.js';
 import { burst, sparks, flash } from './effects.js';
 import { resetFrameClock } from './lifecycle.js';
+import { t } from './i18n.js';
 
 // ------------------------------ Level up ------------------------------
 // Courbe polynomiale ferme : un choix toutes les ~20-30 s (pas toutes les
@@ -85,7 +86,7 @@ function openLevelUp() {
   S.scene = 'levelup';
   sfx.lvl();
   const h2 = document.querySelector('#levelup h2');
-  h2.textContent = session.count > 1 ? `LA FORCE GRANDIT — JOUEUR ${p.idx + 1}` : 'LA FORCE GRANDIT';
+  h2.textContent = session.count > 1 ? t('LA FORCE GRANDIT — JOUEUR {0}', p.idx + 1) : t('LA FORCE GRANDIT');
   h2.style.color = session.count > 1 ? PLAYER_TINT[p.idx] : '';
   const cardsEl = document.getElementById('cards');
   cardsEl.innerHTML = '';
@@ -95,15 +96,15 @@ function openLevelUp() {
     card.className = 'card';
     let icon, name, tag, desc;
     if (opt.kind === 'heal') {
-      icon = '✨'; name = 'Sérénité'; tag = 'Bonus'; desc = 'Restaure entièrement tes PV.';
+      icon = '✨'; name = t('Sérénité'); tag = t('Bonus'); desc = t('Restaure entièrement tes PV.');
     } else if (opt.kind === 'weapon') {
       const d = WEAPONS[opt.id];
-      icon = d.icon; name = d.name;
-      tag = opt.lvl === 0 ? 'Nouveau — ' + d.tag : d.tag + ' · niv. ' + (opt.lvl + 1);
-      desc = d.desc(opt.lvl);
+      icon = d.icon; name = t(d.name);
+      tag = opt.lvl === 0 ? t('Nouveau — {0}', t(d.tag)) : t('{0} · niv. {1}', t(d.tag), opt.lvl + 1);
+      desc = t(d.desc(opt.lvl));
     } else {
       const d = PASSIVES[opt.id];
-      icon = d.icon; name = d.name; tag = d.tag + ' · niv. ' + (opt.lvl + 1); desc = d.desc();
+      icon = d.icon; name = t(d.name); tag = t('{0} · niv. {1}', t(d.tag), opt.lvl + 1); desc = t(d.desc());
     }
     card.innerHTML = `<div class="icon">${icon}</div><div class="name">${name}</div><div class="tag">${tag}</div><div class="desc">${desc}</div>`;
     card.onclick = () => applyChoice(opt);
@@ -205,18 +206,18 @@ function openComboModal() {
   sfx.lvl();
   document.getElementById('levelup').classList.remove('on');
   const tag = document.getElementById('comboplayer');
-  tag.textContent = session.count > 1 ? `JOUEUR ${pidx + 1}` : '';
+  tag.textContent = session.count > 1 ? t('JOUEUR {0}', pidx + 1) : '';
   tag.style.color = PLAYER_TINT[pidx];
   const [a, b] = c.parts.map(w => WEAPONS[w]);
   document.getElementById('comboformula').innerHTML =
-    `<div class="cf"><div class="cfico">${a.icon}</div><div class="cfn">${a.name}</div></div>
+    `<div class="cf"><div class="cfico">${a.icon}</div><div class="cfn">${t(a.name)}</div></div>
      <div class="cfop">+</div>
-     <div class="cf"><div class="cfico">${b.icon}</div><div class="cfn">${b.name}</div></div>
+     <div class="cf"><div class="cfico">${b.icon}</div><div class="cfn">${t(b.name)}</div></div>
      <div class="cfop">=</div>
-     <div class="cf cfres"><div class="cfico">${c.icon}</div><div class="cfn">${c.name}</div></div>`;
-  document.getElementById('combodesc').textContent = c.desc;
+     <div class="cf cfres"><div class="cfico">${c.icon}</div><div class="cfn">${t(c.name)}</div></div>`;
+  document.getElementById('combodesc').textContent = t(c.desc);
   const ok = document.getElementById('comboOk');
-  ok.textContent = COMBO_CRIES[Math.floor(Math.random() * COMBO_CRIES.length)];
+  ok.textContent = t(COMBO_CRIES[Math.floor(Math.random() * COMBO_CRIES.length)]);
   ok.onclick = closeComboModal;
   document.getElementById('combomodal').classList.add('on');
   addRing(p.x, p.y, 320, '255,209,102', 5, 0.8);
@@ -241,11 +242,11 @@ function renderWeaponSlots() {
     if (session.count > 1) row.style.borderColor = PLAYER_TINT[p.idx];
     for (const w of p.weapons) {
       const d = WEAPONS[w.id];
-      row.innerHTML += `<div class="wslot" title="${d.name}">${d.icon}<small>${w.lvl}</small></div>`;
+      row.innerHTML += `<div class="wslot" title="${t(d.name)}">${d.icon}<small>${w.lvl}</small></div>`;
     }
     for (const id of p.combos) {
       const c = COMBOS[id];
-      row.innerHTML += `<div class="wslot" style="border-color:var(--gold)" title="${c.name}">${c.icon}<small style="color:var(--gold)">✦</small></div>`;
+      row.innerHTML += `<div class="wslot" style="border-color:var(--gold)" title="${t(c.name)}">${c.icon}<small style="color:var(--gold)">✦</small></div>`;
     }
     el.appendChild(row);
   }
@@ -265,11 +266,11 @@ function buildComboList() {
       if (c.parts.some(part => weaponLvl(p, part) > 0)) best = Math.max(best, 1);
     }
     const state = best === 2 ? 'active' : best === 1 ? 'partial' : 'locked';
-    const label = state === 'active' ? 'ACTIF ✦' : state === 'partial' ? '1 / 2' : 'VERROUILLÉ';
-    const req = c.parts.map(part => WEAPONS[part].name).join(' + ');
+    const label = state === 'active' ? t('ACTIF ✦') : state === 'partial' ? '1 / 2' : t('VERROUILLÉ');
+    const req = c.parts.map(part => t(WEAPONS[part].name)).join(' + ');
     const div = document.createElement('div');
     div.className = 'combo ' + state;
-    div.innerHTML = `<div class="cico">${c.icon}</div><div class="cbody"><div class="cn">${c.name}</div><div class="req">${req}</div><div class="cdesc2">${c.desc}</div></div><div class="cstate ${state}">${label}</div>`;
+    div.innerHTML = `<div class="cico">${c.icon}</div><div class="cbody"><div class="cn">${t(c.name)}</div><div class="req">${req}</div><div class="cdesc2">${t(c.desc)}</div></div><div class="cstate ${state}">${label}</div>`;
     el.appendChild(div);
   }
 }

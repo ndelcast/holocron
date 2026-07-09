@@ -9,6 +9,7 @@ import { startMusic, stopMusic } from './music.js';
 import { pollPadPause } from './input.js';
 import { screenFlash, ghosts, addText, flash } from './effects.js';
 import { xpFor, renderWeaponSlots, buildComboList } from './levelup.js';
+import { t } from './i18n.js';
 import { update, updateHud } from './update.js';
 import { render } from './render.js';
 
@@ -77,7 +78,7 @@ function buildHpBars() {
   for (const p of players) {
     const row = document.createElement('div');
     row.className = 'prow';
-    const label = session.count > 1 ? `J${p.idx + 1} · ${CHARS[p.char].name}` : 'INTÉGRITÉ';
+    const label = session.count > 1 ? `J${p.idx + 1} · ${t(CHARS[p.char].name)}` : t('INTÉGRITÉ');
     row.innerHTML = `<div class="plabel" style="color:${PLAYER_TINT[p.idx]}">${label} <span class="pnum"></span></div>
       <div class="pbar"><div class="pfill" style="background:linear-gradient(90deg, #d92b2b, ${PLAYER_TINT[p.idx]})"></div></div>`;
     wrap.appendChild(row);
@@ -86,7 +87,7 @@ function buildHpBars() {
 
 function resetGame() {
   S.time = 0; S.kills = 0; S.level = 1; S.xp = 0; S.xpNext = xpFor(1);
-  S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
+  S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; screenFlash.a = 0;
   S.zoomKick = 0; S.streak = 0; S.streakT = 0; S.afterT = 0; S.bonusT = 12;
@@ -119,11 +120,12 @@ function startGame() {
   lastT = performance.now();
 }
 function runStats() {
-  const t = campaign.prevTime + S.time;
-  const m = Math.floor(t / 60), s = Math.floor(t % 60);
-  return `Temps de campagne : <b>${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}</b><br>` +
-    `Éliminations : <b>${S.kills}</b> · Niveau atteint : <b>${S.level}</b>` +
-    `<br>Fragments d'holocron : <b style="color:var(--gold)">${campaign.fragments.length} / 5</b>`;
+  const total = campaign.prevTime + S.time;
+  const m = Math.floor(total / 60), s = Math.floor(total % 60);
+  const clock = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  return t('Temps de campagne : <b>{0}</b>', clock) + '<br>' +
+    t('Éliminations : <b>{0}</b> · Niveau atteint : <b>{1}</b>', S.kills, S.level) + '<br>' +
+    t('Fragments d\'holocron : <b style="color:var(--gold)">{0} / 5</b>', campaign.fragments.length);
 }
 // propose les secteurs restants sur l'écran de victoire (saut hyperespace)
 function buildJumpChips() {
@@ -138,7 +140,7 @@ function buildJumpChips() {
     const lv = LEVELS[id];
     const chip = document.createElement('div');
     chip.className = 'lvlchip';
-    chip.innerHTML = `<div class="lico">${lv.icon}</div><div class="lname">${lv.name}</div>`;
+    chip.innerHTML = `<div class="lico">${lv.icon}</div><div class="lname">${t(lv.name)}</div>`;
     chip.onclick = () => jumpToSector(id);
     el.appendChild(chip);
   }
@@ -148,7 +150,7 @@ function jumpToSector(levelId) {
   session.level = levelId;
   campaign.sector++;
   campaign.prevTime += S.time;
-  S.time = 0; S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.bonusT = 12;
+  S.time = 0; S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.bonusT = 12;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; S.shake = 0; S.zoomKick = 0; S.streak = 0; S.streakT = 0;
   for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses]) arr.length = 0;
@@ -161,7 +163,7 @@ function jumpToSector(levelId) {
   S.scene = 'play';
   startMusic(levelId);
   flash('110,231,255', 0.5);
-  addText(0, -80, `SECTEUR ${campaign.sector} — ${LEVELS[levelId].name}`, '#6ee7ff', 20, 3);
+  addText(0, -80, t('SECTEUR {0} — {1}', campaign.sector, t(LEVELS[levelId].name)), '#6ee7ff', 20, 3);
   sfx.wave();
   resetFrameClock();
 }
@@ -172,21 +174,21 @@ function victory(boss) {
   if (!campaign.fragments.includes(session.level)) campaign.fragments.push(session.level);
   const c = bankRewards();
   const n = campaign.fragments.length;
-  const stats = runStats() + `<br>Crédits gagnés : <b style="color:var(--gold)">+${c} ©</b>`;
+  const stats = runStats() + '<br>' + t('Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>', c);
   if (n >= 5) {
     // vraie fin : les cinq fragments sont réunis
-    document.getElementById('victtitle').textContent = 'L\'HOLOCRON RENAÎT';
-    document.getElementById('victsub').textContent = 'LES CINQ FRAGMENTS SONT RÉUNIS — LA FORCE REVIENT';
+    document.getElementById('victtitle').textContent = t('L\'HOLOCRON RENAÎT');
+    document.getElementById('victsub').textContent = t('LES CINQ FRAGMENTS SONT RÉUNIS — LA FORCE REVIENT');
     document.getElementById('victstats').innerHTML = stats;
     document.getElementById('continueBtn').style.display = 'none';
     document.getElementById('jumpwrap').style.display = 'none';
-    document.getElementById('menuBtn3').textContent = 'LA LÉGENDE EST ÉCRITE';
+    document.getElementById('menuBtn3').textContent = t('LA LÉGENDE EST ÉCRITE');
   } else {
-    document.getElementById('victtitle').textContent = 'SECTEUR LIBÉRÉ';
-    document.getElementById('victsub').textContent = `${BOSSES[boss.type].name} EST TOMBÉ — FRAGMENT ${n} / 5`;
+    document.getElementById('victtitle').textContent = t('SECTEUR LIBÉRÉ');
+    document.getElementById('victsub').textContent = t('{0} EST TOMBÉ — FRAGMENT {1} / 5', t(BOSSES[boss.type].name), n);
     document.getElementById('victstats').innerHTML = stats;
     document.getElementById('continueBtn').style.display = '';
-    document.getElementById('menuBtn3').textContent = 'ABANDONNER LA ROUTE';
+    document.getElementById('menuBtn3').textContent = t('ABANDONNER LA ROUTE');
     buildJumpChips();
   }
   document.getElementById('victory').classList.add('on');
@@ -198,12 +200,12 @@ function endRun() {
   S.scene = 'victory';
   stopMusic();
   const c = bankRewards();
-  document.getElementById('victtitle').textContent = 'SURVIE ACCOMPLIE';
+  document.getElementById('victtitle').textContent = t('SURVIE ACCOMPLIE');
   document.getElementById('victsub').textContent = S.bossDefeated
-    ? '20 MINUTES — LE SECTEUR EST LIBÉRÉ, LA ROUTE CONTINUE'
-    : '20 MINUTES — MAIS LE SEIGNEUR S\'EST ENFUI AVEC SON FRAGMENT';
+    ? t('20 MINUTES — LE SECTEUR EST LIBÉRÉ, LA ROUTE CONTINUE')
+    : t('20 MINUTES — MAIS LE SEIGNEUR S\'EST ENFUI AVEC SON FRAGMENT');
   document.getElementById('victstats').innerHTML = runStats() +
-    (c > 0 ? `<br>Crédits gagnés : <b style="color:var(--gold)">+${c} ©</b>` : '');
+    (c > 0 ? '<br>' + t('Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>', c) : '');
   document.getElementById('continueBtn').style.display = 'none';
   document.getElementById('menuBtn3').textContent = S.bossDefeated ? 'ABANDONNER LA ROUTE' : 'RETOUR AU MENU';
   buildJumpChips(); // saut possible uniquement si le fragment du secteur est acquis
@@ -218,8 +220,8 @@ function gameOver() {
   const c = bankRewards();
   const n = campaign.fragments.length;
   document.getElementById('gostats').innerHTML = runStats() +
-    (n > 0 ? `<br><span style="color:var(--sith)">Les fragments retournent à l'Empire…</span>` : '') +
-    `<br>Crédits gagnés : <b style="color:var(--gold)">+${c} ©</b>`;
+    (n > 0 ? `<br><span style="color:var(--sith)">${t('Les fragments retournent à l\'Empire…')}</span>` : '') +
+    '<br>' + t('Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>', c);
   document.getElementById('gameover').classList.add('on');
   document.getElementById('hud').classList.remove('on');
   document.getElementById('lowhp').classList.remove('on');

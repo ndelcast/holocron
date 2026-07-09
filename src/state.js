@@ -3,7 +3,7 @@ export const S = {
   scene: 'menu', // menu | play | levelup | combo | victory | gameover
   paused: false,
   time: 0, kills: 0, level: 1, xp: 0, xpNext: 10,
-  spawnT: 0, spawnAcc: 0, bossT: 90, shake: 0, freeze: 0, beamT: 0,
+  spawnT: 0, spawnAcc: 0, bossT: 90, surgeT: 60, shake: 0, freeze: 0, beamT: 0,
   zoomKick: 0, streak: 0, streakT: 0, afterT: 0, bonusT: 12,
   banked: 0, // crédits déjà bancarisés cette campagne (bancarisation incrémentale)
 };

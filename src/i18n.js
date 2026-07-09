@@ -1,0 +1,261 @@
+// Holocron Survivors — bilingue FR/EN
+// Le français reste la langue source dans le code et les données ; t()
+// traduit au moment de l'affichage via le dictionnaire EN (repli : la chaîne
+// FR telle quelle). Les gabarits utilisent {0}, {1}…
+
+let lang = 'fr';
+try { lang = localStorage.getItem('holocron_lang') || 'fr'; } catch (e) { /* stockage indisponible */ }
+
+function getLang() { return lang; }
+function setLang(l) {
+  lang = l === 'en' ? 'en' : 'fr';
+  try { localStorage.setItem('holocron_lang', lang); } catch (e) {}
+}
+
+function t(s, ...args) {
+  let out = lang === 'en' ? (EN[s] ?? s) : s;
+  args.forEach((a, i) => { out = out.replaceAll('{' + i + '}', a); });
+  return out;
+}
+
+const EN = {
+  // ---------- armes : noms ----------
+  'Sabre laser': 'Lightsaber',
+  'Blaster': 'Blaster',
+  'Onde de Force': 'Force Wave',
+  'Éclairs de Force': 'Force Lightning',
+  'Droïde de combat': 'Combat Droid',
+  'Lances ewoks': 'Ewok Spears',
+  'Roquettes': 'Rockets',
+  'Détonateur thermique': 'Thermal Detonator',
+  'Lance-flammes': 'Flamethrower',
+  'Champ ionique': 'Ion Field',
+  'Sabre lancé': 'Saber Throw',
+  'Emprise de la Force': 'Force Grip',
+  'Arc électrique': 'Electric Arc',
+  'Laser de gantelet': 'Gauntlet Laser',
+  'Mines soniques': 'Sonic Mines',
+  'Oiseaux siffleurs': 'Whistling Birds',
+  'Fronde': 'Sling',
+  'Nuée de wisties': 'Wistie Swarm',
+  'Tambours de guerre': 'War Drums',
+  'Tronc roulant': 'Rolling Log',
+  // ---------- armes : intros ----------
+  'Une lame verte orbite autour de toi.': 'A green blade orbits around you.',
+  'Tire automatiquement sur l\'ennemi le plus proche.': 'Automatically shoots the nearest enemy.',
+  'Repousse et blesse tout autour de toi.': 'Knocks back and damages everything around you.',
+  'Foudroie un ennemi et se propage en chaîne.': 'Strikes an enemy and chains onward.',
+  'Un droïde orbite et mitraille tes ennemis.': 'A droid orbits and guns down your enemies.',
+  'Lance perforante qui traverse les rangs.': 'Piercing spear that cuts through the ranks.',
+  'Roquette qui explose en zone.': 'Rocket with an area blast.',
+  'Lobe une grenade qui explose en zone.': 'Lobs a grenade with an area blast.',
+  'Cône de feu soutenu vers l\'ennemi le plus proche.': 'Sustained cone of fire toward the nearest enemy.',
+  'Aura permanente qui électrocute et ralentit.': 'Permanent aura that shocks and slows.',
+  'Ta lame perce les rangs et file droit.': 'Your blade pierces the ranks, flying straight.',
+  'Une emprise qui broie et ralentit tout autour de toi.': 'A grip that crushes and slows everything around you.',
+  'Un arc de contrebande qui saute d\'ennemi en ennemi.': 'A smuggled arc that jumps from foe to foe.',
+  'Tir rapide monté au poignet.': 'Rapid wrist-mounted fire.',
+  'Charge lobée qui explose en zone.': 'Lobbed charge with an area blast.',
+  'Micro-missiles qui percent les rangs.': 'Micro-missiles that pierce the ranks.',
+  'Des pierres bien senties sur l\'ennemi le plus proche.': 'Well-aimed stones at the nearest enemy.',
+  'Des lucioles qui harcèlent tes ennemis.': 'Fireflies that harass your enemies.',
+  'Un roulement qui repousse et assomme la horde.': 'A drumroll that knocks back and staggers the horde.',
+  'Un tronc dévale et éclate en échardes.': 'A log barrels down and bursts into splinters.',
+  // ---------- armes : paliers ----------
+  'Taille +25 % · dégâts +22 %': 'Size +25% · damage +22%',
+  'Dégâts +18 % · cadence +8 %': 'Damage +18% · fire rate +8%',
+  'Dégâts +18 % · cadence +9 %': 'Damage +18% · fire rate +9%',
+  'Rayon +15 % · dégâts +22 % · recharge -7 %': 'Radius +15% · damage +22% · cooldown -7%',
+  '+1 rebond · dégâts +18 %': '+1 bounce · damage +18%',
+  'Zone +12 % · dégâts +20 %': 'Area +12% · damage +20%',
+  'Portée +13 % · durée +8 % · dégâts +19 %': 'Range +13% · duration +8% · damage +19%',
+  'Rayon +13 % · dégâts +20 % · ralentissement renforcé': 'Radius +13% · damage +20% · stronger slow',
+  'Rayon +13 % · dégâts +20 % · emprise renforcée': 'Radius +13% · damage +20% · stronger grip',
+  'Seconde lame !': 'Second blade!',
+  'Troisième lame !': 'Third blade!',
+  'Quatrième lame !': 'Fourth blade!',
+  'Tir double !': 'Double shot!',
+  'Tir triple !': 'Triple shot!',
+  'Tir quadruple !': 'Quadruple shot!',
+  'Second droïde !': 'Second droid!',
+  'Troisième droïde !': 'Third droid!',
+  'Quatrième droïde !': 'Fourth droid!',
+  'Seconde lance !': 'Second spear!',
+  'Troisième lance !': 'Third spear!',
+  'Quatrième lance !': 'Fourth spear!',
+  'Second sabre !': 'Second saber!',
+  'Troisième sabre !': 'Third saber!',
+  'Quatrième sabre !': 'Fourth saber!',
+  'Pierre double !': 'Double stone!',
+  'Pierre triple !': 'Triple stone!',
+  'Pierre quadruple !': 'Quadruple stone!',
+  'Roquette supplémentaire !': 'Extra rocket!',
+  'Grenade supplémentaire !': 'Extra grenade!',
+  'Mine supplémentaire !': 'Extra mine!',
+  'Tronc supplémentaire !': 'Extra log!',
+  '+1 oiseau !': '+1 bird!',
+  '+1 wistie !': '+1 wistie!',
+  // ---------- tags et cartes ----------
+  'Arme': 'Weapon', 'Pouvoir': 'Power', 'Allié': 'Ally', 'Gadget': 'Gadget', 'Passif': 'Passive', 'Bonus': 'Bonus',
+  'Nouveau — {0}': 'New — {0}',
+  '{0} · niv. {1}': '{0} · lvl {1}',
+  'Sérénité': 'Serenity',
+  'Restaure entièrement tes PV.': 'Fully restores your HP.',
+  'LA FORCE GRANDIT': 'THE FORCE GROWS',
+  'LA FORCE GRANDIT — JOUEUR {0}': 'THE FORCE GROWS — PLAYER {0}',
+  // ---------- passifs ----------
+  'Bottes de pilote': 'Pilot Boots', 'Vitesse de déplacement +8 %.': 'Movement speed +8%.',
+  'Entraînement Jedi': 'Jedi Training', 'PV max +25 et soigne 25 PV.': 'Max HP +25 and heals 25 HP.',
+  'Cristal Kyber': 'Kyber Crystal', 'Rayon d\'attraction des fragments +30 %.': 'Crystal pickup radius +30%.',
+  'Colère maîtrisée': 'Controlled Anger', 'Tous les dégâts +12 %.': 'All damage +12%.',
+  'Méditation': 'Meditation', 'Recharge de toutes les armes -8 %.': 'All weapon cooldowns -8%.',
+  'Champ déflecteur': 'Deflector Shield', 'Dégâts subis -7 %.': 'Damage taken -7%.',
+  'Bacta portatif': 'Portable Bacta', 'Régénère 0,6 PV par seconde.': 'Regenerates 0.6 HP per second.',
+  'Fortune du contrebandier': 'Smuggler\'s Luck', 'Expérience gagnée +10 %.': 'Experience gained +10%.',
+  'Réflexes de pilote': 'Pilot Reflexes', 'Chance d\'esquiver un coup +8 %.': 'Chance to dodge a hit +8%.',
+  'Visée assistée': 'Assisted Aim', 'Chance de coup critique +8 % (dégâts ×2).': 'Critical hit chance +8% (damage ×2).',
+  // ---------- combos ----------
+  'Voie du Jedi': 'Way of the Jedi',
+  'Subir un coup déclenche une onde de Force vengeresse (toutes les 3 s max).': 'Taking a hit unleashes a vengeful Force wave (every 3s max).',
+  'Tempête de Force': 'Force Storm',
+  'Les éclairs gagnent +3 rebonds et ralentissent les ennemis foudroyés.': 'Lightning gains +3 bounces and slows struck enemies.',
+  'Chasseur de primes': 'Bounty Hunter',
+  'Chaque tir du gantelet a 20 % de chance de partir avec une roquette.': 'Each gauntlet shot has a 20% chance to fire a rocket too.',
+  'Inferno': 'Inferno',
+  'Les explosions laissent une nappe de feu qui brûle pendant 3 s.': 'Explosions leave a pool of fire burning for 3s.',
+  'Escadron rogue': 'Rogue Squadron',
+  'Les droïdes tirent des rafales de trois tirs.': 'Droids fire three-shot bursts.',
+  'Surcharge ionique': 'Ion Surge',
+  'Les ennemis dans le champ ionique subissent +30 % de dégâts, toutes sources confondues.': 'Enemies inside the ion field take +30% damage from all sources.',
+  'Guérilla d\'Endor': 'Endor Guerrilla',
+  'Les lances explosent en fin de course.': 'Spears explode at the end of their flight.',
+  'Ruse ewok': 'Ewok Trickery',
+  'Les wisties crachent des rafales de trois étincelles.': 'Wisties spit three-spark bursts.',
+  'COMBO : {0}': 'COMBO: {0}',
+  'JOUEUR {0}': 'PLAYER {0}',
+  'ACTIF ✦': 'ACTIVE ✦', 'VERROUILLÉ': 'LOCKED',
+  'LA CLASSE !': 'SO COOL!', 'TROP FORT !': 'TOO STRONG!',
+  'LA FORCE EST AVEC MOI !': 'THE FORCE IS WITH ME!', 'INARRÊTABLE !': 'UNSTOPPABLE!',
+  // ---------- héros ----------
+  'JEDI': 'JEDI', 'EWOK': 'EWOK', 'MANDALORIEN': 'MANDALORIAN', 'CONTREBANDIER': 'SMUGGLER',
+  'Sabre laser<br>Recharge -10 %': 'Lightsaber<br>Cooldowns -10%',
+  'Lances perforantes<br>Agile · aimant +40 %': 'Piercing spears<br>Agile · magnet +40%',
+  'Roquettes · armure<br>Dégâts subis -20 %': 'Rockets · armor<br>Damage taken -20%',
+  'Blaster<br>Dégâts +15 % · véloce': 'Blaster<br>Damage +15% · swift',
+  // ---------- destinations et boss ----------
+  'ESPACE PROFOND': 'DEEP SPACE', 'TATOOINE': 'TATOOINE', 'ÉTOILE DE LA MORT': 'DEATH STAR', 'HOTH': 'HOTH', 'ENDOR': 'ENDOR',
+  'Conditions standard.<br>Boss : Dark Maul': 'Standard conditions.<br>Boss: Darth Maul',
+  'Ennemis +10 % rapides.<br>Boss : Jabba le Hutt': 'Enemies +10% faster.<br>Boss: Jabba the Hutt',
+  'Vagues +15 % denses.<br>Boss : Dark Vador': 'Waves +15% denser.<br>Boss: Darth Vader',
+  'Ennemis ralentis de 10 %.<br>Boss : Boba Fett': 'Enemies 10% slower.<br>Boss: Boba Fett',
+  'Expérience +15 %.<br>Boss : l\'Empereur': 'Experience +15%.<br>Boss: the Emperor',
+  'DARK MAUL': 'DARTH MAUL', 'JABBA LE HUTT': 'JABBA THE HUTT', 'DARK VADOR': 'DARTH VADER',
+  'BOBA FETT': 'BOBA FETT', 'L\'EMPEREUR': 'THE EMPEROR',
+  // ---------- hangar ----------
+  'Coque renforcée': 'Reinforced Hull', '+12 PV max par niveau': '+12 max HP per level',
+  'Cristaux surcadencés': 'Overclocked Crystals', '+4 % de dégâts par niveau': '+4% damage per level',
+  'Servomoteurs': 'Servomotors', '+3 % de vitesse par niveau': '+3% speed per level',
+  'Collecteur magnétique': 'Magnetic Collector', '+12 % de rayon d\'aimant par niveau': '+12% magnet radius per level',
+  'Condensateurs': 'Capacitors', '-3 % de recharge par niveau': '-3% cooldown per level',
+  'Mémoire d\'holocron': 'Holocron Memory', '+5 % d\'expérience par niveau': '+5% experience per level',
+  'Plaques de beskar': 'Beskar Plates', '-4 % de dégâts subis par niveau': '-4% damage taken per level',
+  'Contacts au cartel': 'Cartel Contacts', '+10 % de crédits gagnés par niveau': '+10% credits earned per level',
+  'Esprit de la Force': 'Force Spirit', 'Résurrection à 50 % des PV, une fois par partie': 'Revive at 50% HP, once per run',
+  // ---------- textes en jeu ----------
+  'SÉRIE ×10 !': 'STREAK ×10!', 'CARNAGE ×25 !': 'CARNAGE ×25!', 'MASSACRE ×50 !': 'MASSACRE ×50!',
+  'LÉGENDE ×100 !': 'LEGEND ×100!', 'ÉLU(E) DE LA FORCE ×200 !': 'CHOSEN ONE ×200!',
+  'SEIGNEUR SITH VAINCU  +30 PV': 'SITH LORD DEFEATED  +30 HP',
+  'ESQUIVE': 'DODGE',
+  'LA FORCE VEILLE SUR TOI': 'THE FORCE WATCHES OVER YOU',
+  'JOUEUR {0} À TERRE': 'PLAYER {0} DOWN',
+  'À TERRE': 'DOWN',
+  'INTÉGRITÉ': 'INTEGRITY',
+  'UN SEIGNEUR SITH APPROCHE': 'A SITH LORD APPROACHES',
+  '{0} VOUS DÉFIE': '{0} CHALLENGES YOU',
+  'RENFORTS !': 'REINFORCEMENTS!',
+  'POIGNE DE LA FORCE': 'FORCE GRIP',
+  'RÉANIMÉ !': 'REVIVED!',
+  'BACTA  +40 % PV': 'BACTA  +40% HP',
+  'HOLOCRON : NIVEAU SUPÉRIEUR': 'HOLOCRON: LEVEL UP',
+  'IMPULSION IONIQUE': 'ION PULSE',
+  'AIMANT GALACTIQUE': 'GALACTIC MAGNET',
+  'UNE PRÉSENCE PUISSANTE APPROCHE…': 'A POWERFUL PRESENCE APPROACHES…',
+  'ENCERCLEMENT !': 'SURROUNDED!',
+  'RUÉE DE DROÏDES !': 'DROID RUSH!',
+  'BLINDÉS EN APPROCHE !': 'HEAVIES INCOMING!',
+  'RAVITAILLEMENT LARGUÉ — SUIS LA BALISE': 'SUPPLY DROP — FOLLOW THE BEACON',
+  'SECTEUR {0} — {1}': 'SECTOR {0} — {1}',
+  // ---------- écrans de fin ----------
+  'L\'HOLOCRON RENAÎT': 'THE HOLOCRON REBORN',
+  'LES CINQ FRAGMENTS SONT RÉUNIS — LA FORCE REVIENT': 'ALL FIVE FRAGMENTS UNITED — THE FORCE RETURNS',
+  'LA LÉGENDE EST ÉCRITE': 'THE LEGEND IS WRITTEN',
+  'SECTEUR LIBÉRÉ': 'SECTOR LIBERATED',
+  '{0} EST TOMBÉ — FRAGMENT {1} / 5': '{0} HAS FALLEN — FRAGMENT {1} / 5',
+  'ABANDONNER LA ROUTE': 'ABANDON THE ROUTE',
+  'RETOUR AU MENU': 'BACK TO MENU',
+  'SURVIE ACCOMPLIE': 'SURVIVAL COMPLETE',
+  '20 MINUTES — LE SECTEUR EST LIBÉRÉ, LA ROUTE CONTINUE': '20 MINUTES — SECTOR LIBERATED, THE ROUTE GOES ON',
+  '20 MINUTES — MAIS LE SEIGNEUR S\'EST ENFUI AVEC SON FRAGMENT': '20 MINUTES — BUT THE LORD FLED WITH HIS FRAGMENT',
+  'Temps de campagne : <b>{0}</b>': 'Campaign time: <b>{0}</b>',
+  'Éliminations : <b>{0}</b> · Niveau atteint : <b>{1}</b>': 'Kills: <b>{0}</b> · Level reached: <b>{1}</b>',
+  'Fragments d\'holocron : <b style="color:var(--gold)">{0} / 5</b>': 'Holocron fragments: <b style="color:var(--gold)">{0} / 5</b>',
+  'Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>': 'Credits earned: <b style="color:var(--gold)">+{0} ©</b>',
+  'Les fragments retournent à l\'Empire…': 'The fragments return to the Empire…',
+  // ---------- salon ----------
+  'CLAVIER': 'KEYBOARD', 'MANETTE': 'GAMEPAD',
+  'héros via CHAMPION ci-dessus': 'hero via CHAMPION above',
+  'Glisse ton pouce sur l\'écran pour te déplacer · attaques automatiques · ⏸ pause et liste des combos': 'Slide your thumb on the screen to move · attacks are automatic · ⏸ pause and combo list',
+  '◄ ► héros · B quitte': '◄ ► hero · B to leave',
+  'APPUIE SUR A': 'PRESS A',
+  'MAX': 'MAX',
+};
+
+// ---------- textes statiques du menu et des overlays ----------
+// La source FR vit ici aussi : applyStatics() écrit la langue courante.
+const STATICS = [
+  ['#menu .tagline', 'IL Y A BIEN LONGTEMPS, DANS UNE GALAXIE LOINTAINE…', 'A LONG TIME AGO, IN A GALAXY FAR, FAR AWAY…'],
+  ['#menu .subtitle', 'Survis à l\'Empire', 'Survive the Empire'],
+  ['#menu .crawl',
+    'L\'Empire a brisé le <b>dernier holocron Jedi</b> en cinq fragments, confiés aux seigneurs de cinq secteurs. Dernier porteur, tu es traqué aux confins de la galaxie. Survis <b>20 minutes</b> par secteur ; à <b>15:00</b>, le seigneur viendra en personne — terrasse-le, arrache-lui son fragment et saute vers le secteur suivant. <b>Réunis les cinq fragments</b> pour que la Force renaisse.',
+    'The Empire shattered the <b>last Jedi holocron</b> into five fragments, entrusted to the lords of five sectors. As its last bearer, you are hunted across the galaxy. Survive <b>20 minutes</b> per sector; at <b>15:00</b> the lord comes in person — strike him down, seize his fragment and jump to the next sector. <b>Reunite all five fragments</b> so the Force may be reborn.'],
+  ['#creditline', 'CRÉDITS : <b id="creditsLabel">0</b> ©', 'CREDITS: <b id="creditsLabel">0</b> ©'],
+  ['#hangarBtn', 'HANGAR — AMÉLIORATIONS', 'HANGAR — UPGRADES'],
+  ['#startBtn', 'LANCER LA PARTIE', 'START THE RUN'],
+  ['.teamhint', 'J2-J4 : appuie sur <b>A</b> (manette) pour rejoindre · ◄ ► choisit ton héros · <b>B</b> pour quitter',
+    'P2-P4: press <b>A</b> (gamepad) to join · ◄ ► picks your hero · <b>B</b> to leave'],
+  ['#menu .hint', '<kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour bouger · attaques automatiques · <kbd>P</kbd> pause et liste des combos · <kbd>M</kbd> son',
+    '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to move · attacks are automatic · <kbd>P</kbd> pause and combo list · <kbd>M</kbd> sound'],
+  ['#menu .legal',
+    'Fan game non commercial, sans affiliation avec Lucasfilm Ltd. ni Disney. Star Wars et les noms associés sont des marques de leurs ayants droit.',
+    'Non-commercial fan game, not affiliated with Lucasfilm Ltd. or Disney. Star Wars and related names are trademarks of their respective owners.'],
+  ['#gameover h1', 'TERRASSÉ', 'STRUCK DOWN'],
+  ['#gameover .subtitle', 'L\'holocron est perdu', 'The holocron is lost'],
+  ['#retryBtn', 'RETENTER SA CHANCE', 'TRY AGAIN'],
+  ['#menuBtn', 'CHANGER DE HÉROS', 'CHANGE HERO'],
+  ['#hangartitle', 'HANGAR', 'HANGAR'],
+  ['#hangar .subtitle', 'Améliorations permanentes', 'Permanent upgrades'],
+  ['#hangarcredits', 'CRÉDITS : <b>0</b> ©', 'CREDITS: <b>0</b> ©'],
+  ['#hangarBack', 'RETOUR', 'BACK'],
+  ['#continueBtn', 'POURSUIVRE JUSQU\'À 20:00', 'KEEP GOING UNTIL 20:00'],
+  ['#jumpwrap .sectlabel', 'SAUT HYPERESPACE — PROCHAIN SECTEUR', 'HYPERSPACE JUMP — NEXT SECTOR'],
+  ['#paused h2', 'PAUSE', 'PAUSED'],
+  ['#paused .subtitle', 'Combinaisons d\'armes', 'Weapon combos'],
+  ['#resumeBtn', 'REPRENDRE', 'RESUME'],
+  ['#paused .hint', '<kbd>P</kbd> pour reprendre', '<kbd>P</kbd> to resume'],
+  ['#combotitle', 'COMBO DÉBLOQUÉ&nbsp;!', 'COMBO UNLOCKED!'],
+];
+// libellés DESTINATION et ÉQUIPE (2e et 3e sectlabel du menu)
+const SECTLABELS = [['CHAMPION', 'CHAMPION'], ['DESTINATION', 'DESTINATION'], ['ÉQUIPE', 'TEAM']];
+
+function applyStatics() {
+  const en = lang === 'en';
+  for (const [sel, fr, enTxt] of STATICS) {
+    const el = document.querySelector(sel);
+    if (el) el.innerHTML = en ? enTxt : fr;
+  }
+  document.querySelectorAll('#menu > .sectlabel').forEach((el, i) => {
+    if (SECTLABELS[i]) el.textContent = en ? SECTLABELS[i][1] : SECTLABELS[i][0];
+  });
+}
+
+export { t, getLang, setLang, applyStatics };
