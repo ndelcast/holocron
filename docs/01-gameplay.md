@@ -44,9 +44,16 @@ La modal de combo se ferme avec A / Entrée.
 
 Les attaques sont **entièrement automatiques** : le seul input est le déplacement.
 
+## Menu OPTIONS
+
+Accessible depuis le menu principal : **langue FR / EN**, **volume musique**
+et **volume effets sonores** (curseurs 0-100 %, persistés en `localStorage`
+via `audio.js`). La touche <kbd>M</kbd> / le bouton ♪ restent une coupure
+totale indépendante des volumes.
+
 ## Langue
 
-Sélecteur **FR / EN** au menu (`#langsel`), persisté en `localStorage`.
+Sélecteur **FR / EN** dans le menu OPTIONS (`#langsel`), persisté en `localStorage`.
 Le français est la langue source du code ; `src/i18n.js` traduit toutes les
 chaînes au moment de l'affichage (`t()`, repli sur le français si une
 traduction manque). Les textes statiques du menu sont réécrits par
@@ -67,8 +74,12 @@ sabres). La taille d'équipe découle des manettes présentes dans le salon.
   de rôle** (cartes étiquetées « JOUEUR n », couleur du joueur).
 - Caméra au **centre de l'équipe** avec dézoom automatique pour cadrer
   tout le monde ; laisse de 480 px autour du groupe.
-- Un joueur à 0 PV est **à terre** (la partie continue) ; le bonus **Bacta
-  le réanime à 50 %**. Défaite quand toute l'équipe est à terre.
+- Un joueur à 0 PV est **à terre** (la partie continue). Il revient de deux
+  façons : le bonus **Bacta** (immédiat, 50 % PV) ou la **réanimation
+  automatique au bout de 60 s** (50 % PV, 2 s d'invulnérabilité, ramené au
+  centre de l'équipe ; compte à rebours affiché sur sa barre de vie).
+- **Défaite immédiate quand toute l'équipe est à terre** — la réanimation
+  n'opère que s'il reste au moins un joueur debout.
 - Les ennemis et boss ciblent le joueur vivant **le plus proche** ; les
   soins de boss vaincus profitent à toute l'équipe.
 - Couleurs : J1 cyan, J2 or, J3 vert, J4 rouge (barres de PV, halos, minimap).

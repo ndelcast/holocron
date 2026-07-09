@@ -1,6 +1,6 @@
 // Holocron Survivors — boucle rAF, début/fin de partie, pause
 import { clamp, DEBUG } from './core.js';
-import { S, session, runtime, campaign, players, PLAYER_TINT, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses } from './state.js';
+import { S, session, runtime, campaign, vehicle, players, PLAYER_TINT, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses } from './state.js';
 import { CHARS } from './gamedata.js';
 import { LEVELS, BOSSES } from './levels.js';
 import { metaLvl, bankRewards } from './meta.js';
@@ -54,7 +54,7 @@ function makePlayer(charId, idx, pad = null) {
     r: c.r, hp: c.hp, maxHp: c.hp, speed: c.speed, armor: c.armor || 1,
     magnet: 90, dmgMult: 1, cdMult: 1, invuln: 0, face: 1,
     comboWaveCd: 0, regen: 0, xpMult: 1, dodge: 0, crit: 0,
-    dead: false, reviveUsed: false, afterT: 0, ionAura: null,
+    dead: false, reviveUsed: false, respawnT: 0, afterT: 0, ionAura: null,
     weapons: [{ id: c.weapon, lvl: 1, t: 0, angle: 0 }],
     passives: {}, combos: new Set(),
   };
@@ -87,7 +87,8 @@ function buildHpBars() {
 
 function resetGame() {
   S.time = 0; S.kills = 0; S.level = 1; S.xp = 0; S.xpNext = xpFor(1);
-  S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
+  S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.vehT = 130 + Math.random() * 60; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
+  vehicle.drop = null; vehicle.active = null;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; screenFlash.a = 0;
   S.zoomKick = 0; S.streak = 0; S.streakT = 0; S.afterT = 0; S.bonusT = 12;
@@ -150,7 +151,8 @@ function jumpToSector(levelId) {
   session.level = levelId;
   campaign.sector++;
   campaign.prevTime += S.time;
-  S.time = 0; S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.bonusT = 12;
+  S.time = 0; S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.vehT = 130 + Math.random() * 60; S.bonusT = 12;
+  vehicle.drop = null; vehicle.active = null;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; S.shake = 0; S.zoomKick = 0; S.streak = 0; S.streakT = 0;
   for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses]) arr.length = 0;

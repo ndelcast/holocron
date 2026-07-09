@@ -8,14 +8,14 @@ const FINAL_BOSS_TIME = 900;  // le boss du niveau surgit à 15:00
 // mobs : skin de sprite par palier d'ennemi (trooper = basique, droid = rapide,
 // probe = moyen, droideka = tank) ; palier absent → sprite par défaut du palier
 const LEVELS = {
-  space:     { name: 'ESPACE PROFOND', icon: '🌌', desc: 'Conditions standard.<br>Boss : Dark Maul', stars: true, base: '#050810', dust: '#5f8299', boss: 'maul' },
-  tatooine:  { name: 'TATOOINE', icon: '🏜️', desc: 'Ennemis +10 % rapides.<br>Boss : Jabba le Hutt', base: '#a87c4f', spdMult: 1.1, dust: '#d9b184', boss: 'jabba',
+  space:     { name: 'ESPACE PROFOND', icon: '🌌', desc: 'Conditions standard.<br>Boss : Dark Maul', stars: true, base: '#050810', dust: '#5f8299', boss: 'maul', vehicle: 'turret' },
+  tatooine:  { name: 'TATOOINE', icon: '🏜️', desc: 'Ennemis +10 % rapides.<br>Boss : Jabba le Hutt', base: '#a87c4f', spdMult: 1.1, dust: '#d9b184', boss: 'jabba', vehicle: 'speeder',
                mobs: { trooper: 'jawa', droid: 'tusken', probe: 'rodian', droideka: 'gamorrean' } },
-  deathstar: { name: 'ÉTOILE DE LA MORT', icon: '⚫', desc: 'Vagues +15 % denses.<br>Boss : Dark Vador', base: '#14171c', spawnMult: 0.85, dust: '#5f6c7a', boss: 'vader',
+  deathstar: { name: 'ÉTOILE DE LA MORT', icon: '⚫', desc: 'Vagues +15 % denses.<br>Boss : Dark Vador', base: '#14171c', spawnMult: 0.85, dust: '#5f6c7a', boss: 'vader', vehicle: 'turbo',
                mobs: { droid: 'officer', droideka: 'royalguard' } },
-  hoth:      { name: 'HOTH', icon: '❄️', desc: 'Ennemis ralentis de 10 %.<br>Boss : Boba Fett', base: '#22303e', spdMult: 0.9, dust: '#dfe9f2', boss: 'boba',
+  hoth:      { name: 'HOTH', icon: '❄️', desc: 'Ennemis ralentis de 10 %.<br>Boss : Boba Fett', base: '#22303e', spdMult: 0.9, dust: '#dfe9f2', boss: 'boba', vehicle: 'snow',
                mobs: { trooper: 'snowtrooper', droideka: 'wampa' } },
-  endor:     { name: 'ENDOR', icon: '🌲', desc: 'Expérience +15 %.<br>Boss : l\'Empereur', base: '#182412', xpMult: 1.15, dust: '#5a7a42', boss: 'palpatine',
+  endor:     { name: 'ENDOR', icon: '🌲', desc: 'Expérience +15 %.<br>Boss : l\'Empereur', base: '#182412', xpMult: 1.15, dust: '#5a7a42', boss: 'palpatine', vehicle: 'atst',
                mobs: { trooper: 'scout', droideka: 'atst' } },
 };
 const BOSSES = {

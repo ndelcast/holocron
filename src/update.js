@@ -1,11 +1,11 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
 import { keys, touch, padMove, firstFreePad } from './input.js';
-import { S, session, runtime, campaign, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing, coopSpawnMult, campaignMult } from './state.js';
+import { S, session, runtime, campaign, vehicle, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing, coopSpawnMult, campaignMult } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
-import { BONUSES } from './gamedata.js';
+import { BONUSES, VEHICLES } from './gamedata.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
-import { tickWeapons, explode } from './combat.js';
+import { tickWeapons, explode, fireBolt, nearestEnemy } from './combat.js';
 import { damageEnemy, hurtPlayer, addText, burst, sparks, flash, ghosts } from './effects.js';
 import { gainXp } from './levelup.js';
 import { sfx } from './audio.js';
@@ -86,6 +86,82 @@ function spawnSurge(tc) {
   setTimeout(() => bw.classList.remove('on'), 1600);
 }
 
+// ------------------------------ Armement lourd ------------------------------
+// Largage périodique d'un engin thématique (2 min d'activité) : tourelle
+// fixe (un joueur, invulnérable, feu 360°) ou véhicule (conducteur + équipiers,
+// lasers automatiques et écrasement au contact). Un seul engin à la fois.
+function tickVehicle(dt, tc0) {
+  S.vehT -= dt;
+  if (S.vehT <= 0) {
+    S.vehT = 170 + Math.random() * 70;
+    if (!vehicle.drop && !vehicle.active) {
+      const a = rand(0, Math.PI * 2), d = rand(600, 1100);
+      const def = VEHICLES[LEVELS[session.level].vehicle];
+      vehicle.drop = { def, x: tc0.x + Math.cos(a) * d, y: tc0.y + Math.sin(a) * d, t: 0 };
+      addText(tc0.x, tc0.y - 90, t('ARMEMENT LOURD LARGUÉ — {0}', t(def.name)), '#ffd166', 16, 3);
+      sfx.lvl();
+    }
+  }
+  const drop = vehicle.drop;
+  if (drop) {
+    drop.t += dt;
+    for (const p of players) {
+      if (p.dead) continue;
+      if (dist2(drop.x, drop.y, p.x, p.y) < (p.r + 26) * (p.r + 26)) {
+        vehicle.active = { def: drop.def, t: drop.def.dur, x: drop.x, y: drop.y, riders: [p.idx], fireT: 0, ramT: 0 };
+        vehicle.drop = null;
+        addText(p.x, p.y - 44, t('{0} — 2 MIN !', t(drop.def.name)), '#ffd166', 18, 2.5);
+        flash('255,209,102', 0.25);
+        sfx.boss();
+        break;
+      }
+    }
+  }
+  const act = vehicle.active;
+  if (!act) return;
+  act.t -= dt;
+  if (act.t <= 0) {
+    for (const idx of act.riders) players[idx].invuln = 1;
+    addText(act.x, act.y - 40, t('ARMEMENT ÉPUISÉ'), '#8fb8cc', 14, 2);
+    vehicle.active = null;
+    return;
+  }
+  if (act.def.kind === 'ride') {
+    // les équipiers embarquent au contact
+    for (const p of players) {
+      if (p.dead || act.riders.includes(p.idx)) continue;
+      if (dist2(act.x, act.y, p.x, p.y) < (act.def.radius + p.r) * (act.def.radius + p.r)) act.riders.push(p.idx);
+    }
+    // écrasement au contact
+    act.ramT -= dt;
+    if (act.ramT <= 0) {
+      act.ramT = 0.15;
+      const driver = players[act.riders[0]];
+      for (const e of enemies) {
+        if (e.dead) continue;
+        if (dist2(e.x, e.y, act.x, act.y) < (act.def.radius + e.r) * (act.def.radius + e.r)) {
+          damageEnemy(e, act.def.ram * (1 + S.level * 0.04), Math.atan2(e.y - act.y, e.x - act.x), e.boss ? 0 : 380, false, driver);
+        }
+      }
+    }
+  }
+  // feu automatique : gros bolts (un tir par monteur, deux pour les tourelles)
+  act.fireT -= dt;
+  if (act.fireT <= 0) {
+    act.fireT = act.def.cd;
+    const shots = act.def.kind === 'turret' ? 2 : Math.max(1, act.riders.length);
+    const owner = players[act.riders[0]];
+    let fired = false;
+    for (let i = 0; i < shots; i++) {
+      const tgt = nearestEnemy(act.x + rand(-40, 40), act.y + rand(-40, 40), act.def.range || 650);
+      if (!tgt) break;
+      fireBolt(act.x, act.y - 8, tgt.x + rand(-20, 20), tgt.y + rand(-20, 20), act.def.dmg * (1 + S.level * 0.04), 'boltRed', 680, owner.idx);
+      fired = true;
+    }
+    if (fired) sfx.pew();
+  }
+}
+
 // ------------------------------ Boucle principale ------------------------------
 function update(dt) {
   S.time += dt;
@@ -94,8 +170,33 @@ function update(dt) {
   // J1 (pad null) : clavier + tactile, ou la première manette libre
   const tc0 = teamCenter();
   const assignedPads = new Set(players.map(p => p.pad).filter(v => v != null));
+  const veh = vehicle.active;
   for (const p of players) {
-    if (p.dead) { p.invuln = 0; continue; }
+    if (p.dead) {
+      p.invuln = 0;
+      // l'Esprit de la Force ramène le joueur après 60 s, au centre de l'équipe
+      p.respawnT -= dt;
+      if (p.respawnT <= 0 && alivePlayers().length > 0) {
+        p.dead = false;
+        p.hp = p.maxHp * 0.5;
+        p.invuln = 2;
+        p.x = tc0.x + rand(-30, 30); p.y = tc0.y + rand(-30, 30);
+        addText(p.x, p.y - 30, t('RÉANIMÉ !'), '#52ff7a', 18, 2);
+        addRing(p.x, p.y, 240, '82,255,122', 4, 0.6);
+        sfx.lvl();
+      }
+      continue;
+    }
+    // monteurs d'armement lourd : invulnérables ; tourelle et passagers arrimés
+    if (veh && veh.riders.includes(p.idx)) {
+      p.invuln = Math.max(p.invuln, 0.3);
+      if (veh.def.kind === 'turret') { p.x = veh.x; p.y = veh.y; continue; }
+      if (veh.riders[0] !== p.idx) {
+        const drv = players[veh.riders[0]];
+        p.x = drv.x + veh.riders.indexOf(p.idx) * 12 - 12; p.y = drv.y + 6;
+        continue;
+      }
+    }
     let mx = 0, my = 0;
     if (p.pad != null) {
       const pm = padMove(p.pad);
@@ -114,8 +215,9 @@ function update(dt) {
     }
     if (mx || my) {
       const l = Math.hypot(mx, my);
-      p.x += mx / l * p.speed * dt;
-      p.y += my / l * p.speed * dt;
+      const spd = veh && veh.def.kind === 'ride' && veh.riders[0] === p.idx ? veh.def.speed : p.speed;
+      p.x += mx / l * spd * dt;
+      p.y += my / l * spd * dt;
       if (mx) p.face = Math.sign(mx);
       // laisse d'équipe : personne ne sème le groupe
       if (session.count > 1) {
@@ -201,6 +303,13 @@ function update(dt) {
       if (S.scene !== 'play') return; // holocron : le level-up a ouvert le choix
     }
   }
+
+  // --- armement lourd (l'engin mobile suit son conducteur)
+  if (vehicle.active && vehicle.active.def.kind === 'ride') {
+    const drv = players[vehicle.active.riders[0]];
+    vehicle.active.x = drv.x; vehicle.active.y = drv.y;
+  }
+  tickVehicle(dt, tc0);
 
   // --- armes
   tickWeapons(dt);
@@ -444,7 +553,7 @@ function updateHud() {
   const rows = document.querySelectorAll('#hpwrap .prow');
   players.forEach((p, i) => {
     if (fills[i]) fills[i].style.width = clamp(p.hp / p.maxHp * 100, 0, 100) + '%';
-    if (nums[i]) nums[i].textContent = p.dead ? t('À TERRE') : Math.max(0, Math.ceil(p.hp)) + ' / ' + Math.round(p.maxHp);
+    if (nums[i]) nums[i].textContent = p.dead ? t('À TERRE') + ' · ' + Math.max(0, Math.ceil(p.respawnT)) + 's' : Math.max(0, Math.ceil(p.hp)) + ' / ' + Math.round(p.maxHp);
     if (rows[i]) rows[i].classList.toggle('dead', !!p.dead);
   });
   const anyLow = alivePlayers().some(p => p.hp / p.maxHp < 0.3);

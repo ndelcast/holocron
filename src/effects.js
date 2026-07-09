@@ -151,6 +151,7 @@ function hurtPlayer(p, dmg) {
     }
     p.hp = 0;
     p.dead = true;
+    p.respawnT = 60; // réanimation automatique au bout d'une minute (coop)
     addGhost(p);
     addText(p.x, p.y - 30, t('JOUEUR {0} À TERRE', p.idx + 1), '#ff8f6b', 16, 2);
     flash('255,60,50', 0.3);

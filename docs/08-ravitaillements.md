@@ -13,6 +13,31 @@ balises), `src/gamedata.js` (`BONUSES`).
 - Annonce « RAVITAILLEMENT LARGUÉ — SUIS LA BALISE » ; les caisses
   persistent jusqu'au ramassage (rayon de collecte : hitbox + 18 px).
 
+## Armement lourd (largages événement)
+
+Toutes les **~3 minutes** (`S.vehT`, premier largage vers 2:10-3:10), une
+caisse spéciale est larguée avec balise dorée (monde + minimap) : l'engin
+**thématique de la destination**, actif **2 minutes** une fois enfourché
+(arc doré de durée restante autour de l'engin). Un seul à la fois.
+
+| Destination | Engin | Mécanique |
+|---|---|---|
+| 🌌 Espace profond | Tourelle laser | tourelle fixe, 2 tirs / 0,22 s |
+| 🏜️ Tatooine | Landspeeder | véhicule rapide (350), lasers + écrasement |
+| ⚫ Étoile de la Mort | Turbolaser | tourelle fixe, tir lourd (150) / 0,55 s |
+| ❄️ Hoth | Snowspeeder | véhicule très rapide (370), lasers + écrasement |
+| 🌲 Endor | AT-ST détourné | véhicule lent (135) mais dévastateur (95/tir, écrasement 85) |
+
+- **Tourelle** : un seul joueur monte (contact), il est **immobile et
+  invulnérable**, feu automatique à 360° dans la portée.
+- **Véhicule** : le premier joueur au contact devient **conducteur** (vitesse
+  de l'engin) ; les équipiers **embarquent au contact** et sont arrimés,
+  tous invulnérables. Un laser automatique **par monteur**, plus des dégâts
+  d'écrasement au contact du châssis.
+- Les dégâts des engins suivent le niveau d'équipe (`× (1 + 0,04 × niveau)`).
+- À expiration : « ARMEMENT ÉPUISÉ », les monteurs redescendent avec 1 s
+  d'invulnérabilité.
+
 ## Les 4 bonus
 
 | Bonus | Couleur | Effet |

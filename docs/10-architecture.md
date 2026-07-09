@@ -16,7 +16,7 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 | `i18n.js` | bilingue FR/EN : `t()` traduit à l'affichage (le français reste la source dans le code), textes statiques du menu, langue persistée |
 | `sprites.js` | sprites pré-rendus en canvas (2× pour la netteté) |
 | `background.js` | étoiles, nébuleuses, constante `TILE` (1400) |
-| `audio.js` | sons synthétisés WebAudio (aucun asset) |
+| `audio.js` | sons synthétisés WebAudio (aucun asset), volumes musique/effets persistés |
 | `music.js` | musique d'ambiance par destination (séquenceur pas à pas WebAudio) |
 | `input.js` | clavier (`keys`) + joystick tactile (`touch`) |
 | `enemies.js` | apparition, types, IA des boss |

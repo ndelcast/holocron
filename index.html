@@ -60,11 +60,8 @@
     la Force renaisse.
   </p>
   <div id="creditline">CRÉDITS : <b id="creditsLabel">0</b> ©</div>
-  <div id="langsel">
-    <div class="tchip sel" data-lang="fr">FR</div>
-    <div class="tchip" data-lang="en">EN</div>
-  </div>
   <button class="holo" id="hangarBtn" style="margin-top:10px; font-size:13px; padding:10px 30px;">HANGAR — AMÉLIORATIONS</button>
+  <button class="holo" id="optionsBtn" style="margin-top:8px; font-size:13px; padding:10px 30px;">OPTIONS</button>
   <div class="sectlabel">CHAMPION</div>
   <div id="chars"></div>
   <div class="sectlabel">DESTINATION</div>
@@ -103,6 +100,20 @@
   <div id="gostats"></div>
   <button class="holo" id="retryBtn">RETENTER SA CHANCE</button>
   <button class="holo" id="menuBtn" style="margin-top:14px">CHANGER DE HÉROS</button>
+</div>
+
+<div id="options" class="overlay">
+  <h2 id="optionstitle">OPTIONS</h2>
+  <div class="sectlabel" id="optlang">LANGUE</div>
+  <div id="langsel">
+    <div class="tchip sel" data-lang="fr">FR</div>
+    <div class="tchip" data-lang="en">EN</div>
+  </div>
+  <div class="sectlabel" id="optmusic">MUSIQUE</div>
+  <div class="optrow"><input type="range" id="musicRange" min="0" max="100" step="5"><span class="optval" id="musicVal"></span></div>
+  <div class="sectlabel" id="optsfx">EFFETS SONORES</div>
+  <div class="optrow"><input type="range" id="sfxRange" min="0" max="100" step="5"><span class="optval" id="sfxVal"></span></div>
+  <button class="holo" id="optionsBack">RETOUR</button>
 </div>
 
 <div id="hangar" class="overlay">

@@ -582,6 +582,11 @@ button.holo:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(58,150
 }
 #jumpwrap { margin-top: 22px; }
 #langsel { display: flex; gap: 8px; margin-top: 14px; justify-content: center; }
+#options h2 { font-family: 'Baloo 2', 'Rajdhani', sans-serif; letter-spacing: .1em; font-size: 30px; color: var(--holo); }
+#options .sectlabel { margin-top: 26px; }
+.optrow { display: flex; align-items: center; gap: 14px; margin-top: 14px; pointer-events: auto; }
+.optrow input[type=range] { width: min(320px, 68vw); accent-color: var(--gold); cursor: pointer; }
+.optval { font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--gold); min-width: 52px; text-align: left; }
 #jumpchips { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; padding: 0 14px; }
 #jumpchips .lvlchip { width: 118px; }
 

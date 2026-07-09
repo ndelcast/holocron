@@ -13,7 +13,7 @@ import { LEVELS, getGroundTile } from './levels.js';
 import {
   S, session, players, alivePlayers, teamCenter, PLAYER_TINT, enemies, bullets,
   gems, particles, texts, waves, arcs, drones, booms, grenades, firePools,
-  rings, ebullets, decals, bonuses,
+  rings, ebullets, decals, bonuses, vehicle,
 } from './state.js';
 import { WEAPONS, CHARS, BONUSES } from './gamedata.js';
 import { screenFlash, ghosts } from './effects.js';
@@ -364,6 +364,48 @@ function render() {
   }
   bonusPool.end();
 
+  // armement lourd : caisse à balise dorée, puis engin dessiné en primitives
+  const vd = vehicle.drop, va = vehicle.active;
+  if (vd) {
+    const pulse2 = 0.5 + 0.5 * Math.sin(vd.t * 4);
+    gBeacon.rect(vd.x - 9, vd.y - 210, 18, 216).fill({ color: 0xffd166, alpha: 0.12 + pulse2 * 0.08 });
+    gBeacon.circle(vd.x, vd.y + 6, 22 + pulse2 * 7).stroke({ width: 2.5, color: 0xffd166, alpha: 0.7 - pulse2 * 0.35 });
+    gBeacon.rect(vd.x - 14, vd.y - 12, 28, 22).fill({ color: 0xffd166, alpha: 0.8 });
+    gBeacon.rect(vd.x - 14, vd.y - 3, 28, 4).fill({ color: 0x201a08, alpha: 0.9 });
+  }
+  if (va) {
+    const def = va.def;
+    if (def.kind === 'turret') {
+      // socle + canon orienté vers la cible la plus proche
+      gBeacon.circle(va.x, va.y + 6, def.r + 8).fill({ color: 0x0a1420, alpha: 0.75 });
+      gBeacon.circle(va.x, va.y + 6, def.r + 8).stroke({ width: 3, color: def.color, alpha: 0.85 });
+      let na = anim * 1.5, bd = 1e9;
+      for (const e of enemies) {
+        const d = (e.x - va.x) * (e.x - va.x) + (e.y - va.y) * (e.y - va.y);
+        if (d < bd) { bd = d; na = Math.atan2(e.y - va.y, e.x - va.x); }
+      }
+      gBeacon.moveTo(va.x, va.y)
+        .lineTo(va.x + Math.cos(na) * (def.r + 26), va.y + Math.sin(na) * (def.r + 26))
+        .stroke({ width: 7, color: def.color, alpha: 0.9, cap: 'round' });
+      gBeacon.circle(va.x, va.y, 9).fill({ color: def.color, alpha: 1 });
+    } else {
+      // châssis sous les monteurs ; l'AT-ST a deux pattes
+      gBeacon.ellipse(va.x, va.y + 10, def.radius * 1.25, def.radius * 0.55).fill({ color: 0x0a1420, alpha: 0.75 });
+      gBeacon.ellipse(va.x, va.y + 10, def.radius * 1.25, def.radius * 0.55).stroke({ width: 3, color: def.color, alpha: 0.85 });
+      if (LEVELS[session.level].vehicle === 'atst') {
+        const step = Math.sin(anim * 6) * 6;
+        gBeacon.moveTo(va.x - 14, va.y + 12).lineTo(va.x - 18, va.y + 34 + step).stroke({ width: 5, color: def.color, alpha: 0.8, cap: 'round' });
+        gBeacon.moveTo(va.x + 14, va.y + 12).lineTo(va.x + 18, va.y + 34 - step).stroke({ width: 5, color: def.color, alpha: 0.8, cap: 'round' });
+      }
+    }
+    // arc de durée restante
+    const frac = Math.max(0, va.t / def.dur);
+    const r2 = (def.r || def.radius) + 18;
+    gBeacon.moveTo(va.x + Math.cos(-Math.PI / 2) * r2, va.y + Math.sin(-Math.PI / 2) * r2)
+      .arc(va.x, va.y, r2, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac)
+      .stroke({ width: 3, color: 0xffd166, alpha: 0.75 });
+  }
+
   // ondes de Force, explosions, anneaux
   gFx1.clear();
   for (const wv of waves) {
@@ -648,6 +690,12 @@ function render() {
       const pulse3 = 0.6 + 0.4 * Math.sin(anim * 5 + b.t);
       gMini.poly([cx + dx, cy + dy - 4, cx + dx + 4, cy + dy, cx + dx, cy + dy + 4, cx + dx - 4, cy + dy])
         .fill({ color: rgbNum(BONUSES[b.type].rgb), alpha: pulse3 });
+    }
+    const vwp = vehicle.drop || vehicle.active; // armement lourd : carré doré pulsant
+    if (vwp) {
+      const dx = cl((vwp.x - mc.x) * sc, half - 8), dy = cl((vwp.y - mc.y) * sc, half - 8);
+      const pulse4 = 0.6 + 0.4 * Math.sin(anim * 6);
+      gMini.rect(cx + dx - 3, cy + dy - 3, 6, 6).stroke({ width: 1.5, color: 0xffd166, alpha: pulse4 });
     }
     for (const pl of alive) {
       gMini.circle(cx + cl((pl.x - mc.x) * sc, half - 5), cy + cl((pl.y - mc.y) * sc, half - 5), 2.6)

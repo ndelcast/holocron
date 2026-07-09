@@ -1,5 +1,5 @@
 // Holocron Survivors — musiques metal par destination (séquenceur WebAudio)
-import { audioCtx, isMuted } from './audio.js';
+import { audioCtx, isMuted, musicVol } from './audio.js';
 
 // Thèmes originaux façon metal (riffs phrygiens, chugs palm-muted, batterie
 // synthétisée) — pas de reprise : les thèmes du film sont protégés.
@@ -122,36 +122,36 @@ function lead(AC, freq, t, dur, vol) {
   o.connect(g).connect(AC.destination);
   o.start(t); o.stop(t + dur + 0.03);
 }
-function kick(AC, t) {
+function kick(AC, t, mv = 1) {
   const o = AC.createOscillator(), g = AC.createGain();
   o.type = 'sine';
   o.frequency.setValueAtTime(120, t);
   o.frequency.exponentialRampToValueAtTime(42, t + 0.12);
-  g.gain.setValueAtTime(0.11, t);
+  g.gain.setValueAtTime(0.11 * mv, t);
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
   o.connect(g).connect(AC.destination);
   o.start(t); o.stop(t + 0.2);
 }
-function snare(AC, t) {
+function snare(AC, t, mv = 1) {
   const src = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
   src.buffer = getNoise(AC);
   f.type = 'highpass'; f.frequency.value = 1400;
-  g.gain.setValueAtTime(0.055, t);
+  g.gain.setValueAtTime(0.055 * mv, t);
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
   src.connect(f).connect(g).connect(AC.destination);
   src.start(t); src.stop(t + 0.15);
   const o = AC.createOscillator(), g2 = AC.createGain();
   o.type = 'triangle'; o.frequency.setValueAtTime(190, t);
-  g2.gain.setValueAtTime(0.04, t);
+  g2.gain.setValueAtTime(0.04 * mv, t);
   g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
   o.connect(g2).connect(AC.destination);
   o.start(t); o.stop(t + 0.12);
 }
-function hat(AC, t) {
+function hat(AC, t, mv = 1) {
   const src = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
   src.buffer = getNoise(AC);
   f.type = 'highpass'; f.frequency.value = 6500;
-  g.gain.setValueAtTime(0.018, t);
+  g.gain.setValueAtTime(0.018 * mv, t);
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
   src.connect(f).connect(g).connect(AC.destination);
   src.start(t); src.stop(t + 0.06);
@@ -166,14 +166,15 @@ function tick() {
   if (!AC || !cur) return;
   const th = cur.th, step = 60 / th.bpm / 4;
   while (cur.nextT < AC.currentTime + 0.15) {
-    if (!isMuted()) {
+    const mv = musicVol();
+    if (!isMuted() && mv > 0.01) {
       const i = cur.step % 32, t = cur.nextT;
       const r = th.riff[i], l = th.lead[i];
-      if (r !== null) guitar(AC, th.root * Math.pow(2, r / 12), t, step * 1.6, 0.05);
-      if (l !== null) lead(AC, th.root * 4 * Math.pow(2, l / 12), t, step * 2.4, 0.014);
-      if (th.kick[i]) kick(AC, t);
-      if (th.snare[i]) snare(AC, t);
-      if (th.hat[i]) hat(AC, t);
+      if (r !== null) guitar(AC, th.root * Math.pow(2, r / 12), t, step * 1.6, 0.05 * mv);
+      if (l !== null) lead(AC, th.root * 4 * Math.pow(2, l / 12), t, step * 2.4, 0.014 * mv);
+      if (th.kick[i]) kick(AC, t, mv);
+      if (th.snare[i]) snare(AC, t, mv);
+      if (th.hat[i]) hat(AC, t, mv);
     }
     cur.nextT += step; cur.step++;
   }

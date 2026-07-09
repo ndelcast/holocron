@@ -3,7 +3,7 @@ import { S, session, PLAYER_TINT } from './state.js';
 import { SPR } from './sprites.js';
 import { CHARS } from './gamedata.js';
 import { LEVELS } from './levels.js';
-import { tone, sfx, toggleMute } from './audio.js';
+import { tone, sfx, toggleMute, musicVol, sfxVol, setMusicVol, setSfxVol } from './audio.js';
 import { META, META_STATE, saveMeta, metaLvl, metaCost, updateCreditsUI } from './meta.js';
 import { startGame, resetFrameClock, togglePause } from './lifecycle.js';
 import { startMusic } from './music.js';
@@ -198,6 +198,29 @@ export { buildHangar };
 document.getElementById('pauseBtn').onclick = () => togglePause();
 document.getElementById('resumeBtn').onclick = () => togglePause();
 document.getElementById('muteBtn').onclick = function () { this.classList.toggle('off', toggleMute()); };
+
+// ------------------------------ Menu OPTIONS ------------------------------
+// Langue + volumes musique / effets (persistés via audio.js)
+const musicRange = document.getElementById('musicRange');
+const sfxRange = document.getElementById('sfxRange');
+function syncOptions() {
+  musicRange.value = Math.round(musicVol() * 100);
+  sfxRange.value = Math.round(sfxVol() * 100);
+  document.getElementById('musicVal').textContent = musicRange.value + ' %';
+  document.getElementById('sfxVal').textContent = sfxRange.value + ' %';
+}
+musicRange.oninput = () => { setMusicVol(musicRange.value / 100); syncOptions(); };
+sfxRange.oninput = () => { setSfxVol(sfxRange.value / 100); syncOptions(); tone(620, 0.08, 'square', 0.05, 120); };
+document.getElementById('optionsBtn').onclick = () => {
+  syncOptions();
+  document.getElementById('menu').classList.remove('on');
+  document.getElementById('options').classList.add('on');
+};
+document.getElementById('optionsBack').onclick = () => {
+  document.getElementById('options').classList.remove('on');
+  document.getElementById('menu').classList.add('on');
+};
+syncOptions();
 
 // ------------------------------ Langue (FR / EN) ------------------------------
 // Le français est la langue source ; le dictionnaire i18n traduit à l'affichage.
