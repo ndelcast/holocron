@@ -5,7 +5,7 @@ Sources : `src/enemies.js` (`spawnFinalBoss`, `bossAI`), `src/levels.js` (`BOSSE
 ## Élite récurrente : le Seigneur Sith
 
 Toutes les **90 s** (suspendu pendant le duel final).
-PV `380 × (1 + t/70)`, vitesse 62, dégâts 26, XP 40.
+PV `380 × (1 + t/70) × (1 + 0,03 × niveau) × facteur coop`, vitesse 62, dégâts 26, XP 40.
 À sa mort : **+30 PV** au joueur, ralenti dramatique court, anneau doré.
 
 ## Boss finaux (15:00)
@@ -13,6 +13,10 @@ PV `380 × (1 + t/70)`, vitesse 62, dégâts 26, XP 40.
 Annonce à 14:50, bannière + flash rouge + ralenti à l'apparition.
 Barre de vie géante dans le HUD, flèche directionnelle si hors champ.
 À la mort : +50 PV, 160 XP en cristaux, ralenti long, flash blanc, écran VICTOIRE.
+
+PV de base ci-dessous, × le facteur coop `1 + 0,7×(joueurs − 1)`
+(×1,7 / ×2,4 / ×3,1 à 2 / 3 / 4 joueurs) et × `1 + 0,03 × niveau d'équipe`
+(un boss affronté au niveau 60 a ×2,8 PV) — vaut aussi pour l'élite Sith.
 
 | Boss | Destination | PV | Vitesse | Dégâts | Hitbox |
 |---|---|---|---|---|---|

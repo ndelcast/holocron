@@ -6,8 +6,13 @@ Sources : `src/gamedata.js` (`COMBOS`, `PASSIVES`), effets câblés dans
 ## Combos
 
 Un combo s'active **automatiquement et définitivement** dès que les deux
-armes requises sont possédées (peu importe leur niveau). Annonce à l'écran,
-icône dorée dans le HUD, liste consultable en pause.
+armes requises sont possédées (peu importe leur niveau). L'activation ouvre
+une **modal d'annonce** (`#combomodal`) : formule « arme + arme = combo »,
+description de l'effet, bouton à exclamation aléatoire ; en coop la modal
+porte la couleur du joueur concerné. Si un choix débloque deux combos d'un
+coup (arme partagée), les modals s'enchaînent (`runtime.comboQueue`), puis
+la file de level-up reprend. Icône dorée dans le HUD, liste consultable en
+pause.
 
 | Combo | Armes requises | Effet |
 |---|---|---|
@@ -24,7 +29,9 @@ partagent une arme, ex. Blaster dans Chasseur de primes + Escadron rogue).
 
 ## Passifs
 
-10 passifs, **5 niveaux** chacun, cumulables sans limite de slots.
+10 passifs, **5 niveaux** chacun, **4 passifs différents maximum** par joueur
+(symétrique des 4 slots d'armes) : au-delà, seuls les passifs déjà possédés
+sont proposés au level-up.
 
 | Passif | Effet par niveau |
 |---|---|

@@ -1,7 +1,7 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
-import { keys, touch, padMove } from './input.js';
-import { S, session, runtime, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing } from './state.js';
+import { keys, touch, padMove, padConnected } from './input.js';
+import { S, session, runtime, campaign, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing, coopSpawnMult, campaignMult } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
 import { BONUSES } from './gamedata.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
@@ -59,24 +59,22 @@ function applyBonus(b, taker) {
 function update(dt) {
   S.time += dt;
   // --- déplacements de l'équipe
-  // J1 : clavier + tactile (+ manette 0 en solo) ; J2-J4 : manettes 0-2
+  // manette n → joueur n ; le clavier et le tactile pilotent le premier
+  // joueur sans manette connectée (J1 si chaque joueur a la sienne)
   const tc0 = teamCenter();
+  let kbIdx = 0;
+  for (const p of players) if (!padConnected(p.idx)) { kbIdx = p.idx; break; }
   for (const p of players) {
     if (p.dead) { p.invuln = 0; continue; }
     let mx = 0, my = 0;
-    if (p.idx === 0) {
+    const pm = padMove(p.idx);
+    if (pm) { mx = pm.mx; my = pm.my; }
+    if (p.idx === kbIdx && !mx && !my) {
       if (keys.KeyW || keys.ArrowUp) my -= 1;
       if (keys.KeyS || keys.ArrowDown) my += 1;
       if (keys.KeyA || keys.ArrowLeft) mx -= 1;
       if (keys.KeyD || keys.ArrowRight) mx += 1;
       if (touch.active && Math.hypot(touch.dx, touch.dy) > 0.12) { mx = touch.dx; my = touch.dy; }
-      if (!mx && !my && session.count === 1) {
-        const pm = padMove(0);
-        if (pm) { mx = pm.mx; my = pm.my; }
-      }
-    } else {
-      const pm = padMove(p.idx - 1);
-      if (pm) { mx = pm.mx; my = pm.my; }
     }
     if (mx || my) {
       const l = Math.hypot(mx, my);
@@ -109,13 +107,15 @@ function update(dt) {
     p.comboWaveCd = Math.max(0, (p.comboWaveCd || 0) - dt);
   }
 
-  // --- spawn
+  // --- spawn (quantité × facteur coop × niveau d'équipe, fraction reportée au tick suivant)
+  // La densité suit aussi S.level : monter haut (70-80) déclenche la horde.
   S.spawnT -= dt;
   const interval = DEBUG.stress ? 0.05 : Math.max(0.16, (1.15 - S.time * 0.0032) * (LEVELS[session.level].spawnMult || 1));
-  const perSpawn = DEBUG.stress ? 10 : 1 + Math.floor(S.time / 55);
-  if (S.spawnT <= 0 && enemies.length < (DEBUG.stress || 230)) {
+  const cap = DEBUG.stress || Math.min(650, 230 + S.level * 4 + 40 * (session.count - 1));
+  if (S.spawnT <= 0 && enemies.length < cap) {
     S.spawnT = interval;
-    for (let i = 0; i < perSpawn; i++) spawnEnemy(pickEnemyType());
+    S.spawnAcc += DEBUG.stress ? 10 : (1 + Math.floor(S.time / 55)) * coopSpawnMult() * (1 + S.level * 0.03) * campaignMult();
+    for (; S.spawnAcc >= 1; S.spawnAcc--) spawnEnemy(pickEnemyType());
   }
   const finalAlive = enemies.some(e => e.final);
   S.bossT -= dt;
@@ -137,7 +137,7 @@ function update(dt) {
   // --- ravitaillements largués sur la carte (3 max)
   S.bonusT -= dt;
   if (S.bonusT <= 0) {
-    S.bonusT = 24;
+    S.bonusT = session.count > 1 ? 18 : 24; // le Bacta sert de réanimation en coop
     if (bonuses.length < 3) {
       const a = rand(0, Math.PI * 2), d = rand(700, 1300);
       bonuses.push({ x: tc0.x + Math.cos(a) * d, y: tc0.y + Math.sin(a) * d, type: pick(Object.keys(BONUSES)), t: 0 });
@@ -394,6 +394,8 @@ function updateHud() {
   } else bb.style.display = 'none';
   document.getElementById('kills').textContent = S.kills;
   document.getElementById('lvl').textContent = S.level;
+  const nf = campaign.fragments.length;
+  document.getElementById('frags').textContent = '◆'.repeat(nf) + '◇'.repeat(5 - nf);
   document.getElementById('xpfill').style.width = (S.xp / S.xpNext * 100) + '%';
   const fills = document.querySelectorAll('#hpwrap .pfill');
   const nums = document.querySelectorAll('#hpwrap .pnum');

@@ -17,11 +17,17 @@ modificateur de la destination.
 
 ## Montée en difficulté
 
-- **PV** : `PV base × (1 + t/30 × 0,16)` → ×2,6 à 5 min, ×5,8 à 15 min, ×7,4 à 20 min.
+La difficulté suit **le temps et le niveau d'équipe** : monter haut (70-80)
+déclenche la horde, pour que les armes à 25 paliers aient de quoi faucher.
+
+- **PV** : `PV base × (1 + t/30 × 0,16) × (1 + 0,035 × niveau)` × le facteur
+  coop `1 + 0,25×(joueurs − 1)`. Au niveau 75 le facteur niveau vaut ×3,6.
 - **Cadence** : un tick d'apparition toutes les `max(0,16 ; 1,15 − 0,0032×t)` s
   (× le modificateur de densité de la destination).
-- **Quantité** : `1 + floor(t/55)` ennemis par tick (jusqu'à ~22 à 20 min).
-- **Plafond** : 230 ennemis vivants simultanément.
+- **Quantité** : `(1 + floor(t/55)) × (1 + 0,5×(joueurs − 1)) × (1 + 0,03 × niveau)`
+  ennemis par tick ; la fraction est reportée au tick suivant (`S.spawnAcc`).
+- **Plafond** : `min(650 ; 230 + 4×niveau + 40×(joueurs − 1))` ennemis vivants
+  simultanément (530 au niveau 75 en solo).
 
 ## Comportement
 

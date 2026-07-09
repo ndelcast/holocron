@@ -66,6 +66,10 @@ function padMove(i) {
   if (Math.hypot(x, y) < 0.25) return { mx: 0, my: 0 };
   return { mx: x, my: y };
 }
+function padConnected(i) {
+  const gp = navigator.getGamepads ? navigator.getGamepads()[i] : null;
+  return !!(gp && gp.connected);
+}
 // bouton Start de n'importe quelle manette → pause (front montant)
 function pollPadPause() {
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -76,4 +80,4 @@ function pollPadPause() {
   if (edge) togglePause();
 }
 
-export { keys, touch, padMove, pollPadPause };
+export { keys, touch, padMove, padConnected, pollPadPause };

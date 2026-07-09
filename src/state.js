@@ -1,14 +1,34 @@
 // Holocron Survivors — état global, équipe, entités
 export const S = {
-  scene: 'menu', // menu | play | levelup | victory | gameover
+  scene: 'menu', // menu | play | levelup | combo | victory | gameover
   paused: false,
   time: 0, kills: 0, level: 1, xp: 0, xpNext: 10,
-  spawnT: 0, bossT: 90, shake: 0, freeze: 0, beamT: 0,
+  spawnT: 0, spawnAcc: 0, bossT: 90, shake: 0, freeze: 0, beamT: 0,
   zoomKick: 0, streak: 0, streakT: 0, afterT: 0, bonusT: 12,
+  banked: 0, // crédits déjà bancarisés cette campagne (bancarisation incrémentale)
 };
 // sélections du menu et compteurs de partie (objets pour rester mutables entre modules)
 export const session = { char: 'jedi', level: 'space', count: 1 };
-export const runtime = { waveId: 0, pendingLvls: 0, lvlQueue: [] };
+export const runtime = { waveId: 0, pendingLvls: 0, lvlQueue: [], comboQueue: [] };
+
+// ------------------------------ Campagne : la Route de l'Hyperespace ------------------------------
+// Une campagne = enchaîner les secteurs en conservant build, niveau et XP.
+// Chaque seigneur de secteur vaincu lâche son fragment d'holocron ;
+// les cinq fragments réunis reconstituent l'holocron (vraie fin).
+export const campaign = { sector: 1, fragments: [], prevTime: 0 };
+// pression du secteur : chaque saut durcit la traque (×1,3 / ×1,6 / ×1,9 / ×2,2)
+export function campaignMult() { return 1 + 0.3 * (campaign.sector - 1); }
+
+// ------------------------------ Équilibrage coop ------------------------------
+// Facteurs dérivés de la taille d'équipe choisie au menu (fixes toute la partie,
+// pour ne pas punir une équipe dont un joueur tombe). À 4 joueurs : densité ×2,5
+// et PV ×1,75, soit une « masse » d'ennemis ≈ ×4,4 face à un DPS d'équipe ≈ ×4.
+// Les boss scalent plus fort que les vagues car ils meurent au burst concentré.
+// La courbe d'XP suit la densité : le butin par minute augmente d'autant, et
+// chaque niveau distribue déjà un choix par joueur vivant.
+export function coopSpawnMult() { return 1 + 0.5 * (session.count - 1); }
+export function coopHpMult() { return 1 + 0.25 * (session.count - 1); }
+export function coopBossMult() { return 1 + 0.7 * (session.count - 1); }
 
 // ------------------------------ Équipe (1 à 4 joueurs) ------------------------------
 export const players = []; // rempli par resetGame (lifecycle.js)

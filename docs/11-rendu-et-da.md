@@ -4,11 +4,17 @@ Source : `src/render.js` ; styles UI dans `src/style.css`.
 
 ## Direction artistique
 
-**Projection holographique militaire** : cyan hologramme (`#6ee7ff`) sur
-fond spatial sombre, or (`#ffd166`) pour le précieux (XP, crédits,
-victoires), rouge (`#ff3b3b`) pour la menace, vert sabre (`#52ff7a`).
-Typographies : Orbitron (display) + Rajdhani (texte). Scanlines, équerres
-de visée aux coins, bande de balayage, flicker holo occasionnel.
+**Hologramme cartoon** : cyan hologramme (`#6ee7ff`) sur fond spatial
+sombre, or (`#ffd166`) pour le précieux (XP, crédits, victoires), rouge
+(`#ff3b3b`) pour la menace, vert sabre (`#52ff7a`). Scanlines, équerres de
+visée aux coins (arrondies), bande de balayage, flicker holo occasionnel.
+
+La couche « DA v3 » de `style.css` apporte le ton cartoon : typographie
+**Baloo 2** (remplace Orbitron sur tout le display), coins arrondis à la
+place des découpes `clip-path`, boutons pastilles avec socle 3D qui
+s'enfoncent au clic, cartes qui rebondissent et penchent au survol
+(`popIn`, `wiggle`), titres légèrement inclinés. Rajdhani reste la typo
+de texte courant.
 
 ## Pipeline PixiJS (une frame)
 

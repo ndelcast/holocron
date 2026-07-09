@@ -6,17 +6,22 @@ Sources : `src/levelup.js` (XP, choix), `src/meta.js` (crédits, hangar).
 
 - Les ennemis lâchent des cristaux (1 XP, fusionnés en cristaux dorés de 5).
 - Rayon d'aimant de base 90 (modifiable par passif/personnage/hangar).
-- Seuil : `xpFor(n) = floor(8 × 1,28^(n−1) + 2n)` — 10, 12, 15, 18, 22, 26… ;
+- Seuil : `xpFor(n) = floor((10 + n^1,35) × densité coop)` — courbe douce
+  (polynomiale) : ~4 niveaux/min, pensée pour atteindre le **niveau 70-80 à
+  20 min** où les armes à 25 paliers culminent. En coop × `1 + 0,5×(joueurs − 1)`
+  (suit l'afflux de cristaux, voir [01-gameplay.md](01-gameplay.md)) ;
   multiplicateurs d'XP appliqués au gain (passif Fortune, hangar, Endor).
 - Level-up : pause + **3 choix** tirés parmi les armes améliorables
-  (4 slots max), nouvelles armes et passifs (< niv 5). File d'attente si
-  plusieurs niveaux d'un coup. Si tout est au max : carte « Sérénité »
-  (soin complet).
+  (4 slots max, **25 niveaux** chacune), nouvelles armes et passifs
+  (< niv 5, **4 passifs max**). File d'attente si plusieurs niveaux d'un
+  coup. Si tout est au max : carte « Sérénité » (soin complet).
 
 ## Crédits (fin de partie)
 
-Bancarisés une seule fois par partie, à la première fin atteinte
-(victoire, survie 20 min ou mort) :
+Bancarisation **incrémentale** à chaque écran de fin : le total mérité par
+la campagne est recalculé sur les stats cumulées (+250 © par fragment
+d'holocron), et seule la différence avec le déjà-versé est créditée —
+les secteurs enchaînés ne comptent jamais double. Le total :
 
 ```
 crédits = floor(kills × 0,5 + niveau × 5 + minutes × 10 + 250 si boss vaincu)

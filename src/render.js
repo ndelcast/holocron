@@ -428,7 +428,7 @@ function render() {
       if (!saber) continue;
       const st = WEAPONS.saber.stats(saber.lvl);
       for (let b = 0; b < st.blades; b++) {
-        const a = (saber.angle || 0) + b * Math.PI;
+        const a = (saber.angle || 0) + b * (Math.PI * 2 / st.blades);
         for (let k = 6; k >= 1; k--) {
           const ga = a - k * 0.11;
           gFx2.moveTo(pl.x + Math.cos(ga) * 16, pl.y + Math.sin(ga) * 16)

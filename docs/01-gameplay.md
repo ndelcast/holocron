@@ -4,34 +4,43 @@ Sources : `src/update.js`, `src/lifecycle.js`, `src/levels.js` (constantes).
 
 ## Structure d'une partie
 
-Une partie dure **20 minutes maximum** (`RUN_TIME = 1200`).
+Une partie est une **campagne** (voir [00-lore.md](00-lore.md)) : des
+secteurs de **20 minutes maximum** chacun (`RUN_TIME = 1200`), enchaînés
+par saut hyperespace en conservant build et niveau. Boss vaincu = fragment
+d'holocron ; cinq fragments = vraie fin. Le déroulé d'un secteur :
 
 | Instant | Événement |
 |---|---|
 | 0:00 | Début, arme de départ du héros équipée |
 | toutes les 90 s | Élite « Seigneur Sith » (voir [07-boss.md](07-boss.md)) |
-| ~0:12 puis toutes les 24 s | Largage de ravitaillement si moins de 3 actifs |
+| ~0:12 puis toutes les 24 s (18 s en coop) | Largage de ravitaillement si moins de 3 actifs |
 | 14:50 | Annonce « Une présence puissante approche… » |
-| **15:00** | **Boss final du niveau** (`FINAL_BOSS_TIME = 900`) |
-| boss vaincu | Écran VICTOIRE : continuer jusqu'à 20:00 ou changer de destination |
-| **20:00** | Fin de partie « SURVIE ACCOMPLIE » (victoire même sans avoir tué le boss) |
+| **15:00** | **Boss final du secteur** (`FINAL_BOSS_TIME = 900`) |
+| boss vaincu | Écran SECTEUR LIBÉRÉ : **saut hyperespace** vers un secteur restant, poursuivre jusqu'à 20:00, ou abandonner la route |
+| **20:00** | « SURVIE ACCOMPLIE » : saut possible si le fragment est acquis, sinon la route s'arrête |
 
-La mort du joueur → écran TERRASSÉ. Dans tous les cas, les crédits de la
-partie sont bancarisés une seule fois (voir [09-progression.md](09-progression.md)).
+La mort de l'équipe → écran TERRASSÉ (fragments perdus). Dans tous les cas,
+les crédits sont bancarisés incrémentalement (voir [09-progression.md](09-progression.md)).
 
 ## Conditions de fin
 
 - **Défaite** : PV à 0 (sauf résurrection « Esprit de la Force » disponible).
-- **Victoire totale** : boss final vaincu (+50 PV, choix de poursuivre).
-- **Survie accomplie** : atteindre 20:00 en vie.
+- **Secteur libéré** : boss vaincu (+50 PV, fragment n/5, saut disponible).
+- **Vraie fin** : cinq fragments réunis — « L'HOLOCRON RENAÎT ».
+- **Survie accomplie** : atteindre 20:00 en vie ; sans le fragment du
+  secteur, la campagne s'arrête là.
 
 ## Contrôles
 
-| Joueur | Déplacement | Pause | Son |
+| Entrée | Déplacement | Pause | Son |
 |---|---|---|---|
-| J1 desktop | ZQSD / WASD / flèches (mapping physique `e.code`, compatible AZERTY) ; manette 0 en solo | P / Échap / Start | M |
-| J1 mobile | joystick virtuel flottant (course 48 px, zone morte 12 %) | bouton ⏸ | bouton ♪ |
-| J2 à J4 | manettes 0 à 2 (stick gauche ou croix, zone morte 25 %) | Start | — |
+| Manette n | pilote le joueur n, J1 compris (stick gauche ou croix, zone morte 25 %) | Start | — |
+| Clavier | ZQSD / WASD / flèches (mapping physique `e.code`, compatible AZERTY) — pilote le premier joueur **sans manette connectée** (J1 si chacun a la sienne) | P / Échap | M |
+| Mobile | joystick virtuel flottant (course 48 px, zone morte 12 %) — même joueur que le clavier | bouton ⏸ | bouton ♪ |
+
+Exemples : solo → J1 au clavier ou à la manette 1, au choix. Duo avec une
+seule manette → celui qui la tient est J1 (héros choisi au menu), le clavier
+pilote J2. Quatre manettes → le clavier ne pilote personne d'autre que J1.
 
 Les attaques sont **entièrement automatiques** : le seul input est le déplacement.
 
@@ -51,6 +60,29 @@ automatiquement les héros restants (4 héros = 4 joueurs max).
 - Les ennemis et boss ciblent le joueur vivant **le plus proche** ; les
   soins de boss vaincus profitent à toute l'équipe.
 - Couleurs : J1 cyan, J2 or, J3 vert, J4 rouge (barres de PV, halos, minimap).
+
+### Équilibrage coop
+
+Facteurs fixés au lancement d'après la taille d'équipe choisie au menu
+(ils ne baissent pas si un joueur tombe) — voir `coop*Mult()` dans `src/state.js` :
+
+| Joueurs | Densité de vagues | PV ennemis | PV élites et boss | Seuils d'XP | Plafond d'ennemis (base) |
+|---|---|---|---|---|---|
+| 1 | ×1 | ×1 | ×1 | ×1 | 230 |
+| 2 | ×1,5 | ×1,25 | ×1,7 | ×1,5 | 270 |
+| 3 | ×2 | ×1,5 | ×2,4 | ×2 | 310 |
+| 4 | ×2,5 | ×1,75 | ×3,1 | ×2,5 | 350 |
+
+Ces facteurs se composent avec la montée liée au **niveau d'équipe**
+(densité, PV et plafond grimpent avec `S.level`, plafond max 650 —
+voir [06-ennemis.md](06-ennemis.md)).
+
+À 4 joueurs, la « masse » d'ennemis (densité × PV) vaut ≈ ×4,4 face à un DPS
+d'équipe ≈ ×4. Les boss scalent plus fort que les vagues car ils encaissent le
+burst concentré de toute l'équipe. Les seuils d'XP suivent la densité : l'afflux
+de cristaux par minute augmente d'autant et chaque niveau distribue déjà un
+choix par joueur vivant, donc chaque joueur progresse au rythme du solo.
+Les ravitaillements passent de 24 s à **18 s** en coop (le Bacta sert de réanimation).
 
 ## HUD
 

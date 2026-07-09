@@ -6,7 +6,8 @@ balises), `src/gamedata.js` (`BONUSES`).
 ## Règles de largage
 
 - **3 caisses maximum** simultanément sur la carte.
-- Premier largage vers 0:12, puis tentative toutes les **24 s**.
+- Premier largage vers 0:12, puis tentative toutes les **24 s**
+  (**18 s** en coop : le Bacta y sert de réanimation).
 - Position : anneau de **700 à 1300 px** autour du joueur — il faut
   traverser la horde pour aller les chercher.
 - Annonce « RAVITAILLEMENT LARGUÉ — SUIS LA BALISE » ; les caisses

@@ -9,13 +9,14 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 | Module | Rôle |
 |---|---|
 | `core.js` | viewport (`view` : w/h/dpr/zoom, basé sur `visualViewport`), utilitaires (`rand`, `clamp`, `dist2`, `angleDiff`, `pick`) |
-| `state.js` | **état mutable partagé** : `S` (partie), `players[]` (équipe 1-4, chacun avec armes/passifs/combos), helpers (`alivePlayers`, `nearestPlayer`, `teamCenter`), `session`, `runtime`, tableaux d'entités |
+| `state.js` | **état mutable partagé** : `S` (partie), `players[]` (équipe 1-4, chacun avec armes/passifs/combos), `campaign` (fragments, secteur), helpers (`alivePlayers`, `nearestPlayer`, `teamCenter`), `session`, `runtime`, tableaux d'entités |
 | `gamedata.js` | définitions : armes, passifs, combos, personnages, bonus |
 | `levels.js` | destinations, boss, tuiles de sol procédurales, constantes de temps |
 | `meta.js` | crédits persistants (`localStorage`), coûts du hangar |
 | `sprites.js` | sprites pré-rendus en canvas (2× pour la netteté) |
 | `background.js` | étoiles, nébuleuses, constante `TILE` (1400) |
 | `audio.js` | sons synthétisés WebAudio (aucun asset) |
+| `music.js` | musique d'ambiance par destination (séquenceur pas à pas WebAudio) |
 | `input.js` | clavier (`keys`) + joystick tactile (`touch`) |
 | `enemies.js` | apparition, types, IA des boss |
 | `effects.js` | particules, anneaux, flashs, fantômes, `damageEnemy`/`hurtPlayer` |
@@ -47,7 +48,7 @@ frame(rawDt borné à [0, 50 ms])
 └── render()  (toujours : le fond anime aussi les menus)
 ```
 
-Scènes : `menu | play | levelup | victory | gameover` (+ `paused`).
+Scènes : `menu | play | levelup | combo | victory | gameover` (+ `paused`).
 
 ## Tests
 

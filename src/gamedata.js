@@ -2,57 +2,77 @@
 
 
 // ------------------------------ Définition des armes ------------------------------
-const MAXLVL = 6;
+// 25 paliers par arme : croissance continue à chaque niveau (dégâts, cadence,
+// portée) + jalon spectaculaire tous les 5-6 niveaux (lame, tir, droïde,
+// roquette supplémentaires). Au palier 25 : 6 lames, 6 tirs, 6 droïdes…
+const MAXLVL = 25;
+const g = (base, rate, l) => base * Math.pow(rate, l - 1); // croissance géométrique
+const ORD_F = ['Seconde', 'Troisième', 'Quatrième', 'Cinquième', 'Sixième'];
+const ORD_M = ['Second', 'Troisième', 'Quatrième', 'Cinquième', 'Sixième'];
 const WEAPONS = {
   saber: {
     name: 'Sabre laser', icon: '⚔️', tag: 'Arme',
-    desc: l => l === 0 ? 'Une lame verte orbite autour de toi.' : ['Dégâts +40 %', 'Rotation +30 %', 'Lame plus longue', 'Seconde lame', 'Dégâts +60 %'][l - 1],
-    stats: l => ({ dmg: 9 * [1, 1.4, 1.4, 1.4, 1.4, 2.2][l - 1] * (1 + (l - 1) * 0.12), len: l >= 4 ? 88 : 68, spd: l >= 3 ? 4.6 : 3.5, blades: l >= 5 ? 2 : 1 }),
+    desc: l => l === 0 ? 'Une lame verte orbite autour de toi.'
+      : (l + 1) % 5 === 0 ? ORD_F[(l + 1) / 5 - 1] + ' lame !'
+      : 'Lame plus longue et plus vive · dégâts +9 %',
+    stats: l => ({ dmg: g(9, 1.09, l), len: 60 + l * 4, spd: 3.4 + l * 0.1, blades: 1 + Math.floor(l / 5) }),
   },
   blaster: {
     name: 'Blaster', icon: '🔫', tag: 'Arme',
-    desc: l => l === 0 ? 'Tire automatiquement sur l\'ennemi le plus proche.' : ['Cadence +25 %', 'Tir double', 'Dégâts +50 %', 'Tir triple', 'Cadence +35 %'][l - 1],
-    stats: l => ({ dmg: 12 * (l >= 4 ? 1.5 : 1), cd: 0.85 * (l >= 2 ? 0.75 : 1) * (l >= 6 ? 0.65 : 1), shots: l >= 5 ? 3 : (l >= 3 ? 2 : 1) }),
+    desc: l => l === 0 ? 'Tire automatiquement sur l\'ennemi le plus proche.'
+      : (l + 1) % 5 === 0 ? 'Tir ' + ['double', 'triple', 'quadruple', 'quintuple', 'sextuple'][(l + 1) / 5 - 1] + ' !'
+      : 'Dégâts +7 % · cadence +3,5 %',
+    stats: l => ({ dmg: g(12, 1.07, l), cd: g(0.85, 0.965, l), shots: 1 + Math.floor(l / 5) }),
   },
   wave: {
     name: 'Onde de Force', icon: '🌀', tag: 'Pouvoir',
-    desc: l => l === 0 ? 'Repousse et blesse tout autour de toi.' : ['Rayon +25 %', 'Dégâts +50 %', 'Recharge -25 %', 'Rayon +30 %', 'Dégâts +60 %'][l - 1],
-    stats: l => ({ dmg: 15 * (l >= 3 ? 1.5 : 1) * (l >= 6 ? 1.6 : 1), cd: 4.2 * (l >= 4 ? 0.75 : 1), radius: 150 * (l >= 2 ? 1.25 : 1) * (l >= 5 ? 1.3 : 1) }),
+    desc: l => l === 0 ? 'Repousse et blesse tout autour de toi.' : 'Rayon +5 % · dégâts +9 % · recharge -3 %',
+    stats: l => ({ dmg: g(15, 1.09, l), cd: g(4.2, 0.97, l), radius: 140 * (1 + 0.05 * (l - 1)) }),
   },
   lightning: {
     name: 'Éclairs de Force', icon: '⚡', tag: 'Pouvoir',
-    desc: l => l === 0 ? 'Foudroie un ennemi et se propage en chaîne.' : ['+1 rebond', 'Dégâts +40 %', '+2 rebonds', 'Recharge -30 %', 'Dégâts +70 %'][l - 1],
-    stats: l => ({ dmg: 18 * (l >= 3 ? 1.4 : 1) * (l >= 6 ? 1.7 : 1), cd: 2.6 * (l >= 5 ? 0.7 : 1), chains: 2 + (l >= 2 ? 1 : 0) + (l >= 4 ? 2 : 0) }),
+    desc: l => l === 0 ? 'Foudroie un ennemi et se propage en chaîne.'
+      : (l + 1) % 3 === 0 ? '+1 rebond · dégâts +8 %'
+      : 'Dégâts +8 % · recharge -3 %',
+    stats: l => ({ dmg: g(18, 1.08, l), cd: g(2.6, 0.97, l), chains: 2 + Math.floor(l / 3) }),
   },
   drone: {
     name: 'Droïde de combat', icon: '🛰️', tag: 'Allié',
-    desc: l => l === 0 ? 'Un droïde orbite et mitraille tes ennemis.' : ['Cadence +30 %', 'Second droïde', 'Dégâts +50 %', 'Troisième droïde', 'Cadence +40 %'][l - 1],
-    stats: l => ({ dmg: 8 * (l >= 4 ? 1.5 : 1), cd: 1.1 * (l >= 2 ? 0.7 : 1) * (l >= 6 ? 0.6 : 1), count: 1 + (l >= 3 ? 1 : 0) + (l >= 5 ? 1 : 0) }),
+    desc: l => l === 0 ? 'Un droïde orbite et mitraille tes ennemis.'
+      : (l + 1) % 5 === 0 ? ORD_M[(l + 1) / 5 - 1] + ' droïde !'
+      : 'Dégâts +8 % · cadence +4 %',
+    stats: l => ({ dmg: g(8, 1.08, l), cd: g(1.1, 0.96, l), count: 1 + Math.floor(l / 5) }),
   },
   spear: {
     name: 'Lances ewoks', icon: '🏹', tag: 'Arme',
-    desc: l => l === 0 ? 'Lance perforante qui traverse les rangs.' : ['Dégâts +30 %', 'Seconde lance', 'Cadence +25 %', 'Troisième lance', 'Dégâts +60 %'][l - 1],
-    stats: l => ({ dmg: 11 * (l >= 2 ? 1.3 : 1) * (l >= 6 ? 1.6 : 1), cd: 1.25 * (l >= 4 ? 0.75 : 1), count: 1 + (l >= 3 ? 1 : 0) + (l >= 5 ? 1 : 0) }),
+    desc: l => l === 0 ? 'Lance perforante qui traverse les rangs.'
+      : (l + 1) % 5 === 0 ? ORD_F[(l + 1) / 5 - 1] + ' lance !'
+      : 'Dégâts +8 % · cadence +3 %',
+    stats: l => ({ dmg: g(11, 1.08, l), cd: g(1.25, 0.97, l), count: 1 + Math.floor(l / 5) }),
   },
   rocket: {
     name: 'Roquettes', icon: '🚀', tag: 'Arme',
-    desc: l => l === 0 ? 'Roquette qui explose en zone.' : ['Zone +30 %', 'Dégâts +50 %', 'Recharge -25 %', 'Seconde roquette', 'Zone et dégâts +40 %'][l - 1],
-    stats: l => ({ dmg: 16 * (l >= 3 ? 1.5 : 1) * (l >= 6 ? 1.4 : 1), cd: 2.1 * (l >= 4 ? 0.75 : 1), radius: 70 * (l >= 2 ? 1.3 : 1) * (l >= 6 ? 1.4 : 1), count: l >= 5 ? 2 : 1 }),
+    desc: l => l === 0 ? 'Roquette qui explose en zone.'
+      : (l + 1) % 6 === 0 ? 'Roquette supplémentaire !'
+      : 'Zone +4 % · dégâts +8 %',
+    stats: l => ({ dmg: g(16, 1.08, l), cd: g(2.1, 0.975, l), radius: 65 * (1 + 0.04 * (l - 1)), count: 1 + Math.floor(l / 6) }),
   },
   detonator: {
     name: 'Détonateur thermique', icon: '💣', tag: 'Arme',
-    desc: l => l === 0 ? 'Lobe une grenade qui explose en zone.' : ['Dégâts +40 %', 'Zone +30 %', 'Recharge -25 %', 'Seconde grenade', 'Dégâts et zone +40 %'][l - 1],
-    stats: l => ({ dmg: 24 * (l >= 2 ? 1.4 : 1) * (l >= 6 ? 1.4 : 1), cd: 2.9 * (l >= 4 ? 0.75 : 1), radius: 85 * (l >= 3 ? 1.3 : 1) * (l >= 6 ? 1.4 : 1), count: l >= 5 ? 2 : 1 }),
+    desc: l => l === 0 ? 'Lobe une grenade qui explose en zone.'
+      : (l + 1) % 6 === 0 ? 'Grenade supplémentaire !'
+      : 'Zone +4,5 % · dégâts +8 %',
+    stats: l => ({ dmg: g(24, 1.08, l), cd: g(2.9, 0.972, l), radius: 80 * (1 + 0.045 * (l - 1)), count: 1 + Math.floor(l / 6) }),
   },
   flame: {
     name: 'Lance-flammes', icon: '🔥', tag: 'Arme',
-    desc: l => l === 0 ? 'Cône de feu soutenu vers l\'ennemi le plus proche.' : ['Dégâts +35 %', 'Portée +30 %', 'Durée +40 %', 'Recharge -25 %', 'Dégâts +60 %'][l - 1],
-    stats: l => ({ dmg: 7 * (l >= 2 ? 1.35 : 1) * (l >= 6 ? 1.6 : 1), cd: 2.4 * (l >= 5 ? 0.75 : 1), range: 140 * (l >= 3 ? 1.3 : 1), dur: 0.9 * (l >= 4 ? 1.4 : 1) }),
+    desc: l => l === 0 ? 'Cône de feu soutenu vers l\'ennemi le plus proche.' : 'Portée +4,5 % · durée +3 % · dégâts +8,5 %',
+    stats: l => ({ dmg: g(7, 1.085, l), cd: g(2.4, 0.975, l), range: 130 * (1 + 0.045 * (l - 1)), dur: 0.9 * (1 + 0.03 * (l - 1)) }),
   },
   ion: {
     name: 'Champ ionique', icon: '🌐', tag: 'Pouvoir',
-    desc: l => l === 0 ? 'Aura permanente qui électrocute et ralentit.' : ['Rayon +25 %', 'Dégâts +50 %', 'Ralentissement renforcé', 'Rayon +30 %', 'Dégâts +60 %'][l - 1],
-    stats: l => ({ dmg: 4 * (l >= 3 ? 1.5 : 1) * (l >= 6 ? 1.6 : 1), radius: 85 * (l >= 2 ? 1.25 : 1) * (l >= 5 ? 1.3 : 1), slow: l >= 4 ? 0.45 : 0.3 }),
+    desc: l => l === 0 ? 'Aura permanente qui électrocute et ralentit.' : 'Rayon +5 % · dégâts +9 % · ralentissement renforcé',
+    stats: l => ({ dmg: g(4, 1.09, l), radius: 80 * (1 + 0.05 * (l - 1)), slow: Math.min(0.75, 0.28 + l * 0.02) }),
   },
 };
 

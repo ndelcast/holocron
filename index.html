@@ -9,7 +9,7 @@
 <title>Holocron Survivors</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div id="vignette"></div>
@@ -39,6 +39,7 @@
     <div id="hpbar"><div id="hpfill"></div></div>
   </div>
   <div id="weapons"></div>
+  <div id="frags" title="Fragments d'holocron">◇◇◇◇◇</div>
   <div id="hudbtns">
     <button id="pauseBtn" class="hudbtn" aria-label="Pause">⏸</button>
     <button id="muteBtn" class="hudbtn" aria-label="Son">♪</button>
@@ -51,9 +52,12 @@
   <div class="subtitle">Survis à l'Empire</div>
   <div class="rule"></div>
   <p class="crawl">
-    Dernier espoir face à l'Empire, tu es traqué aux confins de la galaxie.
-    Survis <b>20 minutes</b> aux légions impériales. À <b>15:00</b>, le seigneur
-    du secteur viendra en personne. Terrasse-le pour libérer la destination.
+    L'Empire a brisé le <b>dernier holocron Jedi</b> en cinq fragments, confiés
+    aux seigneurs de cinq secteurs. Dernier porteur, tu es traqué aux confins
+    de la galaxie. Survis <b>20 minutes</b> par secteur ; à <b>15:00</b>, le
+    seigneur viendra en personne — terrasse-le, arrache-lui son fragment et
+    saute vers le secteur suivant. <b>Réunis les cinq fragments</b> pour que
+    la Force renaisse.
   </p>
   <div id="creditline">CRÉDITS : <b id="creditsLabel">0</b> ©</div>
   <button class="holo" id="hangarBtn" style="margin-top:10px; font-size:13px; padding:10px 30px;">HANGAR — AMÉLIORATIONS</button>
@@ -63,7 +67,7 @@
   <div id="levels"></div>
   <div class="sectlabel">ÉQUIPE</div>
   <div id="teamsel"></div>
-  <div class="teamhint">J1 : clavier / tactile · J2-J4 : manettes</div>
+  <div class="teamhint">Chaque joueur branche sa manette · le clavier pilote le premier joueur sans manette</div>
   <button class="holo" id="startBtn">LANCER LA PARTIE</button>
   <div class="hint">
     <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour bouger ·
@@ -78,6 +82,15 @@
 <div id="levelup" class="overlay">
   <h2>LA FORCE GRANDIT</h2>
   <div id="cards"></div>
+</div>
+
+<div id="combomodal" class="overlay">
+  <div id="combostars">✦ ✧ ✦</div>
+  <h2 id="combotitle">COMBO DÉBLOQUÉ&nbsp;!</h2>
+  <div id="comboplayer"></div>
+  <div id="comboformula"></div>
+  <p id="combodesc"></p>
+  <button class="holo" id="comboOk">LA CLASSE&nbsp;!</button>
 </div>
 
 <div id="gameover" class="overlay">
@@ -100,6 +113,10 @@
   <h1 class="title" id="victtitle">VICTOIRE</h1>
   <div class="subtitle" id="victsub"></div>
   <div id="victstats"></div>
+  <div id="jumpwrap">
+    <div class="sectlabel">SAUT HYPERESPACE — PROCHAIN SECTEUR</div>
+    <div id="jumpchips"></div>
+  </div>
   <button class="holo" id="continueBtn">POURSUIVRE JUSQU'À 20:00</button>
   <button class="holo" id="menuBtn3" style="margin-top:14px">CHANGER DE DESTINATION</button>
 </div>

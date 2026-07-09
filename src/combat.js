@@ -62,7 +62,7 @@ function tickPlayerWeapons(p, dt) {
         w.angle = (w.angle || 0) + st.spd * dt;
         const blades = st.blades;
         for (let b = 0; b < blades; b++) {
-          const ba = w.angle + b * Math.PI;
+          const ba = w.angle + b * (Math.PI * 2 / blades);
           for (const e of enemies) {
             if (S.time - e.saberHit < 0.28) continue;
             const d = Math.hypot(e.x - player.x, e.y - player.y);

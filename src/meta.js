@@ -1,5 +1,5 @@
 // Holocron Survivors — crédits, sauvegarde localStorage, hangar (logique)
-import { S } from './state.js';
+import { S, campaign } from './state.js';
 
 // ------------------------------ Méta-progression (crédits persistants) ------------------------------
 const META = {
@@ -24,11 +24,15 @@ const META_STATE = loadMeta();
 function saveMeta() { try { localStorage.setItem('holocron_meta', JSON.stringify(META_STATE)); } catch (e) {} }
 function metaLvl(id) { return META_STATE.up[id] || 0; }
 function metaCost(id) { return META[id].base * (metaLvl(id) + 1); }
+// Bancarisation incrémentale : chaque écran de fin verse la différence entre
+// le total mérité par la campagne (stats cumulées, 250 © par fragment) et ce
+// qui a déjà été versé — les secteurs enchaînés ne comptent jamais double.
 function bankRewards() {
-  if (S.rewarded) return 0;
-  S.rewarded = true;
-  let c = Math.floor(S.kills * 0.5 + S.level * 5 + (S.time / 60) * 10 + (S.bossDefeated ? 250 : 0));
-  c = Math.floor(c * (1 + 0.10 * metaLvl('greed')));
+  const minutes = (campaign.prevTime + S.time) / 60;
+  let total = Math.floor(S.kills * 0.5 + S.level * 5 + minutes * 10 + campaign.fragments.length * 250);
+  total = Math.floor(total * (1 + 0.10 * metaLvl('greed')));
+  const c = Math.max(0, total - S.banked);
+  S.banked = total;
   META_STATE.credits += c;
   saveMeta();
   updateCreditsUI();

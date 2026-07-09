@@ -1,13 +1,17 @@
 // Holocron Survivors — expérience, choix d'améliorations, listes UI
-import { S, session, runtime, players, alivePlayers, PLAYER_TINT, addRing } from './state.js';
+import { S, session, runtime, players, alivePlayers, PLAYER_TINT, addRing, coopSpawnMult } from './state.js';
 import { MAXLVL, WEAPONS, PASSIVES, COMBOS, weaponLvl } from './gamedata.js';
 import { LEVELS } from './levels.js';
 import { sfx } from './audio.js';
-import { addText, burst, sparks, flash } from './effects.js';
+import { burst, sparks, flash } from './effects.js';
 import { resetFrameClock } from './lifecycle.js';
 
 // ------------------------------ Level up ------------------------------
-function xpFor(level) { return Math.floor(8 * Math.pow(1.28, level - 1) + level * 2); }
+// Courbe douce (polynomiale, pas exponentielle) : ~4 niveaux/min pour viser
+// le niveau 70-80 à 20 min, où les armes à 25 paliers déploient tout leur
+// spectacle. Seuil × densité coop : l'afflux d'XP suit le nombre d'ennemis,
+// et chaque niveau distribue déjà un choix par joueur.
+function xpFor(level) { return Math.floor((10 + Math.pow(level, 1.35)) * coopSpawnMult()); }
 
 function gainXp(v, owner = null) {
   const mult = ((owner && owner.xpMult) || 1) * (LEVELS[session.level].xpMult || 1);
@@ -47,6 +51,7 @@ function buildChoices(p) {
   }
   for (const id in PASSIVES) {
     const lvl = p.passives[id] || 0;
+    if (lvl === 0 && Object.keys(p.passives).length >= 4) continue; // 4 passifs max par joueur
     if (lvl < PASSIVES[id].max) opts.push({ kind: 'passive', id, lvl });
   }
   for (let i = opts.length - 1; i > 0; i--) {
@@ -111,6 +116,7 @@ function applyChoice(opt) {
   }
   checkCombos(p);
   renderWeaponSlots();
+  if (runtime.comboQueue.length) { openComboModal(); return; } // la modal reprendra la file
   if (runtime.lvlQueue.length > 0) { openLevelUp(); return; } // joueur suivant
   closeLevelUp();
 }
@@ -127,11 +133,47 @@ function checkCombos(p) {
     if (p.combos.has(id)) continue;
     if (c.parts.every(part => weaponLvl(p, part) > 0)) {
       p.combos.add(id);
-      sfx.lvl();
-      const tag = session.count > 1 ? `J${p.idx + 1} — ` : '';
-      addText(p.x, p.y - 50, tag + 'COMBO : ' + c.name.toUpperCase(), '#ffd166', 18, 2.5);
+      runtime.comboQueue.push({ pidx: p.idx, id }); // annoncé par la modal (openComboModal)
     }
   }
+}
+
+// ------------------------------ Modal d'annonce de combo ------------------------------
+const COMBO_CRIES = ['LA CLASSE !', 'TROP FORT !', 'LA FORCE EST AVEC MOI !', 'INARRÊTABLE !'];
+
+function openComboModal() {
+  const { pidx, id } = runtime.comboQueue.shift();
+  const c = COMBOS[id];
+  const p = players[pidx];
+  S.scene = 'combo';
+  sfx.lvl();
+  document.getElementById('levelup').classList.remove('on');
+  const tag = document.getElementById('comboplayer');
+  tag.textContent = session.count > 1 ? `JOUEUR ${pidx + 1}` : '';
+  tag.style.color = PLAYER_TINT[pidx];
+  const [a, b] = c.parts.map(w => WEAPONS[w]);
+  document.getElementById('comboformula').innerHTML =
+    `<div class="cf"><div class="cfico">${a.icon}</div><div class="cfn">${a.name}</div></div>
+     <div class="cfop">+</div>
+     <div class="cf"><div class="cfico">${b.icon}</div><div class="cfn">${b.name}</div></div>
+     <div class="cfop">=</div>
+     <div class="cf cfres"><div class="cfico">${c.icon}</div><div class="cfn">${c.name}</div></div>`;
+  document.getElementById('combodesc').textContent = c.desc;
+  const ok = document.getElementById('comboOk');
+  ok.textContent = COMBO_CRIES[Math.floor(Math.random() * COMBO_CRIES.length)];
+  ok.onclick = closeComboModal;
+  document.getElementById('combomodal').classList.add('on');
+  addRing(p.x, p.y, 320, '255,209,102', 5, 0.8);
+  burst(p.x, p.y, '#ffd166', 22, 320);
+  sparks(p.x, p.y, '255,220,140', 14, 380);
+}
+
+function closeComboModal() {
+  if (runtime.comboQueue.length) { openComboModal(); return; } // combo suivant (arme partagée)
+  document.getElementById('combomodal').classList.remove('on');
+  if (runtime.lvlQueue.length > 0) { S.scene = 'levelup'; openLevelUp(); return; }
+  S.scene = 'play';
+  resetFrameClock();
 }
 
 function renderWeaponSlots() {
@@ -174,4 +216,4 @@ function buildComboList() {
   }
 }
 
-export { xpFor, gainXp, openLevelUp, applyChoice, checkCombos, renderWeaponSlots, buildComboList };
+export { xpFor, gainXp, openLevelUp, applyChoice, checkCombos, openComboModal, renderWeaponSlots, buildComboList };

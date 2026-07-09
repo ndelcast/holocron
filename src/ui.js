@@ -6,6 +6,7 @@ import { LEVELS } from './levels.js';
 import { tone, sfx, toggleMute } from './audio.js';
 import { META, META_STATE, saveMeta, metaLvl, metaCost, updateCreditsUI } from './meta.js';
 import { startGame, resetFrameClock, togglePause } from './lifecycle.js';
+import { startMusic } from './music.js';
 
 // ------------------------------ Sélection de personnage ------------------------------
 function buildCharSelect() {
@@ -131,6 +132,7 @@ document.getElementById('continueBtn').onclick = () => {
   document.getElementById('victory').classList.remove('on');
   document.getElementById('hud').classList.add('on');
   S.scene = 'play';
+  startMusic(session.level);
   resetFrameClock();
 };
 document.getElementById('menuBtn3').onclick = () => {

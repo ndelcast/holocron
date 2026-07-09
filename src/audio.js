@@ -34,5 +34,8 @@ function audioResume() {
   audioInit();
   if (AC && AC.state === 'suspended') AC.resume();
 }
+// accès pour le séquenceur musical (music.js)
+function audioCtx() { return AC; }
+function isMuted() { return muted; }
 
-export { tone, sfx, audioResume, toggleMute };
+export { tone, sfx, audioResume, toggleMute, audioCtx, isMuted };

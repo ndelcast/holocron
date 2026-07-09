@@ -8,6 +8,7 @@ Vanilla JS + PixiJS (WebGL), sprites et sons procéduraux. Jouable sur
 
 | Document | Contenu |
 |---|---|
+| [00-lore.md](00-lore.md) | Histoire, campagne « Route de l'Hyperespace », roadmap |
 | [01-gameplay.md](01-gameplay.md) | Boucle de jeu, déroulé d'une partie, contrôles, HUD |
 | [02-personnages.md](02-personnages.md) | Les 4 héros jouables |
 | [03-armes.md](03-armes.md) | Les 10 armes et leurs paliers |

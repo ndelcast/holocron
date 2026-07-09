@@ -446,3 +446,142 @@ canvas#game { touch-action: none; }
 }
 
 .legal { margin-top: 18px; font-size: 10.5px; letter-spacing: .06em; color: #3d5568; max-width: 82vw; line-height: 1.5; }
+
+/* ================================================================
+   DA v3 — cartoon : typo ronde, coins arrondis, rebonds
+   Écrase la v2 : les découpes anguleuses deviennent des rondeurs.
+   ================================================================ */
+
+/* ---------- Typo : Baloo 2 remplace Orbitron partout ---------- */
+h1.title, #levelup h2, #paused h2, #hangar h2, button.holo, .meta button.buy,
+#topline, #lvltag, #bossname, .card .name, .sectlabel, .cchar .cname,
+.lvlchip .lname, #creditline, #hangarcredits, .meta .mn, .combo .cn,
+.cstate, .tchip, .plabel {
+  font-family: 'Baloo 2', 'Rajdhani', sans-serif;
+}
+h1.title { letter-spacing: .02em; transform: rotate(-2deg); }
+#levelup h2 { letter-spacing: .06em; font-size: 30px; }
+#paused h2, #hangar h2 { letter-spacing: .1em; }
+.subtitle { letter-spacing: .3em; }
+.sectlabel { letter-spacing: .3em; font-size: 12px; }
+#timer { font-size: 27px; padding-top: 0; }
+button.holo { letter-spacing: .08em; font-size: 18px; font-weight: 700; }
+.card .tag { letter-spacing: .14em; }
+
+/* ---------- Rondeurs : plus de découpes clip-path ---------- */
+button.holo, .meta button.buy, .card, .cchar, .lvlchip, .tchip, .wslot,
+.hudbtn, .combo, .meta, #timer, #hpbar, .pbar, #bosshp {
+  clip-path: none;
+}
+.card { border-radius: 22px; border-width: 2.5px; }
+.cchar, .lvlchip { border-radius: 18px; border-width: 2px; }
+.combo, .meta { border-radius: 16px; border-width: 2px; }
+.wslot { border-radius: 13px; border-width: 2px; }
+.hudbtn { border-radius: 13px; border-width: 2px; }
+.tchip { border-radius: 999px; border-width: 2px; }
+#timer { border-width: 2px; border-top: none; border-radius: 0 0 18px 18px; }
+#hpbar, .pbar, #bosshp { border-radius: 999px; overflow: hidden; border-width: 2px; }
+.hint kbd { border-radius: 7px; border-width: 1.5px; }
+.corner.tl { border-top-left-radius: 20px; }
+.corner.tr { border-top-right-radius: 20px; }
+.corner.bl { border-bottom-left-radius: 20px; }
+.corner.br { border-bottom-right-radius: 20px; }
+.corner::after { border-radius: 50%; }
+
+/* ---------- Boutons : pastille bondissante avec socle ---------- */
+button.holo {
+  border-radius: 999px; border-width: 2.5px;
+  background: rgba(110,231,255,.10);
+  box-shadow: 0 5px 0 rgba(58,150,178,.55);
+}
+button.holo::after { clip-path: none; border-radius: 999px; inset: 4px; }
+button.holo:hover { transform: translateY(-2px) rotate(-1deg) scale(1.03); box-shadow: 0 7px 0 rgba(58,150,178,.55); }
+button.holo:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(58,150,178,.55); }
+.meta button.buy { border-radius: 999px; border-width: 2px; box-shadow: 0 3px 0 rgba(178,140,58,.5); }
+.meta button.buy:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(178,140,58,.5); }
+
+/* ---------- Rebonds et pops ---------- */
+.card:hover { transform: translateY(-8px) rotate(-1.6deg) scale(1.05); }
+.card:nth-child(2):hover { transform: translateY(-8px) rotate(1.6deg) scale(1.05); }
+.card:hover .icon { animation: wiggle .45s ease-in-out; }
+@keyframes wiggle {
+  25% { transform: rotate(-9deg) scale(1.12); }
+  75% { transform: rotate(9deg) scale(1.12); }
+}
+.cchar.sel, .lvlchip.sel, .tchip.sel { animation: popIn .3s cubic-bezier(.2, 1.8, .4, 1); }
+@keyframes popIn { 0% { transform: scale(.88); } 60% { transform: scale(1.07); } 100% { transform: scale(1); } }
+.cchar:hover { transform: translateY(-4px) rotate(-1deg); }
+.lvlchip:hover { transform: translateY(-3px) rotate(1deg); }
+.wslot:hover { transform: translateY(-3px) rotate(-4deg); }
+
+/* ================================================================
+   Modal d'annonce de combo
+   ================================================================ */
+#combomodal { z-index: 12; background: radial-gradient(ellipse at 50% 42%, rgba(52,40,8,.78), rgba(6,8,14,.92)); }
+#combostars {
+  font-size: 30px; color: var(--gold); letter-spacing: .5em; text-indent: .5em;
+  animation: starSpin 2.6s ease-in-out infinite;
+}
+@keyframes starSpin { 50% { transform: scale(1.25) rotate(6deg); opacity: .75; } }
+#combotitle {
+  font-family: 'Baloo 2', 'Rajdhani', sans-serif;
+  font-size: clamp(32px, 6vw, 54px); font-weight: 800; letter-spacing: .03em;
+  color: var(--gold); text-shadow: 0 0 26px rgba(255,209,102,.5);
+  transform: rotate(-2deg); margin-top: 6px;
+  animation: comboPop .5s cubic-bezier(.2, 1.9, .4, 1) backwards, lvlGlow 1.6s ease-in-out infinite;
+}
+@keyframes comboPop { from { opacity: 0; transform: rotate(-8deg) scale(.4); } }
+#comboplayer { margin-top: 4px; font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .3em; }
+#comboformula { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 26px 16px 4px; }
+.cf {
+  width: 112px; padding: 14px 8px 11px; border-radius: 18px;
+  background: linear-gradient(180deg, rgba(14,34,52,.92), rgba(6,14,24,.92));
+  border: 2px solid rgba(110,231,255,.4);
+  animation: cardIn .45s cubic-bezier(.2, .9, .3, 1.35) backwards;
+}
+#comboformula .cf:nth-child(1) { animation-delay: .1s; }
+#comboformula .cf:nth-child(3) { animation-delay: .25s; }
+#comboformula .cfres { animation-delay: .45s; }
+.cf .cfico { font-size: 32px; }
+.cf .cfn { font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: #fff; margin-top: 3px; line-height: 1.15; }
+.cfop { font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 36px; font-weight: 800; color: var(--holo); text-shadow: 0 0 12px var(--holo-dim); }
+.cf.cfres {
+  width: 132px; transform: scale(1.1); border-color: var(--gold);
+  background: linear-gradient(180deg, rgba(52,42,12,.94), rgba(24,16,4,.94));
+  box-shadow: 0 0 34px rgba(255,209,102,.35);
+}
+.cf.cfres .cfico { font-size: 40px; filter: drop-shadow(0 0 10px rgba(255,209,102,.6)); }
+.cf.cfres .cfn { color: var(--gold); }
+#combodesc { max-width: 460px; margin-top: 20px; padding: 0 18px; font-size: 17px; line-height: 1.5; color: #ffe9b8; }
+#comboOk { margin-top: 24px; border-color: var(--gold); color: var(--gold); background: rgba(255,209,102,.08); box-shadow: 0 5px 0 rgba(178,140,58,.55); }
+#comboOk::after { border-color: rgba(255,209,102,.25); }
+#comboOk:hover { background: rgba(255,209,102,.2); box-shadow: 0 7px 0 rgba(178,140,58,.55); }
+#comboOk:active { box-shadow: 0 1px 0 rgba(178,140,58,.55); }
+
+/* ================================================================
+   Campagne : fragments d'holocron et saut hyperespace
+   ================================================================ */
+#frags {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  font-size: 19px; letter-spacing: .3em; text-indent: .3em; color: var(--gold);
+  text-shadow: 0 0 12px rgba(255,209,102,.45);
+}
+#jumpwrap { margin-top: 22px; }
+#jumpchips { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; padding: 0 14px; }
+#jumpchips .lvlchip { width: 118px; }
+
+@media (max-width: 640px), (max-height: 520px) {
+  #frags { font-size: 14px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+  #jumpchips .lvlchip { width: 30vw; max-width: 118px; }
+}
+
+@media (max-width: 640px), (max-height: 520px) {
+  #combotitle { font-size: 26px; }
+  #comboformula { gap: 8px; margin-top: 16px; }
+  .cf { width: 88px; padding: 10px 6px 8px; }
+  .cf .cfico { font-size: 24px; }
+  .cf .cfn { font-size: 11px; }
+  .cf.cfres { width: 104px; }
+  .cfop { font-size: 26px; }
+  #combodesc { font-size: 14px; }
+}
