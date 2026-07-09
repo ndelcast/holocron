@@ -6,7 +6,9 @@ Sources : `src/enemies.js` (`spawnFinalBoss`, `bossAI`), `src/levels.js` (`BOSSE
 
 Toutes les **90 s** (suspendu pendant le duel final).
 PV `380 × (1 + t/70) × (1 + 0,03 × niveau) × facteur coop`, vitesse 62, dégâts 26, XP 40.
-À sa mort : **+30 PV** au joueur, ralenti dramatique court, anneau doré.
+À sa mort : **+30 PV** au joueur, ralenti dramatique court, anneau doré, et
+il **lâche son arsenal** — l'armement lourd thématique du secteur (voir
+[08-ravitaillements.md](08-ravitaillements.md)), si aucun n'est déjà en jeu.
 
 ## Boss finaux (15:00)
 

@@ -87,7 +87,7 @@ function buildHpBars() {
 
 function resetGame() {
   S.time = 0; S.kills = 0; S.level = 1; S.xp = 0; S.xpNext = xpFor(1);
-  S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.vehT = 130 + Math.random() * 60; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
+  S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.shake = 0; S.paused = false; runtime.pendingLvls = 0;
   vehicle.drop = null; vehicle.active = null;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; screenFlash.a = 0;
@@ -151,7 +151,7 @@ function jumpToSector(levelId) {
   session.level = levelId;
   campaign.sector++;
   campaign.prevTime += S.time;
-  S.time = 0; S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.vehT = 130 + Math.random() * 60; S.bonusT = 12;
+  S.time = 0; S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.bonusT = 12;
   vehicle.drop = null; vehicle.active = null;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; S.shake = 0; S.zoomKick = 0; S.streak = 0; S.streakT = 0;

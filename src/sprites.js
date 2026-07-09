@@ -508,4 +508,70 @@ SPR.drone = makeSprite(30, g => {
   g.beginPath(); g.arc(0, -1, 1.8, 0, Math.PI * 2); g.fill();
 });
 
+// ------------------------------ Armement lourd ------------------------------
+// Tourelle laser : socle sombre, double canon cyan
+SPR.v_turret = makeSprite(72, g => {
+  glow(g, 32, 'rgba(110,231,255,.18)');
+  g.fillStyle = '#0d1826'; g.beginPath(); g.ellipse(0, 12, 26, 10, 0, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#2a4a66'; g.lineWidth = 2; g.stroke();
+  g.fillStyle = '#16283c'; g.beginPath(); g.arc(0, 0, 15, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#6ee7ff'; g.lineWidth = 2; g.stroke();
+  g.fillStyle = '#20364e';
+  g.fillRect(-8, -26, 5, 22); g.fillRect(3, -26, 5, 22);
+  g.fillStyle = '#6ee7ff'; g.fillRect(-8, -28, 5, 4); g.fillRect(3, -28, 5, 4);
+  g.fillStyle = '#9feaff'; g.beginPath(); g.arc(0, 0, 5, 0, Math.PI * 2); g.fill();
+});
+// Turbolaser : plus massif, liserés rouges
+SPR.v_turbo = makeSprite(80, g => {
+  glow(g, 36, 'rgba(255,59,59,.18)');
+  g.fillStyle = '#181114'; g.beginPath(); g.ellipse(0, 14, 30, 11, 0, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#5a2430'; g.lineWidth = 2.5; g.stroke();
+  g.fillStyle = '#241a20'; g.beginPath(); g.arc(0, 0, 18, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#ff3b3b'; g.lineWidth = 2.5; g.stroke();
+  g.fillStyle = '#33222b'; g.fillRect(-6, -32, 12, 28);
+  g.fillStyle = '#ff3b3b'; g.fillRect(-6, -34, 12, 5);
+  g.fillStyle = '#ff8f6b'; g.beginPath(); g.arc(0, 0, 6, 0, Math.PI * 2); g.fill();
+});
+// Landspeeder : carlingue effilée sable, pare-brise, turbines arrière
+SPR.v_speeder = makeSprite(84, g => {
+  glow(g, 34, 'rgba(217,177,132,.15)');
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(0, 16, 30, 7, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#c9a06a';
+  g.beginPath(); g.moveTo(-30, 4); g.quadraticCurveTo(-32, -6, -18, -8);
+  g.lineTo(20, -8); g.quadraticCurveTo(34, -6, 32, 2); g.quadraticCurveTo(30, 8, 18, 9);
+  g.lineTo(-22, 9); g.quadraticCurveTo(-30, 8, -30, 4); g.closePath(); g.fill();
+  g.strokeStyle = '#8a6a42'; g.lineWidth = 2; g.stroke();
+  g.fillStyle = '#9fdcff'; g.beginPath(); g.moveTo(-2, -8); g.quadraticCurveTo(6, -15, 14, -8); g.closePath(); g.fill();
+  g.fillStyle = '#6b4f30';
+  g.beginPath(); g.arc(-26, -2, 5, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.arc(-24, 6, 4, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#ffb166'; g.beginPath(); g.arc(-29, -2, 2, 0, Math.PI * 2); g.fill();
+});
+// Snowspeeder : coin blanc cassé, bandes oranges, volets arrière
+SPR.v_snow = makeSprite(84, g => {
+  glow(g, 34, 'rgba(223,233,242,.16)');
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(0, 16, 30, 7, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#d8dfe6';
+  g.beginPath(); g.moveTo(30, 0); g.lineTo(-14, -10); g.lineTo(-30, -6); g.lineTo(-30, 8); g.lineTo(-10, 10); g.closePath(); g.fill();
+  g.strokeStyle = '#8895a2'; g.lineWidth = 2; g.stroke();
+  g.fillStyle = '#ff8f3b'; g.fillRect(-24, -6, 6, 14); g.fillRect(-8, -8, 5, 17);
+  g.fillStyle = '#9fdcff'; g.beginPath(); g.moveTo(16, -3); g.lineTo(26, 0); g.lineTo(14, 2); g.closePath(); g.fill();
+  g.fillStyle = '#aab6c2'; g.fillRect(-32, -8, 4, 16);
+});
+// AT-ST détourné : tête carrée, viseurs, deux pattes
+SPR.v_atst = makeSprite(96, g => {
+  glow(g, 38, 'rgba(138,143,122,.16)');
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(0, 34, 26, 6, 0, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#6a705c'; g.lineWidth = 5; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(-10, 6); g.lineTo(-16, 20); g.lineTo(-13, 34); g.stroke();
+  g.beginPath(); g.moveTo(10, 6); g.lineTo(16, 20); g.lineTo(13, 34); g.stroke();
+  g.fillStyle = '#7c8268';
+  g.beginPath(); g.moveTo(-16, -6); g.lineTo(-12, -22); g.lineTo(12, -22); g.lineTo(16, -6); g.lineTo(12, 6); g.lineTo(-12, 6); g.closePath(); g.fill();
+  g.strokeStyle = '#4c523e'; g.lineWidth = 2; g.stroke();
+  g.fillStyle = '#20260f'; g.fillRect(-9, -18, 7, 5); g.fillRect(2, -18, 7, 5);
+  g.fillStyle = '#52ff7a'; g.fillRect(-8, -17, 5, 3); g.fillRect(3, -17, 5, 3);
+  g.fillStyle = '#4c523e'; g.fillRect(-4, 2, 8, 6);
+  g.fillStyle = '#33381f'; g.fillRect(-14, -10, 28, 3);
+});
+
 export { SPR };

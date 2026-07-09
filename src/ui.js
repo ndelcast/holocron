@@ -139,38 +139,113 @@ function buildLobby() {
   }
 }
 
-function pollLobby() {
-  if (S.scene !== 'menu') return;
+// ------------------------------ Navigation manette des menus ------------------------------
+// Toute manette hors salon navigue les menus : croix/stick = focus, A = valider,
+// B = retour. Start (manette libre, écran ÉQUIPE visible) = rejoindre le salon.
+let focusEl = null;
+
+const overlayOn = id => document.getElementById(id).classList.contains('on');
+const visibleEls = sel => [...document.querySelectorAll(sel)].filter(el => el.offsetParent !== null);
+
+// grille de focus de l'overlay au premier plan : lignes d'éléments cliquables
+function menuZones() {
+  if (overlayOn('options')) return [visibleEls('#langsel .tchip'), [document.getElementById('musicRange')], [document.getElementById('sfxRange')], [document.getElementById('optionsBack')]];
+  if (overlayOn('hangar')) return [...visibleEls('#metalist .buy:not(:disabled)').map(b => [b]), [document.getElementById('hangarBack')]];
+  if (overlayOn('victory')) {
+    const rows = [];
+    const chips = visibleEls('#jumpchips .lvlchip');
+    if (chips.length) rows.push(chips);
+    for (const id of ['continueBtn', 'menuBtn3']) { const el = document.getElementById(id); if (el.offsetParent !== null) rows.push([el]); }
+    return rows;
+  }
+  if (overlayOn('gameover')) return [[document.getElementById('retryBtn')], [document.getElementById('menuBtn')]];
+  if (overlayOn('menu')) return [
+    [document.getElementById('hangarBtn'), document.getElementById('optionsBtn')],
+    visibleEls('#chars .cchar'),
+    visibleEls('#levels .lvlchip'),
+    [document.getElementById('startBtn')],
+  ];
+  return null;
+}
+
+function setFocus(el) {
+  if (focusEl) focusEl.classList.remove('gfocus');
+  focusEl = el;
+  if (el) { el.classList.add('gfocus'); el.scrollIntoView({ block: 'nearest' }); }
+}
+
+function moveFocus(dr, dc) {
+  const rows = menuZones();
+  if (!rows || !rows.length) return;
+  let r = rows.findIndex(row => row.includes(focusEl));
+  let c = r >= 0 ? rows[r].indexOf(focusEl) : 0;
+  if (r < 0) { r = rows.length - 1; c = 0; } // premier input : focus en bas (LANCER)
+  else {
+    // curseur focalisé : ◄ ► règle le volume au lieu de déplacer le focus
+    if (dc !== 0 && focusEl && focusEl.type === 'range') {
+      focusEl.value = +focusEl.value + dc * 5;
+      focusEl.dispatchEvent(new Event('input'));
+      return;
+    }
+    r = Math.min(rows.length - 1, Math.max(0, r + dr));
+    c = Math.min(rows[r].length - 1, Math.max(0, c + dc));
+  }
+  setFocus(rows[r][c]);
+  tone(520, 0.04, 'sine', 0.02, 120);
+}
+
+function backFocus() {
+  if (overlayOn('options')) document.getElementById('optionsBack').click();
+  else if (overlayOn('hangar')) document.getElementById('hangarBack').click();
+}
+
+function pollPads() {
+  const navScene = S.scene === 'menu' || S.scene === 'victory' || S.scene === 'gameover';
+  if (!navScene) { setFocus(null); return; }
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  const b0 = (gp, i) => !!(gp.buttons[i] && gp.buttons[i].pressed);
   let dirty = false;
   for (const gp of pads) {
     if (!gp || !gp.connected) continue;
-    const b = i => !!(gp.buttons[i] && gp.buttons[i].pressed);
-    const cur = { a: b(0) || b(9), quit: b(1), left: b(14) || gp.axes[0] < -0.5, right: b(15) || gp.axes[0] > 0.5 };
+    const cur = {
+      a: b0(gp, 0), quit: b0(gp, 1), start: b0(gp, 9),
+      left: b0(gp, 14) || gp.axes[0] < -0.5, right: b0(gp, 15) || gp.axes[0] > 0.5,
+      up: b0(gp, 12) || gp.axes[1] < -0.5, down: b0(gp, 13) || gp.axes[1] > 0.5,
+    };
     const prev = lobbyPrev[gp.index] || cur; // pas de front sur la première lecture
     lobbyPrev[gp.index] = cur;
     const idx = session.roster.findIndex(r => r.pad === gp.index);
-    if (idx < 0) {
-      if (cur.a && !prev.a && session.roster.length < 3) {
-        session.roster.push({ pad: gp.index, char: CHAR_IDS[session.roster.length + 1] });
-        tone(760, 0.09, 'square', 0.04, 140);
-        dirty = true;
-      }
-    } else if (cur.quit && !prev.quit) {
-      session.roster.splice(idx, 1);
-      tone(280, 0.12, 'square', 0.04, -80);
-      dirty = true;
-    } else {
+    if (S.scene === 'menu' && overlayOn('menu') && idx >= 0) {
+      // manette du salon : choix de héros uniquement
       const r = session.roster[idx];
-      if (cur.right && !prev.right) { r.char = CHAR_IDS[(CHAR_IDS.indexOf(r.char) + 1) % CHAR_IDS.length]; tone(700, 0.06, 'sine', 0.03, 200); dirty = true; }
-      if (cur.left && !prev.left) { r.char = CHAR_IDS[(CHAR_IDS.indexOf(r.char) + CHAR_IDS.length - 1) % CHAR_IDS.length]; tone(640, 0.06, 'sine', 0.03, 200); dirty = true; }
+      if (cur.quit && !prev.quit) { session.roster.splice(idx, 1); tone(280, 0.12, 'square', 0.04, -80); dirty = true; }
+      else {
+        if (cur.right && !prev.right) { r.char = CHAR_IDS[(CHAR_IDS.indexOf(r.char) + 1) % CHAR_IDS.length]; tone(700, 0.06, 'sine', 0.03, 200); dirty = true; }
+        if (cur.left && !prev.left) { r.char = CHAR_IDS[(CHAR_IDS.indexOf(r.char) + CHAR_IDS.length - 1) % CHAR_IDS.length]; tone(640, 0.06, 'sine', 0.03, 200); dirty = true; }
+      }
+      continue;
     }
+    if (S.scene === 'menu' && overlayOn('menu') && cur.start && !prev.start && session.roster.length < 3) {
+      // Start : rejoindre le salon (J2-J4)
+      session.roster.push({ pad: gp.index, char: CHAR_IDS[session.roster.length + 1] });
+      tone(760, 0.09, 'square', 0.04, 140);
+      dirty = true;
+      continue;
+    }
+    // navigation générique du menu au premier plan
+    if (focusEl && !document.contains(focusEl)) setFocus(null); // élément reconstruit
+    if (cur.up && !prev.up) moveFocus(-1, 0);
+    if (cur.down && !prev.down) moveFocus(1, 0);
+    if (cur.left && !prev.left) moveFocus(0, -1);
+    if (cur.right && !prev.right) moveFocus(0, 1);
+    if (cur.a && !prev.a && focusEl && document.contains(focusEl)) focusEl.click();
+    if (cur.quit && !prev.quit) backFocus();
   }
   session.count = 1 + session.roster.length;
   if (dirty) buildLobby();
 }
 buildLobby();
-setInterval(pollLobby, 100);
+setInterval(pollPads, 90);
 
 document.getElementById('startBtn').onclick = startGame;
 document.getElementById('retryBtn').onclick = startGame;

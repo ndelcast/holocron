@@ -1,7 +1,8 @@
 // Holocron Survivors — particules, anneaux, flashs, dégâts
 import { rand, dist2, pick, DEBUG } from './core.js';
-import { S, session, runtime, players, alivePlayers, teamCenter, enemies, gems, particles, texts, waves, addRing } from './state.js';
-import { WEAPONS, weaponLvl } from './gamedata.js';
+import { S, session, runtime, vehicle, players, alivePlayers, teamCenter, enemies, gems, particles, texts, waves, addRing } from './state.js';
+import { WEAPONS, VEHICLES, weaponLvl } from './gamedata.js';
+import { LEVELS } from './levels.js';
 import { sfx } from './audio.js';
 import { metaLvl } from './meta.js';
 import { victory, gameOver } from './lifecycle.js';
@@ -95,6 +96,12 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false, owner = n
     } else if (e.boss) {
       for (const pl of alivePlayers()) pl.hp = Math.min(pl.maxHp, pl.hp + 30);
       addText(e.x, e.y - 30, t('SEIGNEUR SITH VAINCU  +30 PV'), '#ffd166', 18, 2);
+      // le seigneur vaincu lâche son arsenal (armement lourd), si aucun en jeu
+      if (!vehicle.drop && !vehicle.active) {
+        const def = VEHICLES[LEVELS[session.level].vehicle];
+        vehicle.drop = { def, x: e.x, y: e.y, t: 0 };
+        addText(e.x, e.y - 54, t('IL LÂCHE SON ARSENAL — {0}', t(def.name)), '#ffd166', 15, 2.6);
+      }
       addRing(e.x, e.y, 340, '255,209,102', 4, 0.9);
       fireball(e.x, e.y, 80);
       flash('255,120,90', 0.28);

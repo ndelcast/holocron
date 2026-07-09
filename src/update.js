@@ -3,7 +3,7 @@ import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
 import { keys, touch, padMove, firstFreePad } from './input.js';
 import { S, session, runtime, campaign, vehicle, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing, coopSpawnMult, campaignMult } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
-import { BONUSES, VEHICLES } from './gamedata.js';
+import { BONUSES } from './gamedata.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
 import { tickWeapons, explode, fireBolt, nearestEnemy } from './combat.js';
 import { damageEnemy, hurtPlayer, addText, burst, sparks, flash, ghosts } from './effects.js';
@@ -87,21 +87,10 @@ function spawnSurge(tc) {
 }
 
 // ------------------------------ Armement lourd ------------------------------
-// Largage périodique d'un engin thématique (2 min d'activité) : tourelle
-// fixe (un joueur, invulnérable, feu 360°) ou véhicule (conducteur + équipiers,
-// lasers automatiques et écrasement au contact). Un seul engin à la fois.
+// L'engin thématique est lâché par l'élite Sith vaincue (voir effects.js) :
+// tourelle fixe (un joueur, invulnérable, feu 360°) ou véhicule (conducteur +
+// équipiers, lasers automatiques et écrasement). Actif 1 minute, un seul à la fois.
 function tickVehicle(dt, tc0) {
-  S.vehT -= dt;
-  if (S.vehT <= 0) {
-    S.vehT = 170 + Math.random() * 70;
-    if (!vehicle.drop && !vehicle.active) {
-      const a = rand(0, Math.PI * 2), d = rand(600, 1100);
-      const def = VEHICLES[LEVELS[session.level].vehicle];
-      vehicle.drop = { def, x: tc0.x + Math.cos(a) * d, y: tc0.y + Math.sin(a) * d, t: 0 };
-      addText(tc0.x, tc0.y - 90, t('ARMEMENT LOURD LARGUÉ — {0}', t(def.name)), '#ffd166', 16, 3);
-      sfx.lvl();
-    }
-  }
   const drop = vehicle.drop;
   if (drop) {
     drop.t += dt;
@@ -110,7 +99,7 @@ function tickVehicle(dt, tc0) {
       if (dist2(drop.x, drop.y, p.x, p.y) < (p.r + 26) * (p.r + 26)) {
         vehicle.active = { def: drop.def, t: drop.def.dur, x: drop.x, y: drop.y, riders: [p.idx], fireT: 0, ramT: 0 };
         vehicle.drop = null;
-        addText(p.x, p.y - 44, t('{0} — 2 MIN !', t(drop.def.name)), '#ffd166', 18, 2.5);
+        addText(p.x, p.y - 44, t('{0} — 1 MIN !', t(drop.def.name)), '#ffd166', 18, 2.5);
         flash('255,209,102', 0.25);
         sfx.boss();
         break;

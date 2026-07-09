@@ -13,12 +13,14 @@ balises), `src/gamedata.js` (`BONUSES`).
 - Annonce « RAVITAILLEMENT LARGUÉ — SUIS LA BALISE » ; les caisses
   persistent jusqu'au ramassage (rayon de collecte : hitbox + 18 px).
 
-## Armement lourd (largages événement)
+## Armement lourd (récompense d'élite)
 
-Toutes les **~3 minutes** (`S.vehT`, premier largage vers 2:10-3:10), une
-caisse spéciale est larguée avec balise dorée (monde + minimap) : l'engin
-**thématique de la destination**, actif **2 minutes** une fois enfourché
-(arc doré de durée restante autour de l'engin). Un seul à la fois.
+Chaque **Seigneur Sith vaincu lâche son arsenal** à l'endroit de sa mort
+(si aucun engin n'est déjà en jeu) : balise dorée (monde + minimap) vers
+l'engin **thématique de la destination**, actif **1 minute** une fois
+enfourché (arc doré de durée restante). Un seul à la fois — battre l'élite
+toutes les ~90 s est le moyen de le gagner. Sprites dédiés (`v_*` dans
+`sprites.js`).
 
 | Destination | Engin | Mécanique |
 |---|---|---|
@@ -35,8 +37,8 @@ caisse spéciale est larguée avec balise dorée (monde + minimap) : l'engin
   tous invulnérables. Un laser automatique **par monteur**, plus des dégâts
   d'écrasement au contact du châssis.
 - Les dégâts des engins suivent le niveau d'équipe (`× (1 + 0,04 × niveau)`).
-- À expiration : « ARMEMENT ÉPUISÉ », les monteurs redescendent avec 1 s
-  d'invulnérabilité.
+- À expiration (60 s) : « ARMEMENT ÉPUISÉ », les monteurs redescendent avec
+  1 s d'invulnérabilité.
 
 ## Les 4 bonus
 

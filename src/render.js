@@ -364,46 +364,30 @@ function render() {
   }
   bonusPool.end();
 
-  // armement lourd : caisse à balise dorée, puis engin dessiné en primitives
+  // armement lourd : sprite de l'engin (caisse au sol, puis actif) + balise
   const vd = vehicle.drop, va = vehicle.active;
+  const vkey = 'v_' + (LEVELS[session.level].vehicle || 'turret');
   if (vd) {
     const pulse2 = 0.5 + 0.5 * Math.sin(vd.t * 4);
     gBeacon.rect(vd.x - 9, vd.y - 210, 18, 216).fill({ color: 0xffd166, alpha: 0.12 + pulse2 * 0.08 });
-    gBeacon.circle(vd.x, vd.y + 6, 22 + pulse2 * 7).stroke({ width: 2.5, color: 0xffd166, alpha: 0.7 - pulse2 * 0.35 });
-    gBeacon.rect(vd.x - 14, vd.y - 12, 28, 22).fill({ color: 0xffd166, alpha: 0.8 });
-    gBeacon.rect(vd.x - 14, vd.y - 3, 28, 4).fill({ color: 0x201a08, alpha: 0.9 });
+    gBeacon.circle(vd.x, vd.y + 12, 26 + pulse2 * 8).stroke({ width: 2.5, color: 0xffd166, alpha: 0.7 - pulse2 * 0.35 });
+    const spr = bonusPool.get();
+    spr.texture = TEX[vkey];
+    spr.scale.set(0.5);
+    spr.position.set(vd.x, vd.y + Math.sin(vd.t * 2.5) * 3 - 4);
   }
   if (va) {
     const def = va.def;
-    if (def.kind === 'turret') {
-      // socle + canon orienté vers la cible la plus proche
-      gBeacon.circle(va.x, va.y + 6, def.r + 8).fill({ color: 0x0a1420, alpha: 0.75 });
-      gBeacon.circle(va.x, va.y + 6, def.r + 8).stroke({ width: 3, color: def.color, alpha: 0.85 });
-      let na = anim * 1.5, bd = 1e9;
-      for (const e of enemies) {
-        const d = (e.x - va.x) * (e.x - va.x) + (e.y - va.y) * (e.y - va.y);
-        if (d < bd) { bd = d; na = Math.atan2(e.y - va.y, e.x - va.x); }
-      }
-      gBeacon.moveTo(va.x, va.y)
-        .lineTo(va.x + Math.cos(na) * (def.r + 26), va.y + Math.sin(na) * (def.r + 26))
-        .stroke({ width: 7, color: def.color, alpha: 0.9, cap: 'round' });
-      gBeacon.circle(va.x, va.y, 9).fill({ color: def.color, alpha: 1 });
+    const spr = bonusPool.get();
+    spr.texture = TEX[vkey];
+    spr.scale.set(0.5);
+    if (def.kind === 'ride') {
+      const drv = players[va.riders[0]];
+      spr.scale.x = 0.5 * (drv && drv.face === -1 ? -1 : 1);
+      spr.position.set(va.x, va.y + Math.sin(anim * 8) * 1.5);
     } else {
-      // châssis sous les monteurs ; l'AT-ST a deux pattes
-      gBeacon.ellipse(va.x, va.y + 10, def.radius * 1.25, def.radius * 0.55).fill({ color: 0x0a1420, alpha: 0.75 });
-      gBeacon.ellipse(va.x, va.y + 10, def.radius * 1.25, def.radius * 0.55).stroke({ width: 3, color: def.color, alpha: 0.85 });
-      if (LEVELS[session.level].vehicle === 'atst') {
-        const step = Math.sin(anim * 6) * 6;
-        gBeacon.moveTo(va.x - 14, va.y + 12).lineTo(va.x - 18, va.y + 34 + step).stroke({ width: 5, color: def.color, alpha: 0.8, cap: 'round' });
-        gBeacon.moveTo(va.x + 14, va.y + 12).lineTo(va.x + 18, va.y + 34 - step).stroke({ width: 5, color: def.color, alpha: 0.8, cap: 'round' });
-      }
+      spr.position.set(va.x, va.y);
     }
-    // arc de durée restante
-    const frac = Math.max(0, va.t / def.dur);
-    const r2 = (def.r || def.radius) + 18;
-    gBeacon.moveTo(va.x + Math.cos(-Math.PI / 2) * r2, va.y + Math.sin(-Math.PI / 2) * r2)
-      .arc(va.x, va.y, r2, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac)
-      .stroke({ width: 3, color: 0xffd166, alpha: 0.75 });
   }
 
   // ondes de Force, explosions, anneaux
@@ -462,6 +446,26 @@ function render() {
   }
   enemyPool.end();
   flashPool.end();
+
+  // armement lourd actif : canon de tourelle orienté + arc de durée restante
+  if (vehicle.active) {
+    const va2 = vehicle.active, def2 = va2.def;
+    if (def2.kind === 'turret') {
+      let na = anim * 1.5, bd = 1e9;
+      for (const e of enemies) {
+        const d = (e.x - va2.x) * (e.x - va2.x) + (e.y - va2.y) * (e.y - va2.y);
+        if (d < bd) { bd = d; na = Math.atan2(e.y - va2.y, e.x - va2.x); }
+      }
+      gFx2.moveTo(va2.x + Math.cos(na) * 10, va2.y + Math.sin(na) * 10)
+        .lineTo(va2.x + Math.cos(na) * (def2.r + 24), va2.y + Math.sin(na) * (def2.r + 24))
+        .stroke({ width: 6, color: def2.color, alpha: 0.85, cap: 'round' });
+    }
+    const frac = Math.max(0, va2.t / def2.dur);
+    const r2 = (def2.r || def2.radius) + 20;
+    gFx2.moveTo(va2.x, va2.y - r2)
+      .arc(va2.x, va2.y, r2, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac)
+      .stroke({ width: 3, color: 0xffd166, alpha: 0.75 });
+  }
 
   // sabre laser + sillage
   if (S.scene === 'play' || S.scene === 'levelup') {

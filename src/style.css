@@ -515,6 +515,9 @@ button.holo:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(58,150
 /* ---------- Rebonds et pops ---------- */
 .card:hover { transform: translateY(-8px) rotate(-1.6deg) scale(1.05); }
 .card:nth-child(2):hover { transform: translateY(-8px) rotate(1.6deg) scale(1.05); }
+/* focus manette dans les menus */
+.gfocus { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 18px; box-shadow: 0 0 24px rgba(255,209,102,.3); }
+
 /* carte ciblée à la manette / au clavier */
 .card.sel { border-color: var(--gold); box-shadow: 0 0 34px rgba(255,209,102,.22); transform: translateY(-7px) scale(1.03); }
 .card:hover .icon { animation: wiggle .45s ease-in-out; }

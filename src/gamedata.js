@@ -177,16 +177,16 @@ const PASSIVES = {
 function weaponLvl(p, id) { const w = p.weapons.find(w => w.id === id); return w ? w.lvl : 0; }
 
 // ------------------------------ Armement lourd (largages événement) ------------------------------
-// Un engin par destination, largué toutes les ~3 min, actif 2 minutes.
+// Un engin par destination, lâché par l'élite Sith vaincue, actif 1 minute.
 // kind 'turret' : un joueur monte, immobile et invulnérable, feu auto 360°.
 // kind 'ride'   : le premier joueur pilote, les équipiers embarquent au contact ;
 //                 lasers automatiques (un par monteur) + écrasement au contact.
 const VEHICLES = {
-  turret:  { name: 'TOURELLE LASER', kind: 'turret', dur: 120, dmg: 55, cd: 0.22, range: 700, color: 0x6ee7ff, r: 26 },
-  turbo:   { name: 'TURBOLASER', kind: 'turret', dur: 120, dmg: 150, cd: 0.55, range: 950, color: 0xff3b3b, r: 30 },
-  speeder: { name: 'LANDSPEEDER', kind: 'ride', dur: 120, dmg: 32, cd: 0.16, speed: 350, radius: 46, ram: 28, color: 0xd9b184, r: 30 },
-  snow:    { name: 'SNOWSPEEDER', kind: 'ride', dur: 120, dmg: 32, cd: 0.16, speed: 370, radius: 46, ram: 28, color: 0xdfe9f2, r: 30 },
-  atst:    { name: 'AT-ST DÉTOURNÉ', kind: 'ride', dur: 120, dmg: 95, cd: 0.45, speed: 135, radius: 60, ram: 85, color: 0x8a8f7a, r: 34 },
+  turret:  { name: 'TOURELLE LASER', kind: 'turret', dur: 60, dmg: 55, cd: 0.22, range: 700, color: 0x6ee7ff, r: 26 },
+  turbo:   { name: 'TURBOLASER', kind: 'turret', dur: 60, dmg: 150, cd: 0.55, range: 950, color: 0xff3b3b, r: 30 },
+  speeder: { name: 'LANDSPEEDER', kind: 'ride', dur: 60, dmg: 32, cd: 0.16, speed: 350, radius: 46, ram: 28, color: 0xd9b184, r: 30 },
+  snow:    { name: 'SNOWSPEEDER', kind: 'ride', dur: 60, dmg: 32, cd: 0.16, speed: 370, radius: 46, ram: 28, color: 0xdfe9f2, r: 30 },
+  atst:    { name: 'AT-ST DÉTOURNÉ', kind: 'ride', dur: 60, dmg: 95, cd: 0.45, speed: 135, radius: 60, ram: 85, color: 0x8a8f7a, r: 34 },
 };
 
 // ------------------------------ Bonus de ravitaillement ------------------------------
