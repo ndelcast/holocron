@@ -4,6 +4,8 @@ Source : `src/gamedata.js` (`WEAPONS`), tir dans `src/combat.js` (`tickWeapons`)
 
 Règles générales :
 
+- Chaque héros possède un **arsenal exclusif de 5 armes** (`CHARS[..].pool`) :
+  seules celles-ci sont proposées à son level-up.
 - **4 armes maximum** par partie, **10 niveaux** chacune (`MAXLVL = 10`).
 - Chaque palier est **conséquent** (+20-30 % sur une stat majeure) et tous
   les 3-4 niveaux apporte un **jalon spectaculaire** (lame, tir, droïde,
@@ -13,7 +15,35 @@ Règles générales :
   par `player.dmgMult` (appliqué dans `damageEnemy`).
 - Cibles : l'ennemi le plus proche (`nearestEnemy`), sauf mention contraire.
 
-## Les 10 armes
+## Arsenaux par héros
+
+| Héros | Départ | Arsenal |
+|---|---|---|
+| **Jedi** | ⚔️ Sabre laser | 🌀 Onde de Force · ⚡ Éclairs de Force · 🪃 Sabre lancé · 💠 Emprise de la Force |
+| **Ewok** | 🏹 Lances ewoks | 🪨 Fronde · 🧚 Nuée de wisties · 🥁 Tambours de guerre · 🪵 Tronc roulant |
+| **Mandalorien** | 🚀 Roquettes | 🔥 Lance-flammes · 🧤 Laser de gantelet · 🧿 Mines soniques · 🕊️ Oiseaux siffleurs |
+| **Contrebandier** | 🔫 Blaster | 🛰️ Droïde de combat · 💣 Détonateur thermique · 🌐 Champ ionique · 🔌 Arc électrique |
+
+## Variantes d'arsenal (`type`)
+
+Les 10 nouvelles armes réutilisent la **mécanique** d'une arme de base via
+le champ `type` (le switch de `tickPlayerWeapons` porte sur `def.type ||
+w.id`), avec leurs propres stats :
+
+| Variante | Mécanique | Nuance |
+|---|---|---|
+| 🪃 Sabre lancé (Jedi) | `spear` (perforant) | plus lent, plus lourd (13 dégâts, cd 1,6) |
+| 💠 Emprise de la Force (Jedi) | `ion` (aura) | rayon réduit (70) mais emprise jusqu'à 80 % |
+| 🪨 Fronde (Ewok) | `blaster` | tir un peu plus lent que le blaster (0,9) |
+| 🧚 Nuée de wisties (Ewok) | `drone` | plus faibles (7) mais cadence vive (1,0) |
+| 🥁 Tambours de guerre (Ewok) | `wave` | onde plus fréquente (3,8), rayon 130 |
+| 🪵 Tronc roulant (Ewok) | `rocket` | 18 dégâts, zone 70 |
+| 🧤 Laser de gantelet (Mando) | `blaster` | rapide (0,7) mais léger (10) |
+| 🧿 Mines soniques (Mando) | `detonator` | 20 dégâts, zone 75, cd 2,5 |
+| 🕊️ Oiseaux siffleurs (Mando) | `spear` | légers (9) et fréquents (1,1) |
+| 🔌 Arc électrique (Contrebandier) | `lightning` | 15 dégâts, cd 2,2, +1 rebond/niv |
+
+## Les 10 armes de base
 
 Valeurs « niv 1 → niv 10 » (avant `dmgMult`/`cdMult`).
 

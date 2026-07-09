@@ -14,18 +14,23 @@ coup (arme partagée), les modals s'enchaînent (`runtime.comboQueue`), puis
 la file de level-up reprend. Icône dorée dans le HUD, liste consultable en
 pause.
 
-| Combo | Armes requises | Effet |
-|---|---|---|
-| ☯️ Voie du Jedi | Sabre + Onde | Subir un coup déclenche une onde de riposte (recharge 3 s) |
-| 💰 Chasseur de primes | Blaster + Roquettes | Chaque tir de blaster a 20 % de chance de partir avec une roquette |
-| 🌪️ Tempête de Force | Éclairs + Onde | Éclairs +3 rebonds ; les cibles foudroyées sont ralenties de 50 % pendant 2 s |
-| 🛩️ Escadron rogue | Droïde + Blaster | Les droïdes tirent des rafales de 3 |
-| 🪵 Guérilla d'Endor | Lances + Détonateur | Les lances explosent en fin de course (60 % des dégâts/zone du détonateur) |
-| ☄️ Inferno | Lance-flammes + Roquettes | Toute explosion laisse une nappe de feu (6 dégâts/0,4 s pendant 3 s) |
-| 💫 Surcharge ionique | Champ ionique + Éclairs | +30 % de dégâts (toutes sources) sur les ennemis dans l'aura |
+Chaque combo associe **deux armes du même arsenal** : deux combos par héros.
+La liste en pause ne montre que les combos accessibles aux arsenaux de
+l'équipe.
 
-Avec 4 slots d'armes, **2 combos maximum** par partie (3 si les paires
-partagent une arme, ex. Blaster dans Chasseur de primes + Escadron rogue).
+| Combo | Héros | Armes requises | Effet |
+|---|---|---|---|
+| ☯️ Voie du Jedi | Jedi | Sabre + Onde | Subir un coup déclenche une onde de riposte (recharge 3 s) |
+| 🌪️ Tempête de Force | Jedi | Éclairs + Onde | Éclairs +3 rebonds ; cibles foudroyées ralenties de 50 % pendant 2 s |
+| 💰 Chasseur de primes | Mandalorien | Gantelet + Roquettes | Chaque tir du gantelet a 20 % de chance de partir avec une roquette |
+| ☄️ Inferno | Mandalorien | Lance-flammes + Roquettes | Toute explosion laisse une nappe de feu (6 dégâts/0,4 s pendant 3 s) |
+| 🛩️ Escadron rogue | Contrebandier | Droïde + Blaster | Les droïdes tirent des rafales de 3 |
+| 💫 Surcharge ionique | Contrebandier | Champ ionique + Arc électrique | +30 % de dégâts (toutes sources) sur les ennemis dans l'aura |
+| 🪓 Guérilla d'Endor | Ewok | Lances + Tambours | Les lances explosent en fin de course (60 % des dégâts/zone du détonateur niv 0) |
+| 🪤 Ruse ewok | Ewok | Fronde + Wisties | Les wisties crachent des rafales de 3 |
+
+Avec 4 slots d'armes sur un arsenal de 5, les **2 combos du héros** sont
+atteignables dans la même partie (les paires partagent souvent une arme).
 
 ## Passifs
 

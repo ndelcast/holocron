@@ -1,6 +1,6 @@
 // Holocron Survivors — expérience, choix d'améliorations, listes UI
 import { S, session, runtime, players, alivePlayers, PLAYER_TINT, addRing, coopSpawnMult } from './state.js';
-import { MAXLVL, WEAPONS, PASSIVES, COMBOS, weaponLvl } from './gamedata.js';
+import { MAXLVL, WEAPONS, PASSIVES, COMBOS, CHARS, weaponLvl } from './gamedata.js';
 import { LEVELS } from './levels.js';
 import { sfx } from './audio.js';
 import { burst, sparks, flash } from './effects.js';
@@ -44,7 +44,7 @@ function startLevelUpFlow() {
 
 function buildChoices(p) {
   const opts = [];
-  for (const id in WEAPONS) {
+  for (const id of CHARS[p.char].pool) { // seules les armes de l'arsenal du héros
     const lvl = weaponLvl(p, id);
     if (lvl === 0 && p.weapons.length >= 4) continue; // 4 armes max par joueur
     if (lvl < MAXLVL) opts.push({ kind: 'weapon', id, lvl });
@@ -256,6 +256,8 @@ function buildComboList() {
   el.innerHTML = '';
   for (const id in COMBOS) {
     const c = COMBOS[id];
+    // n'affiche que les combos accessibles à l'arsenal d'un membre de l'équipe
+    if (!players.some(p => c.parts.every(part => CHARS[p.char].pool.includes(part)))) continue;
     // état le plus avancé au sein de l'équipe
     let best = 0; // 0 verrouillé, 1 partiel, 2 actif
     for (const p of players) {

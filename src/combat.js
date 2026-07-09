@@ -57,7 +57,8 @@ function tickPlayerWeapons(p, dt) {
   for (const w of p.weapons) {
     const def = WEAPONS[w.id];
     const st = def.stats(w.lvl);
-    switch (w.id) {
+    // les variantes d'arsenal (def.type) réutilisent la mécanique de leur arme de base
+    switch (def.type || w.id) {
       case 'saber': {
         w.angle = (w.angle || 0) + st.spd * dt;
         const blades = st.blades;
@@ -260,7 +261,7 @@ function tickPlayerWeapons(p, dt) {
             if (tgt) {
               dr.t = st.cd * player.cdMult;
               sfx.pew();
-              const burstN = activeCombos.has('squadron') ? 3 : 1;
+              const burstN = activeCombos.has('squadron') || activeCombos.has('ruse') ? 3 : 1;
               for (let s = 0; s < burstN; s++) {
                 fireBolt(dr.x, dr.y, tgt.x + rand(-16, 16) * s, tgt.y + rand(-16, 16) * s, st.dmg, 'boltRed', 560, p.idx);
               }

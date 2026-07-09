@@ -4,7 +4,9 @@ Source : `src/gamedata.js` (`CHARS`).
 
 Quatre héros sélectionnables au menu. En coop, **chaque joueur choisit son
 héros dans le salon** (J1 via la grille CHAMPION, J2-J4 avec ◄ ► sur leur
-manette) ; les doublons sont permis.
+manette) ; les doublons sont permis. Chaque héros a un **arsenal exclusif
+de 5 armes** et **2 combos propres** (voir [03-armes.md](03-armes.md) et
+[04-combos-et-passifs.md](04-combos-et-passifs.md)).
 
 | Héros | PV | Vitesse | Hitbox (r) | Arme de départ | Particularité |
 |---|---|---|---|---|---|
