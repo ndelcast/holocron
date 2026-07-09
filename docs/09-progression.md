@@ -6,9 +6,10 @@ Sources : `src/levelup.js` (XP, choix), `src/meta.js` (crédits, hangar).
 
 - Les ennemis lâchent des cristaux (1 XP, fusionnés en cristaux dorés de 5).
 - Rayon d'aimant de base 90 (modifiable par passif/personnage/hangar).
-- Seuil : `xpFor(n) = floor((14 + n^1,75) × densité coop)` — courbe ferme :
-  un choix toutes les **20-30 s** (pas toutes les 5 s), soit le **niveau
-  ~45-55 à 20 min** où les armes à 10 paliers culminent. En coop
+- Seuil : `xpFor(n) = floor((25 + 1,8 × n^1,8) × densité coop)` — courbe
+  raide : un choix toutes les **~2 min**, soit le **niveau ~25-35 à
+  20 min** ; le build complet (fusions comprises) se construit sur la
+  campagne entière. En coop
   × `1 + 0,5×(joueurs − 1)` (suit l'afflux de cristaux, voir
   [01-gameplay.md](01-gameplay.md)) ; multiplicateurs d'XP appliqués au gain
   (passif Fortune, hangar, Endor).

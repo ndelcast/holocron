@@ -266,6 +266,77 @@ SPR.sith = makeSprite(76, g => {
   g.beginPath(); g.moveTo(-6, -9.4); g.lineTo(-1.4, -8); g.lineTo(-6, -6.6); g.closePath(); g.fill();
   g.beginPath(); g.moveTo(6, -9.4); g.lineTo(1.4, -8); g.lineTo(6, -6.6); g.closePath(); g.fill();
 });
+// Inquisiteur : casque noir rond, visière rouge, sabre-anneau au dos
+SPR.inquisitor = makeSprite(70, g => {
+  glow(g, 30, 'rgba(255,73,84,.2)');
+  // sabre-anneau dans le dos
+  g.strokeStyle = '#ff4954'; g.lineWidth = 3;
+  g.beginPath(); g.arc(13, -2, 9, 0, Math.PI * 2); g.stroke();
+  g.strokeStyle = '#ffd7d7'; g.lineWidth = 1.2;
+  g.beginPath(); g.arc(13, -2, 9, 0, Math.PI * 2); g.stroke();
+  // silhouette élancée
+  g.fillStyle = '#1d1a26';
+  g.beginPath(); g.moveTo(-12, 22); g.quadraticCurveTo(-15, -6, 0, -9); g.quadraticCurveTo(15, -6, 12, 22); g.closePath(); g.fill(); ink(g, 2.2);
+  g.fillStyle = '#2b2436';
+  g.beginPath(); g.moveTo(-9, 18); g.quadraticCurveTo(-12, -4, 0, -7); g.lineTo(0, 20); g.closePath(); g.fill();
+  // casque noir rond
+  g.fillStyle = '#12101c';
+  g.beginPath(); g.arc(0, -13, 9.5, 0, Math.PI * 2); g.fill(); ink(g, 2.2);
+  g.fillStyle = '#2b3040';
+  g.beginPath(); g.arc(-3.4, -16.4, 3, 0, Math.PI * 2); g.fill();
+  // visière rouge en fente
+  g.fillStyle = '#ff4954';
+  g.beginPath(); g.roundRect(-6.5, -14.6, 13, 2.6, 1.3); g.fill();
+  g.fillStyle = '#fff';
+  g.beginPath(); g.roundRect(-5, -14.1, 3, 1.4, 0.7); g.fill();
+});
+// Colosse sith : masse d'armes, épaulières, cuirasse rouge sombre
+SPR.brute = makeSprite(84, g => {
+  glow(g, 36, 'rgba(255,73,84,.18)');
+  // masse d'armes brandie
+  g.strokeStyle = '#1b1430'; g.lineWidth = 3.4; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(14, 6); g.lineTo(22, -14); g.stroke();
+  g.fillStyle = '#4a4456';
+  g.beginPath(); g.arc(23, -16, 6, 0, Math.PI * 2); g.fill(); ink(g, 2);
+  g.fillStyle = '#6a6478';
+  g.beginPath(); g.arc(21, -18, 2, 0, Math.PI * 2); g.fill();
+  // corps massif
+  g.fillStyle = '#4a1f26';
+  g.beginPath(); g.moveTo(-16, 24); g.quadraticCurveTo(-20, -8, 0, -10); g.quadraticCurveTo(20, -8, 16, 24); g.closePath(); g.fill(); ink(g, 2.6);
+  g.fillStyle = '#63202a';
+  g.beginPath(); g.moveTo(-13, 20); g.quadraticCurveTo(-16, -6, 0, -8); g.lineTo(0, 22); g.closePath(); g.fill();
+  // épaulières
+  g.fillStyle = '#2b2436';
+  g.beginPath(); g.ellipse(-13, -6, 7, 5, -0.3, 0, Math.PI * 2); g.fill(); ink(g, 2);
+  g.beginPath(); g.ellipse(13, -6, 7, 5, 0.3, 0, Math.PI * 2); g.fill(); ink(g, 2);
+  // tête casquée enfoncée
+  g.fillStyle = '#1d1a26';
+  g.beginPath(); g.arc(0, -13, 8, 0, Math.PI * 2); g.fill(); ink(g, 2.2);
+  g.fillStyle = '#ff4954';
+  g.beginPath(); g.roundRect(-5, -14.6, 10, 2.4, 1.2); g.fill();
+});
+// Adepte obscur : capuche violette, mains crépitantes
+SPR.adept = makeSprite(68, g => {
+  glow(g, 30, 'rgba(165,130,255,.24)');
+  // éclairs aux mains
+  g.strokeStyle = '#c9b2ff'; g.lineWidth = 2; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(-13, 6); g.lineTo(-16.5, 2); g.lineTo(-19, 5.5); g.stroke();
+  g.beginPath(); g.moveTo(13, 6); g.lineTo(16.5, 2); g.lineTo(19, 5.5); g.stroke();
+  // robe fine
+  g.fillStyle = '#241c3a';
+  g.beginPath(); g.moveTo(-13, 22); g.quadraticCurveTo(-16, -6, 0, -9); g.quadraticCurveTo(16, -6, 13, 22); g.closePath(); g.fill(); ink(g, 2.2);
+  g.fillStyle = '#332a4e';
+  g.beginPath(); g.moveTo(-10, 18); g.quadraticCurveTo(-13, -4, 0, -7); g.lineTo(0, 20); g.closePath(); g.fill();
+  // capuche pointue
+  g.fillStyle = '#1c1530';
+  g.beginPath(); g.moveTo(-9, -8); g.quadraticCurveTo(-10, -20, 0, -24); g.quadraticCurveTo(10, -20, 9, -8); g.quadraticCurveTo(0, -4, -9, -8); g.closePath(); g.fill(); ink(g, 2.2);
+  // visage d'ombre aux yeux violets
+  g.fillStyle = '#0e0a18';
+  g.beginPath(); g.ellipse(0, -11.5, 5.6, 5, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#c9b2ff';
+  g.beginPath(); g.arc(-2.4, -11.5, 1.4, 0, Math.PI * 2); g.arc(2.4, -11.5, 1.4, 0, Math.PI * 2); g.fill();
+});
+
 // ---- Boss de fin de niveau ----
 // Dark Maul : peau rouge tatouée, couronne de cornes
 SPR.maul = makeSprite(58, g => {

@@ -3,8 +3,59 @@ import { rand, irand, view } from './core.js';
 import { S, session, players, nearestPlayer, teamCenter, enemies, ebullets, addRing, coopHpMult, coopBossMult, campaignMult } from './state.js';
 import { LEVELS, BOSSES } from './levels.js';
 import { sfx } from './audio.js';
-import { addText, burst, flash } from './effects.js';
+import { addText, burst, flash, hurtPlayer } from './effects.js';
 import { t } from './i18n.js';
+
+// ------------------------------ Élites (sous-boss) ------------------------------
+// Quatre ARCHÉTYPES d'IA aux gabarits distincts, débloqués avec le niveau
+// d'équipe (minLvl) ; PV et dégâts grimpent avec le temps ET le niveau.
+const ELITES = {
+  sith:       { hp: 1, spd: 62, dmg: 26, r: 24, xp: 40, minLvl: 0, w: 10 },  // charge-frappe
+  inquisitor: { hp: 0.8, spd: 55, dmg: 20, r: 22, xp: 45, minLvl: 6, w: 7 }, // lanceur à distance
+  brute:      { hp: 1.9, spd: 40, dmg: 34, r: 30, xp: 55, minLvl: 12, w: 6 },// coup de zone
+  adept:      { hp: 0.7, spd: 50, dmg: 16, r: 21, xp: 50, minLvl: 18, w: 6 },// caster kite
+};
+// Chaque destination incarne les 4 archétypes avec ses propres figures
+// (sprites du bestiaire local, grossis par les rangs). Toujours 4 par niveau.
+const ELITE_SETS = {
+  space: {
+    sith:       { spr: 'sith', name: 'SEIGNEUR SITH' },
+    inquisitor: { spr: 'inquisitor', name: 'INQUISITEUR' },
+    brute:      { spr: 'brute', name: 'COLOSSE SITH' },
+    adept:      { spr: 'adept', name: 'ADEPTE OBSCUR' },
+  },
+  tatooine: {
+    sith:       { spr: 'tusken', name: 'CHEF TUSKEN' },
+    inquisitor: { spr: 'rodian', name: 'CHASSEUR RODIEN' },
+    brute:      { spr: 'gamorrean', name: 'BRUTE GAMORRÉENNE' },
+    adept:      { spr: 'jawa', name: 'SORCIER JAWA' },
+  },
+  deathstar: {
+    sith:       { spr: 'royalguard', name: 'GARDE ROYAL' },
+    inquisitor: { spr: 'inquisitor', name: 'INQUISITEUR' },
+    brute:      { spr: 'brute', name: 'SENTINELLE POURPRE' },
+    adept:      { spr: 'officer', name: 'OFFICIER ISB' },
+  },
+  hoth: {
+    sith:       { spr: 'snowtrooper', name: 'COMMANDO DES NEIGES' },
+    inquisitor: { spr: 'probe', name: 'SONDE ASSASSINE' },
+    brute:      { spr: 'wampa', name: 'WAMPA ALPHA' },
+    adept:      { spr: 'adept', name: 'ADEPTE DES GLACES' },
+  },
+  endor: {
+    sith:       { spr: 'scout', name: 'COMMANDO SCOUT' },
+    inquisitor: { spr: 'officer', name: 'OFFICIER DE GARNISON' },
+    brute:      { spr: 'atst', name: 'AT-ST DE PATROUILLE' },
+    adept:      { spr: 'adept', name: 'CHAMANE RENÉGAT' },
+  },
+};
+function pickElite() {
+  const pool = Object.entries(ELITES).filter(([, d]) => S.level >= d.minLvl);
+  let total = 0; for (const [, d] of pool) total += d.w;
+  let roll = Math.random() * total;
+  for (const [id, d] of pool) { roll -= d.w; if (roll <= 0) return [id, d]; }
+  return ['sith', ELITES.sith];
+}
 
 // ------------------------------ Ennemis ------------------------------
 const ETYPES = {
@@ -22,15 +73,25 @@ function spawnEnemy(typeId, boss = false, fixedAng = null) {
   // PV liés au temps, au niveau d'équipe et au secteur de campagne
   const hpScale = (1 + S.time / 30 * 0.16) * (1 + S.level * 0.035) * coopHpMult() * campaignMult();
   if (boss) {
-    const bossHp = 380 * (1 + S.time / 70) * (1 + S.level * 0.03) * coopBossMult() * campaignMult();
+    const [eid, def] = pickElite();
+    const skin = (ELITE_SETS[session.level] || ELITE_SETS.space)[eid];
+    // rang selon le niveau d'équipe : II à 15+, III à 30+ (plus gros, plus fort)
+    const rank = S.level >= 30 ? 3 : S.level >= 15 ? 2 : 1;
+    const rankMult = [1, 1.5, 2.2][rank - 1];
+    const roman = ['', ' II', ' III'][rank - 1];
+    const bossHp = 380 * def.hp * rankMult * (1 + S.time / 70) * (1 + S.level * 0.03) * coopBossMult() * campaignMult();
     enemies.push({
-      type: 'sith', spr: 'sith', boss: true,
+      type: eid, spr: skin.spr, boss: true, ename: skin.name + roman, rank,
+      sc: (1 + (rank - 1) * 0.18) * 1.35, // les élites dominent la horde d'une tête
       x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
-      r: 24, hp: bossHp, maxHp: bossHp,
-      spd: 62 * (LEVELS[session.level].spdMult || 1), dmg: 26, xp: 40, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
+      r: def.r * (1 + (rank - 1) * 0.18), hp: bossHp, maxHp: bossHp,
+      spd: def.spd * (LEVELS[session.level].spdMult || 1),
+      dmg: def.dmg * rankMult * (1 + S.level * 0.02), xp: def.xp * rank,
+      flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
+      atk1T: 2.5, windup: 0, dash: 0,
     });
     sfx.boss();
-    addText(tc.x, tc.y - 70, t('UN SEIGNEUR SITH APPROCHE'), '#ff3b3b', 20, 2.4);
+    addText(tc.x, tc.y - 70, t('{0} APPROCHE', t(skin.name)) + roman, '#ff3b3b', 20 + rank * 2, 2.4);
     const bw = document.getElementById('bosswarn');
     bw.classList.remove('on'); void bw.offsetWidth; bw.classList.add('on');
     setTimeout(() => bw.classList.remove('on'), 1600);
@@ -76,6 +137,95 @@ function bossAI(e, dt) {
   const distP = Math.hypot(player.x - e.x, player.y - e.y);
   const aTo = Math.atan2(player.y - e.y, player.x - e.x);
   switch (e.type) {
+    // ---- élites (sous-boss) ----
+    case 'sith': {
+      // charge-frappe télégraphiée, sinon poursuite par défaut
+      e.atk1T -= dt;
+      if (e.dash > 0) {
+        e.dash -= dt;
+        e.x += e.dashVx * dt; e.y += e.dashVy * dt;
+        if (Math.random() < 0.6) burst(e.x, e.y, '#ff3b3b', 1, 50);
+        return true;
+      }
+      if (e.windup > 0) {
+        e.windup -= dt;
+        if (e.windup <= 0) {
+          e.dash = 0.4;
+          e.dashVx = Math.cos(aTo) * 480; e.dashVy = Math.sin(aTo) * 480;
+          sfx.wave();
+        }
+        return true;
+      }
+      if (e.atk1T <= 0 && distP < 300) {
+        e.atk1T = 3.5;
+        e.windup = 0.45;
+        addText(e.x, e.y - e.r - 16, '!', '#ff3b3b', 24, 0.5);
+        return true;
+      }
+      return false;
+    }
+    case 'inquisitor': {
+      // lance son sabre boomerang et garde ses distances
+      e.atk1T -= dt;
+      if (e.atk1T <= 0 && distP < 600) {
+        e.atk1T = 3.5;
+        sfx.zap();
+        ebullets.push({ x: e.x, y: e.y, vx: Math.cos(aTo) * 320, vy: Math.sin(aTo) * 320, dmg: e.dmg * 0.9, life: 2.4, r: 13, saber: true, owner: e, t: 0 });
+      }
+      let mv;
+      if (distP > 380) mv = aTo;
+      else if (distP < 250) mv = aTo + Math.PI;
+      else mv = aTo + Math.PI / 2;
+      e.x += Math.cos(mv) * e.spd * e.slow * dt;
+      e.y += Math.sin(mv) * e.spd * e.slow * dt;
+      return true;
+    }
+    case 'brute': {
+      // coup de masse en zone, longuement télégraphié
+      e.atk1T -= dt;
+      if (e.windup > 0) {
+        e.windup -= dt;
+        if (e.windup <= 0) {
+          sfx.boom();
+          flash('255,80,60', 0.2);
+          addRing(e.x, e.y, 150, '255,73,84', 6, 0.5);
+          burst(e.x, e.y, '#ff8f6b', 18, 260);
+          for (const pl of players) {
+            if (pl.dead) continue;
+            if (Math.hypot(pl.x - e.x, pl.y - e.y) < 150 + pl.r) hurtPlayer(pl, e.dmg);
+          }
+        }
+        return true; // immobile pendant qu'il arme son coup
+      }
+      if (e.atk1T <= 0 && distP < 140) {
+        e.atk1T = 4.5;
+        e.windup = 0.7;
+        addRing(e.x, e.y, 150, '255,180,90', 3, 0.7);
+        addText(e.x, e.y - e.r - 16, '!', '#ffd166', 26, 0.7);
+        return true;
+      }
+      return false;
+    }
+    case 'adept': {
+      // volées d'éclairs, kite à distance
+      e.atk1T -= dt;
+      if (e.atk1T <= 0 && distP < 550) {
+        e.atk1T = 3;
+        sfx.zap();
+        for (let i = -1; i <= 1; i++) {
+          const a = aTo + i * 0.16;
+          ebullets.push({ x: e.x, y: e.y - 6, vx: Math.cos(a) * 380, vy: Math.sin(a) * 380, dmg: e.dmg * 0.8, life: 1.8, r: 5, zap: true, color: '165,130,255' });
+        }
+      }
+      let mv;
+      if (distP > 380) mv = aTo;
+      else if (distP < 260) mv = aTo + Math.PI;
+      else mv = aTo + Math.PI / 2;
+      e.x += Math.cos(mv) * e.spd * e.slow * dt;
+      e.y += Math.sin(mv) * e.spd * e.slow * dt;
+      return true;
+    }
+    // ---- boss finaux ----
     case 'maul': {
       e.atk1T -= dt;
       if (e.dash > 0) {
@@ -191,4 +341,4 @@ function pickEnemyType() {
   return 'trooper';
 }
 
-export { ETYPES, spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType };
+export { ETYPES, ELITES, ELITE_SETS, spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType };

@@ -421,12 +421,12 @@ function render() {
     }
     const spr = enemyPool.get();
     spr.texture = TEX[e.spr];
-    spr.scale.set(0.5);
+    spr.scale.set(0.5 * (e.sc || 1)); // les élites de rang II/III sont plus imposantes
     spr.position.set(e.x, e.y);
     if (e.flash > 0) {
       const fl = flashPool.get();
       fl.texture = TEX[e.spr];
-      fl.scale.set(0.5);
+      fl.scale.set(0.5 * (e.sc || 1));
       fl.position.set(e.x, e.y);
       fl.alpha = Math.min(1, e.flash * 8);
     }

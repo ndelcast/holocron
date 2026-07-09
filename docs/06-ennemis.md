@@ -17,7 +17,7 @@ modificateur de la destination.
 
 ## Montée en difficulté
 
-La difficulté suit **le temps et le niveau d'équipe** : monter haut (~45-55)
+La difficulté suit **le temps et le niveau d'équipe** : monter haut (~25-35)
 déclenche la horde, pour que les armes à 10 paliers aient de quoi faucher.
 
 - **PV** : `PV base × (1 + t/30 × 0,16) × (1 + 0,035 × niveau)` × le facteur
@@ -41,9 +41,11 @@ son de boss. Trois motifs équiprobables :
 | Ruée | « RUÉE DE DROÏDES ! » | colonne dense de droïdes rapides depuis une direction |
 | Blindés | « BLINDÉS EN APPROCHE ! » | moitié d'effectif en sondes/droïdekas depuis un arc |
 
-Taille : `(10 + t/60 × 3) × densité coop × pression de secteur`, plafonnée
-pour ne jamais dépasser ~700 ennemis vivants. Suspendu pendant le duel
-contre le boss final (comme l'élite). Premier assaut entre 0:45 et 1:15.
+Taille : `(10 + t/60 × 3) × densité coop × pression de secteur ×
+(1 + 0,04 × niveau d'équipe)` — un assaut au niveau 25 est deux fois plus
+dense qu'au niveau 1, trois fois au niveau 50. Plafonné pour ne jamais
+dépasser ~700 ennemis vivants. Suspendu pendant le duel contre le boss
+final (comme l'élite). Premier assaut entre 0:45 et 1:15.
 
 ## Comportement
 

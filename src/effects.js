@@ -95,7 +95,7 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false, owner = n
       victory(e);
     } else if (e.boss) {
       for (const pl of alivePlayers()) pl.hp = Math.min(pl.maxHp, pl.hp + 30);
-      addText(e.x, e.y - 30, t('SEIGNEUR SITH VAINCU  +30 PV'), '#ffd166', 18, 2);
+      addText(e.x, e.y - 30, t('{0} VAINCU  +30 PV', t(e.ename || 'SEIGNEUR SITH')), '#ffd166', 18, 2);
       // le seigneur vaincu lâche son arsenal (armement lourd), si aucun en jeu
       if (!vehicle.drop && !vehicle.active) {
         const def = VEHICLES[LEVELS[session.level].vehicle];

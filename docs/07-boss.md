@@ -2,13 +2,41 @@
 
 Sources : `src/enemies.js` (`spawnFinalBoss`, `bossAI`), `src/levels.js` (`BOSSES`).
 
-## Élite récurrente : le Seigneur Sith
+## Élites récurrentes : les seigneurs (sous-boss)
 
-Toutes les **90 s** (suspendu pendant le duel final).
-PV `380 × (1 + t/70) × (1 + 0,03 × niveau) × facteur coop`, vitesse 62, dégâts 26, XP 40.
-À sa mort : **+30 PV** au joueur, ralenti dramatique court, anneau doré, et
-il **lâche son arsenal** — l'armement lourd thématique du secteur (voir
-[08-ravitaillements.md](08-ravitaillements.md)), si aucun n'est déjà en jeu.
+Toutes les **90 s** (suspendu pendant le duel final), un sous-boss tiré au
+sort parmi ceux que le **niveau d'équipe** a débloqués (`ELITES`,
+`pickElite`). PV `380 × mult × (1 + t/70) × (1 + 0,03 × niveau) × facteur
+coop × secteur` ; dégâts `× (1 + 0,02 × niveau)` — de plus en plus
+puissants à mesure que le build monte.
+
+Quatre **archétypes d'IA** (`ELITES`), incarnés différemment sur chaque
+destination (`ELITE_SETS` — toujours 4 figures par niveau, sprites du
+bestiaire local grossis ×1,35) :
+
+| Archétype | Dès le niv | PV | Comportement |
+|---|---|---|---|
+| ⚔️ Chargeur | 0 | ×1 | poursuite + **charge-frappe** télégraphiée (`!`, 480 px/s) |
+| 🌀 Lanceur | 6 | ×0,8 | garde ses distances, **lance sa lame boomerang** (3,5 s) |
+| 🔨 Colosse | 12 | ×1,9 | lent et massif, **coup de zone** (150 px, télégraphe 0,7 s) |
+| ⚡ Caster | 18 | ×0,7 | kite à distance, **volées de 3 éclairs** (3 s) |
+
+| Destination | Chargeur | Lanceur | Colosse | Caster |
+|---|---|---|---|---|
+| 🌌 Espace | Seigneur Sith | Inquisiteur | Colosse sith | Adepte obscur |
+| 🏜️ Tatooine | Chef tusken | Chasseur rodien | Brute gamorréenne | Sorcier jawa |
+| ⚫ Étoile de la Mort | Garde royal | Inquisiteur | Sentinelle pourpre | Officier ISB |
+| ❄️ Hoth | Commando des neiges | Sonde assassine | Wampa alpha | Adepte des glaces |
+| 🌲 Endor | Commando scout | Officier de garnison | AT-ST de patrouille | Chamane renégat |
+
+**Rangs** : au niveau d'équipe **15+** les élites apparaissent en rang
+**II** (×1,5 PV et dégâts, +18 % de taille, XP ×2), au niveau **30+** en
+rang **III** (×2,2, +36 %, XP ×3) — le nom et l'annonce portent le rang.
+
+À leur mort : **+30 PV** au joueur, ralenti dramatique court, anneau doré,
+et le seigneur **lâche son arsenal** — l'armement lourd thématique du
+secteur (voir [08-ravitaillements.md](08-ravitaillements.md)), si aucun
+n'est déjà en jeu.
 
 ## Boss finaux (15:00)
 

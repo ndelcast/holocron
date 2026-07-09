@@ -58,10 +58,11 @@ function applyBonus(b, taker) {
 
 // ------------------------------ Assauts aléatoires ------------------------------
 // Vague-surprise toutes les 40-80 s : encerclement, ruée rapide ou blindés.
-// Taille liée au temps, à la coop et au secteur ; suspendu pendant le duel final.
+// Taille liée au temps, à la coop, au secteur ET au niveau d'équipe :
+// plus le build monte, plus les assauts sont denses. Suspendu pendant le duel final.
 function spawnSurge(tc) {
   const kind = pick(['ring', 'rush', 'heavy']);
-  let n = Math.round((10 + S.time / 60 * 3) * coopSpawnMult() * campaignMult());
+  let n = Math.round((10 + S.time / 60 * 3) * coopSpawnMult() * campaignMult() * (1 + S.level * 0.04));
   n = Math.max(6, Math.min(n, 700 - enemies.length));
   if (n <= 0) return;
   const base = Math.random() * Math.PI * 2;
@@ -222,7 +223,7 @@ function update(dt) {
   }
 
   // --- spawn (quantité × facteur coop × niveau d'équipe, fraction reportée au tick suivant)
-  // La densité suit aussi S.level : monter haut (~45-55) déclenche la horde.
+  // La densité suit aussi S.level : monter haut (~25-35) déclenche la horde.
   S.spawnT -= dt;
   const interval = DEBUG.stress ? 0.05 : Math.max(0.16, (1.15 - S.time * 0.0032) * (LEVELS[session.level].spawnMult || 1));
   const cap = DEBUG.stress || Math.min(650, 230 + S.level * 4 + 40 * (session.count - 1));
@@ -322,7 +323,7 @@ function update(dt) {
       const life = rand(0.4, 0.8);
       particles.push({ type: 'glow', x: e.x + rand(-e.r, e.r), y: e.y + rand(-e.r * 0.5, e.r), vx: rand(-10, 10), vy: -rand(25, 55), life, max: life, rgb: '255,80,60', size: rand(2, 4) });
     }
-    const skipMove = e.final ? bossAI(e, dt) : false;
+    const skipMove = e.boss ? bossAI(e, dt) : false; // boss finaux ET élites
     if (!skipMove) {
       const tgt = nearestPlayer(e.x, e.y);
       const esp = e.spd * (e.slowT > 0 ? e.slow : 1);

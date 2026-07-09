@@ -9,11 +9,12 @@ import { resetFrameClock } from './lifecycle.js';
 import { t } from './i18n.js';
 
 // ------------------------------ Level up ------------------------------
-// Courbe polynomiale ferme : un choix toutes les ~20-30 s (pas toutes les
-// 5 s), soit le niveau ~45-55 à 20 min avec les armes à 10 paliers.
+// Courbe raide : un choix toutes les ~2 min (retour de playtest : 1/min
+// était encore trop généreux), soit le niveau ~25-35 à 20 min. La montée en
+// puissance longue se joue sur la campagne entière (5 secteurs).
 // Seuil × densité coop : l'afflux d'XP suit le nombre d'ennemis, et chaque
 // niveau distribue déjà un choix par joueur.
-function xpFor(level) { return Math.floor((14 + Math.pow(level, 1.75)) * coopSpawnMult()); }
+function xpFor(level) { return Math.floor((25 + 1.8 * Math.pow(level, 1.8)) * coopSpawnMult()); }
 
 function gainXp(v, owner = null) {
   const mult = ((owner && owner.xpMult) || 1) * (LEVELS[session.level].xpMult || 1);
