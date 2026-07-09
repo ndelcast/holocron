@@ -57,31 +57,51 @@ function applyBonus(b, taker) {
 }
 
 // ------------------------------ Assauts aléatoires ------------------------------
-// Vague-surprise toutes les 40-80 s : encerclement, ruée rapide ou blindés.
-// Taille liée au temps, à la coop, au secteur ET au niveau d'équipe :
-// plus le build monte, plus les assauts sont denses. Suspendu pendant le duel final.
-function spawnSurge(tc) {
-  const kind = pick(['ring', 'rush', 'heavy']);
-  let n = Math.round((10 + S.time / 60 * 3) * coopSpawnMult() * campaignMult() * (1 + S.level * 0.04));
-  n = Math.max(6, Math.min(n, 700 - enemies.length));
-  if (n <= 0) return;
+// Vague-surprise : encerclement, ruée rapide ou blindés. L'escalade suit
+// l'XP accumulée (niveau d'équipe) sur trois axes : taille (+7 %/niv),
+// fréquence (intervalle réduit jusqu'à ×0,45) et, dès le niveau 15, des
+// ASSAUTS MAJEURS — deux motifs simultanés aux ennemis enragés (+30 % vitesse).
+// Suspendu pendant le duel final.
+function surgePattern(kind, n, tc) {
   const base = Math.random() * Math.PI * 2;
   if (kind === 'ring') {
     for (let i = 0; i < n; i++) spawnEnemy(pickEnemyType(), false, base + i / n * Math.PI * 2);
-    addText(tc.x, tc.y - 80, t('ENCERCLEMENT !'), '#ff8f6b', 20, 2.2);
-  } else if (kind === 'rush') {
-    for (let i = 0; i < n; i++) spawnEnemy('droid', false, base + rand(-0.35, 0.35));
-    addText(tc.x, tc.y - 80, t('RUÉE DE DROÏDES !'), '#ff8f6b', 20, 2.2);
-  } else {
-    for (let i = 0; i < Math.ceil(n / 2); i++) {
-      const type = S.time >= 200 && Math.random() < 0.5 ? 'droideka' : 'probe';
-      spawnEnemy(type, false, base + rand(-0.6, 0.6));
-    }
-    addText(tc.x, tc.y - 80, t('BLINDÉS EN APPROCHE !'), '#ff8f6b', 20, 2.2);
+    return 'ENCERCLEMENT !';
   }
-  flash('255,110,60', 0.22);
+  if (kind === 'rush') {
+    for (let i = 0; i < n; i++) spawnEnemy('droid', false, base + rand(-0.35, 0.35));
+    return 'RUÉE DE DROÏDES !';
+  }
+  for (let i = 0; i < Math.ceil(n / 2); i++) {
+    const type = S.time >= 200 && Math.random() < 0.5 ? 'droideka' : 'probe';
+    spawnEnemy(type, false, base + rand(-0.6, 0.6));
+  }
+  return 'BLINDÉS EN APPROCHE !';
+}
+function spawnSurge(tc) {
+  let n = Math.round((10 + S.time / 60 * 3) * coopSpawnMult() * campaignMult() * (1 + S.level * 0.07));
+  n = Math.max(6, Math.min(n, 700 - enemies.length));
+  if (n <= 0) return;
+  const major = S.level >= 15 && Math.random() < Math.min(0.5, 0.15 + S.level * 0.01);
+  const before = enemies.length;
+  if (major) {
+    // deux motifs distincts d'un coup, ennemis enragés
+    const kinds = ['ring', 'rush', 'heavy'];
+    const k1 = pick(kinds);
+    const k2 = pick(kinds.filter(k => k !== k1));
+    surgePattern(k1, n, tc);
+    surgePattern(k2, n, tc);
+    for (let i = before; i < enemies.length; i++) enemies[i].spd *= 1.3;
+    addText(tc.x, tc.y - 80, t('ASSAUT MAJEUR !'), '#ff4954', 26, 2.6);
+    flash('255,73,84', 0.35);
+    S.shake = Math.max(S.shake, 12);
+  } else {
+    const label = surgePattern(pick(['ring', 'rush', 'heavy']), n, tc);
+    addText(tc.x, tc.y - 80, t(label), '#ff8f6b', 20, 2.2);
+    flash('255,110,60', 0.22);
+    S.shake = Math.max(S.shake, 8);
+  }
   sfx.boss();
-  S.shake = Math.max(S.shake, 8);
   const bw = document.getElementById('bosswarn');
   bw.classList.remove('on'); void bw.offsetWidth; bw.classList.add('on');
   setTimeout(() => bw.classList.remove('on'), 1600);
@@ -241,7 +261,8 @@ function update(dt) {
   // --- assaut aléatoire (voir spawnSurge)
   S.surgeT -= dt;
   if (S.surgeT <= 0) {
-    S.surgeT = 40 + Math.random() * 40;
+    // fréquence qui monte avec le niveau : 40-80 s au début, ~18-36 s en fin de campagne
+    S.surgeT = (40 + Math.random() * 40) * Math.max(0.45, 1 - S.level * 0.012);
     if (!finalAlive) spawnSurge(tc0);
   }
   // boss de fin de niveau et limite de 20 minutes

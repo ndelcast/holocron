@@ -261,6 +261,7 @@ const EN = {
   'AT-ST DÉTOURNÉ': 'HIJACKED AT-ST',
   'RUÉE DE DROÏDES !': 'DROID RUSH!',
   'BLINDÉS EN APPROCHE !': 'HEAVIES INCOMING!',
+  'ASSAUT MAJEUR !': 'MAJOR ASSAULT!',
   'RAVITAILLEMENT LARGUÉ — SUIS LA BALISE': 'SUPPLY DROP — FOLLOW THE BEACON',
   'SECTEUR {0} — {1}': 'SECTOR {0} — {1}',
   // ---------- écrans de fin ----------

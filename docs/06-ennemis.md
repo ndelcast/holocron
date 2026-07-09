@@ -41,11 +41,19 @@ son de boss. Trois motifs équiprobables :
 | Ruée | « RUÉE DE DROÏDES ! » | colonne dense de droïdes rapides depuis une direction |
 | Blindés | « BLINDÉS EN APPROCHE ! » | moitié d'effectif en sondes/droïdekas depuis un arc |
 
-Taille : `(10 + t/60 × 3) × densité coop × pression de secteur ×
-(1 + 0,04 × niveau d'équipe)` — un assaut au niveau 25 est deux fois plus
-dense qu'au niveau 1, trois fois au niveau 50. Plafonné pour ne jamais
-dépasser ~700 ennemis vivants. Suspendu pendant le duel contre le boss
-final (comme l'élite). Premier assaut entre 0:45 et 1:15.
+L'escalade suit l'**XP accumulée** (niveau d'équipe) sur trois axes :
+
+- **Taille** : `(10 + t/60 × 3) × densité coop × pression de secteur ×
+  (1 + 0,07 × niveau)` — presque triple au niveau 25.
+- **Fréquence** : intervalle `(40-80 s) × max(0,45 ; 1 − 0,012 × niveau)` —
+  ~18-36 s en fin de campagne.
+- **Assauts majeurs** (niveau 15+, probabilité `0,15 + 0,01 × niveau`,
+  plafond 50 %) : **deux motifs simultanés**, chacun à pleine taille, avec
+  des ennemis **enragés** (+30 % de vitesse) — annonce rouge « ASSAUT
+  MAJEUR ! », secousse renforcée.
+
+Plafonné pour ne jamais dépasser ~700 ennemis vivants. Suspendu pendant le
+duel contre le boss final (comme l'élite). Premier assaut entre 0:45 et 1:15.
 
 ## Comportement
 
