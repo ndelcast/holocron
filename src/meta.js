@@ -1,5 +1,5 @@
 // Holocron Survivors — crédits, sauvegarde localStorage, hangar (logique)
-import { S, campaign } from './state.js';
+import { S, session, creditMult } from './state.js';
 
 // ------------------------------ Méta-progression (crédits persistants) ------------------------------
 const META = {
@@ -16,21 +16,25 @@ const META = {
 function loadMeta() {
   try {
     const d = JSON.parse(localStorage.getItem('holocron_meta'));
-    if (d && typeof d.credits === 'number' && d.up) { d.weapons = Array.isArray(d.weapons) ? d.weapons : []; return d; }
+    if (d && typeof d.credits === 'number' && d.up) {
+      d.weapons = Array.isArray(d.weapons) ? d.weapons : [];
+      d.fragments = Array.isArray(d.fragments) ? d.fragments : [];
+      d.maxLevel = Math.max(1, +d.maxLevel || 1);
+      return d;
+    }
   } catch (e) { /* sauvegarde corrompue : repart de zéro */ }
-  return { credits: 0, up: {}, weapons: [] };
+  return { credits: 0, up: {}, weapons: [], fragments: [], maxLevel: 1 };
 }
 const META_STATE = loadMeta();
 function saveMeta() { try { localStorage.setItem('holocron_meta', JSON.stringify(META_STATE)); } catch (e) {} }
 function metaLvl(id) { return META_STATE.up[id] || 0; }
 function metaCost(id) { return META[id].base * (metaLvl(id) + 1); }
 // Bancarisation incrémentale : chaque écran de fin verse la différence entre
-// le total mérité par la campagne (stats cumulées, 250 © par fragment) et ce
-// qui a déjà été versé — les secteurs enchaînés ne comptent jamais double.
+// le total mérité par la partie et le déjà-versé (victoire puis 25:00 ne
+// comptent jamais double). Les crédits suivent la difficulté choisie.
 function bankRewards() {
-  const minutes = (campaign.prevTime + S.time) / 60;
-  let total = Math.floor(S.kills * 0.5 + S.level * 5 + minutes * 10 + campaign.fragments.length * 250);
-  total = Math.floor(total * (1 + 0.10 * metaLvl('greed')));
+  let total = Math.floor(S.kills * 0.5 + S.level * 5 + (S.time / 60) * 10 + (S.bossDefeated ? 250 : 0));
+  total = Math.floor(total * (1 + 0.10 * metaLvl('greed')) * creditMult());
   const c = Math.max(0, total - S.banked);
   S.banked = total;
   META_STATE.credits += c;

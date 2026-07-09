@@ -104,36 +104,82 @@ function buildHangar() {
     el.appendChild(row);
   }
 }
-document.getElementById('hangarBtn').onclick = () => {
-  buildHangar();
-  updateCreditsUI();
-  document.getElementById('menu').classList.remove('on');
-  document.getElementById('hangar').classList.add('on');
-};
-document.getElementById('hangarBack').onclick = () => {
-  document.getElementById('hangar').classList.remove('on');
-  document.getElementById('menu').classList.add('on');
-};
+document.getElementById('hangarBtn').onclick = () => { showScreen('hangar'); updateCreditsUI(); };
+document.getElementById('hangarBack').onclick = () => showScreen('home');
 updateCreditsUI();
 
 function buildLevelSelect() {
   const el = document.getElementById('levels');
   el.innerHTML = '';
-  for (const id in LEVELS) {
+  const order = Object.keys(LEVELS);
+  // si la destination sélectionnée est verrouillée (nouvelle sauvegarde), repli
+  if (order.indexOf(session.level) >= META_STATE.maxLevel) session.level = order[0];
+  order.forEach((id, i) => {
     const lv = LEVELS[id];
+    const locked = i >= META_STATE.maxLevel; // déblocage 1 par 1 (boss vaincu)
     const chip = document.createElement('div');
-    chip.className = 'lvlchip' + (id === session.level ? ' sel' : '');
-    chip.innerHTML = `<div class="lico">${lv.icon}</div><div class="lname">${t(lv.name)}</div><div class="ldesc">${t(lv.desc)}</div>`;
-    chip.onclick = () => {
-      session.level = id;
-      for (const el2 of document.querySelectorAll('.lvlchip')) el2.classList.remove('sel');
-      chip.classList.add('sel');
-      tone(560, 0.06, 'sine', 0.03, 160);
-    };
+    chip.className = 'lvlchip' + (id === session.level ? ' sel' : '') + (locked ? ' locked' : '');
+    chip.innerHTML = locked
+      ? `<div class="lico">🔒</div><div class="lname">${t(lv.name)}</div><div class="ldesc">${t('Terrasse le boss du secteur précédent.')}</div>`
+      : `<div class="lico">${lv.icon}</div><div class="lname">${t(lv.name)}</div><div class="ldesc">${t(lv.desc)}</div>`;
+    if (!locked) {
+      chip.onclick = () => {
+        session.level = id;
+        for (const el2 of document.querySelectorAll('.lvlchip')) el2.classList.remove('sel');
+        chip.classList.add('sel');
+        tone(560, 0.06, 'sine', 0.03, 160);
+      };
+    }
     el.appendChild(chip);
-  }
+  });
 }
 buildLevelSelect();
+
+// ------------------------------ Difficulté ------------------------------
+const DIFFS = [
+  { name: 'PADAWAN', desc: 'Ennemis ×1 · crédits ×1' },
+  { name: 'CHEVALIER', desc: 'Ennemis ×1,5 · crédits ×1,4' },
+  { name: 'MAÎTRE', desc: 'Ennemis ×2,2 · crédits ×2' },
+];
+function buildDiffSelect() {
+  const el = document.getElementById('diffsel');
+  el.innerHTML = '';
+  DIFFS.forEach((d, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'lvlchip diff' + (i === session.difficulty ? ' sel' : '');
+    chip.innerHTML = `<div class="lico">${'⭐'.repeat(i + 1)}</div><div class="lname">${t(d.name)}</div><div class="ldesc">${t(d.desc)}</div>`;
+    chip.onclick = () => {
+      session.difficulty = i;
+      for (const el2 of document.querySelectorAll('#diffsel .lvlchip')) el2.classList.remove('sel');
+      chip.classList.add('sel');
+      tone(600 + i * 90, 0.06, 'sine', 0.03, 160);
+    };
+    el.appendChild(chip);
+  });
+}
+buildDiffSelect();
+
+// ------------------------------ Écrans du menu ------------------------------
+const SCREENS = ['home', 'levelselect', 'teamscreen', 'hangar', 'options'];
+function showScreen(id) {
+  for (const sid of SCREENS) document.getElementById(sid).classList.remove('on');
+  document.getElementById('victory').classList.remove('on');
+  document.getElementById('gameover').classList.remove('on');
+  document.getElementById(id).classList.add('on');
+  S.scene = 'menu';
+  if (id === 'home') {
+    updateCreditsUI();
+    const n = META_STATE.fragments.length;
+    document.getElementById('fragline').textContent = '◆'.repeat(n) + '◇'.repeat(5 - n);
+  }
+  if (id === 'levelselect') { buildLevelSelect(); buildDiffSelect(); }
+  if (id === 'teamscreen') { buildCharSelect(); buildLobby(); }
+  if (id === 'hangar') buildHangar();
+}
+document.getElementById('playBtn').onclick = () => { showScreen('levelselect'); tone(700, 0.07, 'sine', 0.04, 200); };
+document.getElementById('toTeamBtn').onclick = () => { showScreen('teamscreen'); tone(700, 0.07, 'sine', 0.04, 200); };
+document.getElementById('backHome1').onclick = () => showScreen('home');
+document.getElementById('backLevels').onclick = () => showScreen('levelselect');
 
 // ------------------------------ Salon coop (manettes) ------------------------------
 // J2-J4 rejoignent depuis le menu : A (ou Start) pour entrer, ←/→ pour choisir
@@ -152,14 +198,14 @@ function heroCanvas(charId, size = 44) {
 function buildLobby() {
   const el = document.getElementById('teamsel');
   el.innerHTML = '';
-  const slots = [{ char: session.char, pad: null }, ...session.roster];
+  const slots = [{ char: session.char, pad: session.p1pad }, ...session.roster];
   for (let i = 0; i < 4; i++) {
     const slot = document.createElement('div');
     const s = slots[i];
     if (s) {
       slot.className = 'pslot filled';
       slot.style.borderColor = PLAYER_TINT[i];
-      slot.innerHTML = `<div class="ptag" style="color:${PLAYER_TINT[i]}">J${i + 1} · ${i === 0 ? t('CLAVIER') : t('MANETTE')}</div>` +
+      slot.innerHTML = `<div class="ptag" style="color:${PLAYER_TINT[i]}">J${i + 1} · ${i === 0 ? (session.p1pad != null ? t('MANETTE') : t('CLAVIER')) : t('MANETTE')}</div>` +
         `<div class="pname">${t(CHARS[s.char].name)}</div>` +
         `<div class="phint">${i === 0 ? t('héros via CHAMPION ci-dessus') : t('◄ ► héros · B quitte')}</div>`;
       slot.insertBefore(heroCanvas(s.char), slot.children[1]);
@@ -191,11 +237,21 @@ function menuZones() {
     return rows;
   }
   if (overlayOn('gameover')) return [[document.getElementById('retryBtn')], [document.getElementById('menuBtn')]];
-  if (overlayOn('menu')) return [
-    [document.getElementById('hangarBtn'), document.getElementById('optionsBtn')],
+  if (overlayOn('home')) return [
+    [document.getElementById('playBtn')],
+    [document.getElementById('hangarBtn')],
+    [document.getElementById('optionsBtn')],
+  ];
+  if (overlayOn('levelselect')) return [
+    visibleEls('#levels .lvlchip:not(.locked)'),
+    visibleEls('#diffsel .lvlchip'),
+    [document.getElementById('toTeamBtn')],
+    [document.getElementById('backHome1')],
+  ];
+  if (overlayOn('teamscreen')) return [
     visibleEls('#chars .cchar'),
-    visibleEls('#levels .lvlchip'),
     [document.getElementById('startBtn')],
+    [document.getElementById('backLevels')],
   ];
   return null;
 }
@@ -229,6 +285,8 @@ function moveFocus(dr, dc) {
 function backFocus() {
   if (overlayOn('options')) document.getElementById('optionsBack').click();
   else if (overlayOn('hangar')) document.getElementById('hangarBack').click();
+  else if (overlayOn('levelselect')) document.getElementById('backHome1').click();
+  else if (overlayOn('teamscreen')) document.getElementById('backLevels').click();
 }
 
 function pollPads() {
@@ -247,7 +305,37 @@ function pollPads() {
     const prev = lobbyPrev[gp.index] || cur; // pas de front sur la première lecture
     lobbyPrev[gp.index] = cur;
     const idx = session.roster.findIndex(r => r.pad === gp.index);
-    if (S.scene === 'menu' && overlayOn('menu') && idx >= 0) {
+    const inMenu = S.scene === 'menu' && overlayOn('teamscreen');
+    // Start : la manette prend la première place — J1 d'abord, puis J2-J4 ;
+    // re-Start sur la manette de J1 la fait passer dans le salon (J2-J4)
+    if (inMenu && cur.start && !prev.start && idx < 0) {
+      if (session.p1pad === gp.index) {
+        if (session.roster.length < 3) {
+          session.p1pad = null;
+          session.roster.push({ pad: gp.index, char: CHAR_IDS[session.roster.length + 1] });
+          tone(700, 0.09, 'square', 0.04, 120);
+          dirty = true;
+        }
+      } else if (session.p1pad == null) {
+        session.p1pad = gp.index;
+        tone(880, 0.09, 'square', 0.04, 160);
+        dirty = true;
+      } else if (session.roster.length < 3) {
+        session.roster.push({ pad: gp.index, char: CHAR_IDS[session.roster.length + 1] });
+        tone(760, 0.09, 'square', 0.04, 140);
+        dirty = true;
+      }
+      lobbyPrev[gp.index] = cur;
+      continue;
+    }
+    // B sur la manette de J1 : libère la place (retour clavier)
+    if (inMenu && session.p1pad === gp.index && cur.quit && !prev.quit) {
+      session.p1pad = null;
+      tone(280, 0.12, 'square', 0.04, -80);
+      dirty = true;
+      continue;
+    }
+    if (inMenu && idx >= 0) {
       // manette du salon : choix de héros uniquement
       const r = session.roster[idx];
       if (cur.quit && !prev.quit) { session.roster.splice(idx, 1); tone(280, 0.12, 'square', 0.04, -80); dirty = true; }
@@ -255,13 +343,6 @@ function pollPads() {
         if (cur.right && !prev.right) { r.char = CHAR_IDS[(CHAR_IDS.indexOf(r.char) + 1) % CHAR_IDS.length]; tone(700, 0.06, 'sine', 0.03, 200); dirty = true; }
         if (cur.left && !prev.left) { r.char = CHAR_IDS[(CHAR_IDS.indexOf(r.char) + CHAR_IDS.length - 1) % CHAR_IDS.length]; tone(640, 0.06, 'sine', 0.03, 200); dirty = true; }
       }
-      continue;
-    }
-    if (S.scene === 'menu' && overlayOn('menu') && cur.start && !prev.start && session.roster.length < 3) {
-      // Start : rejoindre le salon (J2-J4)
-      session.roster.push({ pad: gp.index, char: CHAR_IDS[session.roster.length + 1] });
-      tone(760, 0.09, 'square', 0.04, 140);
-      dirty = true;
       continue;
     }
     // navigation générique du menu au premier plan
@@ -281,11 +362,7 @@ setInterval(pollPads, 90);
 
 document.getElementById('startBtn').onclick = startGame;
 document.getElementById('retryBtn').onclick = startGame;
-document.getElementById('menuBtn').onclick = () => {
-  document.getElementById('gameover').classList.remove('on');
-  document.getElementById('menu').classList.add('on');
-  S.scene = 'menu';
-};
+document.getElementById('menuBtn').onclick = () => showScreen('teamscreen');
 document.getElementById('continueBtn').onclick = () => {
   document.getElementById('victory').classList.remove('on');
   document.getElementById('hud').classList.add('on');
@@ -293,11 +370,7 @@ document.getElementById('continueBtn').onclick = () => {
   startMusic(session.level);
   resetFrameClock();
 };
-document.getElementById('menuBtn3').onclick = () => {
-  document.getElementById('victory').classList.remove('on');
-  document.getElementById('menu').classList.add('on');
-  S.scene = 'menu';
-};
+document.getElementById('menuBtn3').onclick = () => showScreen('home');
 
 export { buildHangar };
 
@@ -318,15 +391,8 @@ function syncOptions() {
 }
 musicRange.oninput = () => { setMusicVol(musicRange.value / 100); syncOptions(); };
 sfxRange.oninput = () => { setSfxVol(sfxRange.value / 100); syncOptions(); tone(620, 0.08, 'square', 0.05, 120); };
-document.getElementById('optionsBtn').onclick = () => {
-  syncOptions();
-  document.getElementById('menu').classList.remove('on');
-  document.getElementById('options').classList.add('on');
-};
-document.getElementById('optionsBack').onclick = () => {
-  document.getElementById('options').classList.remove('on');
-  document.getElementById('menu').classList.add('on');
-};
+document.getElementById('optionsBtn').onclick = () => { syncOptions(); showScreen('options'); };
+document.getElementById('optionsBack').onclick = () => showScreen('home');
 syncOptions();
 
 // ------------------------------ Langue (FR / EN) ------------------------------
@@ -334,12 +400,13 @@ syncOptions();
 function applyLanguage() {
   applyStatics();
   if (window.matchMedia('(pointer: coarse)').matches) {
-    document.querySelector('#menu .hint').innerHTML =
+    document.querySelector('#home .hint').innerHTML =
       t('Glisse ton pouce sur l\'écran pour te déplacer · attaques automatiques · ⏸ pause et liste des combos');
   }
   document.querySelectorAll('#langsel .tchip').forEach(ch => ch.classList.toggle('sel', ch.dataset.lang === getLang()));
   buildCharSelect();
   buildLevelSelect();
+  buildDiffSelect();
   buildLobby();
   buildHangar();
   updateCreditsUI();

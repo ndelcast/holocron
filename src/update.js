@@ -1,9 +1,10 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
 import { keys, touch, padMove, firstFreePad } from './input.js';
-import { S, session, runtime, campaign, vehicle, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, slashes, addRing, coopSpawnMult, campaignMult } from './state.js';
+import { S, session, runtime, vehicle, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, slashes, addRing, coopSpawnMult, campaignMult } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
 import { BONUSES } from './gamedata.js';
+import { META_STATE } from './meta.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
 import { tickWeapons, explode, fireBolt, nearestEnemy } from './combat.js';
 import { damageEnemy, hurtPlayer, addText, burst, sparks, flash, ghosts } from './effects.js';
@@ -167,6 +168,16 @@ function tickVehicle(dt, tc0) {
   }
 }
 
+// ------------------------------ Challenges ------------------------------
+// La partie de 25 min est découpée en 4 phases annoncées ; chaque palier
+// franchi soigne l'équipe (+25 PV) et largue un ravitaillement.
+const CHALLENGES = [
+  { t: 0, name: 'SURVIE' },
+  { t: 360, name: "L'ASSAUT" },     // assauts ×1,5 plus fréquents
+  { t: 750, name: 'LA TRAQUE' },    // élites toutes les 60 s
+  { t: 1200, name: 'LE SEIGNEUR' }, // boss final (dernier challenge)
+];
+
 // ------------------------------ Boucle principale ------------------------------
 function update(dt) {
   S.time += dt;
@@ -198,13 +209,16 @@ function update(dt) {
     if (p.pad != null) {
       const pm = padMove(p.pad);
       if (pm) { mx = pm.mx; my = pm.my; }
-    } else {
+    }
+    if (p.idx === 0 && !mx && !my) {
+      // J1 : repli clavier + tactile (même avec une manette attitrée),
+      // puis première manette libre s'il n'en a pas
       if (keys.KeyW || keys.ArrowUp) my -= 1;
       if (keys.KeyS || keys.ArrowDown) my += 1;
       if (keys.KeyA || keys.ArrowLeft) mx -= 1;
       if (keys.KeyD || keys.ArrowRight) mx += 1;
       if (touch.active && Math.hypot(touch.dx, touch.dy) > 0.12) { mx = touch.dx; my = touch.dy; }
-      if (!mx && !my) {
+      if (!mx && !my && p.pad == null) {
         const free = firstFreePad(assignedPads);
         const pm = free != null ? padMove(free) : null;
         if (pm) { mx = pm.mx; my = pm.my; }
@@ -242,6 +256,18 @@ function update(dt) {
     p.comboWaveCd = Math.max(0, (p.comboWaveCd || 0) - dt);
   }
 
+  // --- challenges : transitions annoncées
+  let chal = 0;
+  for (let i = CHALLENGES.length - 1; i >= 0; i--) { if (S.time >= CHALLENGES[i].t) { chal = i; break; } }
+  if (chal !== S.chal) {
+    S.chal = chal;
+    addText(tc0.x, tc0.y - 95, t('CHALLENGE {0}/4 — {1}', chal + 1, t(CHALLENGES[chal].name)), '#ffd166', 22, 3);
+    flash('255,209,102', 0.3);
+    sfx.lvl();
+    for (const pl of alivePlayers()) pl.hp = Math.min(pl.maxHp, pl.hp + 25);
+    S.bonusT = Math.min(S.bonusT, 1); // ravitaillement de palier
+  }
+
   // --- spawn (quantité × facteur coop × niveau d'équipe, fraction reportée au tick suivant)
   // La densité suit aussi S.level : monter haut (~25-35) déclenche la horde.
   S.spawnT -= dt;
@@ -256,13 +282,14 @@ function update(dt) {
   S.bossT -= dt;
   if (S.bossT <= 0) {
     if (finalAlive) S.bossT = 15; // pas d'élite pendant le duel final
-    else { S.bossT = 90; spawnEnemy(null, true); }
+    else if (enemies.some(e => e.boss)) S.bossT = 5; // un boss à la fois : attend la mort du précédent
+    else { S.bossT = S.chal >= 2 ? 60 : 90; spawnEnemy(null, true); } // LA TRAQUE : cadence resserrée
   }
   // --- assaut aléatoire (voir spawnSurge)
   S.surgeT -= dt;
   if (S.surgeT <= 0) {
-    // fréquence qui monte avec le niveau : 40-80 s au début, ~18-36 s en fin de campagne
-    S.surgeT = (40 + Math.random() * 40) * Math.max(0.45, 1 - S.level * 0.012);
+    // fréquence qui monte avec le niveau ; dès L'ASSAUT (challenge 2), ×1,5 plus souvent
+    S.surgeT = (40 + Math.random() * 40) * Math.max(0.45, 1 - S.level * 0.012) * (S.chal >= 1 ? 0.65 : 1);
     if (!finalAlive) spawnSurge(tc0);
   }
   // boss de fin de niveau et limite de 20 minutes
@@ -565,8 +592,11 @@ function updateHud() {
   } else bb.style.display = 'none';
   document.getElementById('kills').textContent = S.kills;
   document.getElementById('lvl').textContent = S.level;
-  const nf = campaign.fragments.length;
+  const nf = META_STATE.fragments.length;
   document.getElementById('frags').textContent = '◆'.repeat(nf) + '◇'.repeat(5 - nf);
+  const chEl = document.getElementById('challenge');
+  chEl.style.display = fb ? 'none' : ''; // le boss final a sa propre barre
+  chEl.textContent = t('CHALLENGE {0}/4 — {1}', S.chal + 1, t(CHALLENGES[S.chal].name));
   document.getElementById('xpfill').style.width = (S.xp / S.xpNext * 100) + '%';
   const fills = document.querySelectorAll('#hpwrap .pfill');
   const nums = document.querySelectorAll('#hpwrap .pnum');

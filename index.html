@@ -30,6 +30,7 @@
     <span id="timer">00:00</span>
     <span class="stat">NIVEAU <b id="lvl">1</b></span>
   </div>
+  <div id="challenge"></div>
   <div id="bossbar">
     <div id="bossname"></div>
     <div id="bosshp"><div id="bosshpfill"></div></div>
@@ -46,7 +47,7 @@
   </div>
 </div>
 
-<div id="menu" class="overlay on">
+<div id="home" class="overlay on">
   <div class="tagline">IL Y A BIEN LONGTEMPS, DANS UNE GALAXIE LOINTAINE…</div>
   <h1 class="title">HOLOCRON<br>SURVIVORS</h1>
   <div class="subtitle">Survis à l'Empire</div>
@@ -54,22 +55,15 @@
   <p class="crawl">
     L'Empire a brisé le <b>dernier holocron Jedi</b> en cinq fragments, confiés
     aux seigneurs de cinq secteurs. Dernier porteur, tu es traqué aux confins
-    de la galaxie. Survis <b>20 minutes</b> par secteur ; à <b>15:00</b>, le
-    seigneur viendra en personne — terrasse-le, arrache-lui son fragment et
-    saute vers le secteur suivant. <b>Réunis les cinq fragments</b> pour que
-    la Force renaisse.
+    de la galaxie. Survis <b>25 minutes</b> par secteur, en <b>4 challenges</b> ;
+    à <b>20:00</b>, le seigneur viendra en personne — terrasse-le et arrache-lui
+    son fragment. <b>Réunis les cinq fragments</b> pour que la Force renaisse.
   </p>
   <div id="creditline">CRÉDITS : <b id="creditsLabel">0</b> ©</div>
-  <button class="holo" id="hangarBtn" style="margin-top:10px; font-size:13px; padding:10px 30px;">HANGAR — AMÉLIORATIONS</button>
+  <div id="fragline" title="Fragments d'holocron">◇◇◇◇◇</div>
+  <button class="holo" id="playBtn">JOUER</button>
+  <button class="holo" id="hangarBtn" style="margin-top:12px; font-size:13px; padding:10px 30px;">HANGAR — AMÉLIORATIONS</button>
   <button class="holo" id="optionsBtn" style="margin-top:8px; font-size:13px; padding:10px 30px;">OPTIONS</button>
-  <div class="sectlabel">CHAMPION</div>
-  <div id="chars"></div>
-  <div class="sectlabel">DESTINATION</div>
-  <div id="levels"></div>
-  <div class="sectlabel">ÉQUIPE</div>
-  <div id="teamsel"></div>
-  <div class="teamhint">J2-J4 : appuie sur <b>A</b> (manette) pour rejoindre · ◄ ► choisit ton héros · <b>B</b> pour quitter</div>
-  <button class="holo" id="startBtn">LANCER LA PARTIE</button>
   <div class="hint">
     <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour bouger ·
     attaques automatiques · <kbd>P</kbd> pause et liste des combos · <kbd>M</kbd> son
@@ -78,6 +72,26 @@
     Fan game non commercial, sans affiliation avec Lucasfilm Ltd. ni Disney.
     Star Wars et les noms associés sont des marques de leurs ayants droit.
   </div>
+</div>
+
+<div id="levelselect" class="overlay">
+  <h2 id="lvlseltitle">DESTINATION</h2>
+  <div id="levels"></div>
+  <div class="sectlabel" id="lbldiff">DIFFICULTÉ</div>
+  <div id="diffsel"></div>
+  <button class="holo" id="toTeamBtn">CONTINUER</button>
+  <button class="holo" id="backHome1" style="margin-top:14px; font-size:13px; padding:10px 30px;">RETOUR</button>
+</div>
+
+<div id="teamscreen" class="overlay">
+  <h2 id="teamtitle">ÉQUIPE</h2>
+  <div class="sectlabel" id="lblchampion">CHAMPION</div>
+  <div id="chars"></div>
+  <div class="sectlabel" id="lblteam">ÉQUIPE</div>
+  <div id="teamsel"></div>
+  <div class="teamhint"><b>Start</b> (manette) : prend J1, puis J2-J4 · re-Start sur J1 = passer J2 · ◄ ► choisit ton héros · <b>B</b> libère la place</div>
+  <button class="holo" id="startBtn">LANCER LA PARTIE</button>
+  <button class="holo" id="backLevels" style="margin-top:14px; font-size:13px; padding:10px 30px;">RETOUR</button>
 </div>
 
 <div id="levelup" class="overlay">
@@ -124,16 +138,15 @@
   <button class="holo" id="hangarBack">RETOUR</button>
 </div>
 
-<div id="victory" class="overlay">
+<div id="victory" class="overlay splash">
+  <div id="victrays"></div>
+  <div id="victfrag">◆</div>
   <h1 class="title" id="victtitle">VICTOIRE</h1>
   <div class="subtitle" id="victsub"></div>
+  <div id="victunlock"></div>
   <div id="victstats"></div>
-  <div id="jumpwrap">
-    <div class="sectlabel">SAUT HYPERESPACE — PROCHAIN SECTEUR</div>
-    <div id="jumpchips"></div>
-  </div>
-  <button class="holo" id="continueBtn">POURSUIVRE JUSQU'À 20:00</button>
-  <button class="holo" id="menuBtn3" style="margin-top:14px">CHANGER DE DESTINATION</button>
+  <button class="holo" id="menuBtn3">RETOUR AU QG</button>
+  <button class="holo" id="continueBtn" style="margin-top:14px; font-size:13px; padding:10px 30px;">POURSUIVRE JUSQU'À 25:00</button>
 </div>
 
 <div id="paused" class="overlay">

@@ -25,33 +25,27 @@ recherchée (Contrebandier). En coop, c'est l'équipage du même vaisseau.
 
 Le lore recontextualise chaque système existant :
 
-- **Survivre 20 minutes** = tenir le temps que l'hyperdrive recharge.
-- **Le boss à 15:00** = le seigneur du secteur vient reprendre l'holocron.
+- **Survivre 25 minutes** (4 challenges) = tenir le temps que l'hyperdrive recharge.
+- **Le boss à 20:00** = le seigneur du secteur vient reprendre l'holocron.
 - **Le vaincre** = lui arracher son fragment et libérer le secteur.
 - **Les cristaux d'XP** = éclats de mémoire de l'holocron qui « se souvient ».
 - **Le hangar** = la soute du vaisseau, améliorée entre deux campagnes.
 
-## La Route de l'Hyperespace (macro-boucle)
+## La reconquête secteur par secteur (macro-boucle)
 
-Une **campagne** enchaîne les secteurs en conservant build, armes, passifs,
-combos, niveau et XP :
+La progression est **persistante** (`META_STATE`) : les secteurs se
+**débloquent un par un** (terrasser le boss du secteur n débloque le n+1),
+et chaque **fragment d'holocron conquis est conservé pour toujours**.
 
-1. Le menu choisit le **premier secteur**. Boss vaincu → écran « SECTEUR
-   LIBÉRÉ », fragment n/5, et **saut hyperespace** vers un secteur restant
-   (build conservé, équipe soignée et réanimée, timer remis à zéro).
-2. Chaque saut augmente la **pression de la traque** : `campaignMult() =
-   1 + 0,3 × (secteur − 1)` sur les PV des ennemis/boss et la densité de
-   spawn — en plus de la montée liée au niveau d'équipe, qui est conservé.
-3. **Cinq fragments = l'holocron renaît** : écran de vraie fin.
-4. Atteindre 20:00 sans avoir vaincu le boss = le seigneur s'enfuit avec son
-   fragment, la route s'arrête (fin honorable, crédits bancarisés).
-   Mort de l'équipe = TERRASSÉ, les fragments retournent à l'Empire.
+1. Écran d'accueil → **JOUER** → choix de la **destination débloquée** et
+   de la **difficulté** (Padawan ×1, Chevalier ×1,5, Maître ×2,2 — crédits
+   ×1 / ×1,4 / ×2) → écran ÉQUIPE (salon manettes) → partie de 25 minutes.
+2. Boss vaincu → **splash de victoire** (fragment, secteur débloqué,
+   stats) → retour au QG : améliorations au hangar, puis secteur suivant.
+3. **Cinq fragments = l'holocron renaît** (vraie fin, affichée au splash).
+4. La mort ne fait rien perdre : crédits bancarisés, fragments conservés.
 
-Les crédits sont bancarisés **de façon incrémentale** à chaque écran de fin
-(`bankRewards`) : stats cumulées de la campagne + 250 © par fragment, moins
-ce qui a déjà été versé. Perdre la route ne fait jamais perdre les crédits.
-
-Le HUD affiche les fragments (`◆◆◇◇◇`) en bas au centre.
+Le HUD affiche les fragments (`◆◆◇◇◇`) en bas au centre, l'accueil aussi.
 
 ## Roadmap (non implémenté)
 

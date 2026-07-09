@@ -4,20 +4,27 @@ Sources : `src/update.js`, `src/lifecycle.js`, `src/levels.js` (constantes).
 
 ## Structure d'une partie
 
-Une partie est une **campagne** (voir [00-lore.md](00-lore.md)) : des
-secteurs de **20 minutes maximum** chacun (`RUN_TIME = 1200`), enchaînés
-par saut hyperespace en conservant build et niveau. Boss vaincu = fragment
-d'holocron ; cinq fragments = vraie fin. Le déroulé d'un secteur :
+Le menu est en **trois écrans** : ACCUEIL (Jouer / Hangar / Options),
+DESTINATION (**secteurs débloqués un par un** + **difficulté** Padawan ×1 /
+Chevalier ×1,5 / Maître ×2,2), puis ÉQUIPE (salon manettes, héros). Une
+partie dure **25 minutes maximum** (`RUN_TIME = 1500`), découpée en **4
+challenges annoncés** (bandeau HUD sous le timer, +25 PV et un
+ravitaillement à chaque palier). Boss vaincu = **splash de victoire**
+(fragment persistant, déblocage du secteur suivant) puis retour au QG.
+Cinq fragments = vraie fin. Le déroulé d'un secteur :
 
-| Instant | Événement |
-|---|---|
-| 0:00 | Début, arme de départ du héros équipée |
-| toutes les 90 s | Élite « Seigneur Sith » (voir [07-boss.md](07-boss.md)) |
-| ~0:12 puis toutes les 24 s (18 s en coop) | Largage de ravitaillement si moins de 3 actifs |
-| 14:50 | Annonce « Une présence puissante approche… » |
-| **15:00** | **Boss final du secteur** (`FINAL_BOSS_TIME = 900`) |
-| boss vaincu | Écran SECTEUR LIBÉRÉ : **saut hyperespace** vers un secteur restant, poursuivre jusqu'à 20:00, ou abandonner la route |
-| **20:00** | « SURVIE ACCOMPLIE » : saut possible si le fragment est acquis, sinon la route s'arrête |
+| Instant | Challenge | Événement |
+|---|---|---|
+| 0:00 | **1/4 SURVIE** | montée classique ; élites toutes les 90 s (une à la fois) |
+| 6:00 | **2/4 L'ASSAUT** | assauts aléatoires ×1,5 plus fréquents |
+| 12:30 | **3/4 LA TRAQUE** | élites toutes les 60 s |
+| 19:50 | | Annonce « Une présence puissante approche… » |
+| **20:00** | **4/4 LE SEIGNEUR** | **boss final du secteur** (`FINAL_BOSS_TIME = 1200`) |
+| boss vaincu | | **Splash SECTEUR LIBÉRÉ** : retour au QG ou poursuivre jusqu'à 25:00 |
+| **25:00** | | « SURVIE ACCOMPLIE » : retour au QG |
+
+Les ravitaillements suivent leur cadence habituelle (~0:12 puis toutes les
+24 s, 18 s en coop, 3 actifs max).
 
 La mort de l'équipe → écran TERRASSÉ (fragments perdus). Dans tous les cas,
 les crédits sont bancarisés incrémentalement (voir [09-progression.md](09-progression.md)).
@@ -62,11 +69,14 @@ et les textes en jeu traduits en direct.
 
 ## Coop local (1 à 4 joueurs)
 
-**Salon au menu** (`session.roster`) : J2-J4 rejoignent en appuyant sur
-**A** (ou Start) sur leur manette, choisissent leur héros avec ◄ ► et
-quittent avec **B**. J1 choisit le sien dans la grille CHAMPION (clavier,
-souris ou tactile). Les **doublons de héros sont permis** (deux Jedi = deux
-sabres). La taille d'équipe découle des manettes présentes dans le salon.
+**Salon au menu** (`session.p1pad` + `session.roster`) : **Start** sur une
+manette libre prend la **première place disponible — J1 d'abord**, puis
+J2-J4 ; re-Start sur la manette de J1 la fait passer dans le salon (J2),
+**B** libère la place. Deux manettes = un Start chacune (J1 + J2) ; clavier
++ une manette = la manette presse Start deux fois (J2), le clavier pilote
+J1. J1 garde toujours le **repli clavier/tactile**, même avec une manette
+attitrée. J1 choisit son héros dans la grille CHAMPION, J2-J4 avec ◄ ►.
+Les **doublons de héros sont permis** (deux Jedi = deux sabres).
 
 - Chaque joueur a ses **PV, armes, passifs et combos propres** ; l'XP, le
   niveau et les crédits sont partagés.

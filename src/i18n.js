@@ -273,8 +273,21 @@ const EN = {
   'ABANDONNER LA ROUTE': 'ABANDON THE ROUTE',
   'RETOUR AU MENU': 'BACK TO MENU',
   'SURVIE ACCOMPLIE': 'SURVIVAL COMPLETE',
-  '20 MINUTES — LE SECTEUR EST LIBÉRÉ, LA ROUTE CONTINUE': '20 MINUTES — SECTOR LIBERATED, THE ROUTE GOES ON',
-  '20 MINUTES — MAIS LE SEIGNEUR S\'EST ENFUI AVEC SON FRAGMENT': '20 MINUTES — BUT THE LORD FLED WITH HIS FRAGMENT',
+  '25 MINUTES — LE SECTEUR EST LIBÉRÉ, LA ROUTE CONTINUE': '25 MINUTES — SECTOR LIBERATED, THE ROUTE GOES ON',
+  '25 MINUTES — MAIS LE SEIGNEUR S\'EST ENFUI AVEC SON FRAGMENT': '25 MINUTES — BUT THE LORD FLED WITH HIS FRAGMENT',
+  'CHALLENGE {0}/4 — {1}': 'CHALLENGE {0}/4 — {1}',
+  'PADAWAN': 'PADAWAN',
+  'CHEVALIER': 'KNIGHT',
+  'MAÎTRE': 'MASTER',
+  'Ennemis ×1 · crédits ×1': 'Enemies ×1 · credits ×1',
+  'Ennemis ×1,5 · crédits ×1,4': 'Enemies ×1.5 · credits ×1.4',
+  'Ennemis ×2,2 · crédits ×2': 'Enemies ×2.2 · credits ×2',
+  'Terrasse le boss du secteur précédent.': 'Defeat the previous sector\'s boss.',
+  'NOUVEAU SECTEUR DÉBLOQUÉ : {0}': 'NEW SECTOR UNLOCKED: {0}',
+  'SURVIE': 'SURVIVAL',
+  "L'ASSAUT": 'THE ONSLAUGHT',
+  'LA TRAQUE': 'THE HUNT',
+  'LE SEIGNEUR': 'THE LORD',
   'Temps de campagne : <b>{0}</b>': 'Campaign time: <b>{0}</b>',
   'Éliminations : <b>{0}</b> · Niveau atteint : <b>{1}</b>': 'Kills: <b>{0}</b> · Level reached: <b>{1}</b>',
   'Fragments d\'holocron : <b style="color:var(--gold)">{0} / 5</b>': 'Holocron fragments: <b style="color:var(--gold)">{0} / 5</b>',
@@ -292,19 +305,29 @@ const EN = {
 // ---------- textes statiques du menu et des overlays ----------
 // La source FR vit ici aussi : applyStatics() écrit la langue courante.
 const STATICS = [
-  ['#menu .tagline', 'IL Y A BIEN LONGTEMPS, DANS UNE GALAXIE LOINTAINE…', 'A LONG TIME AGO, IN A GALAXY FAR, FAR AWAY…'],
-  ['#menu .subtitle', 'Survis à l\'Empire', 'Survive the Empire'],
-  ['#menu .crawl',
-    'L\'Empire a brisé le <b>dernier holocron Jedi</b> en cinq fragments, confiés aux seigneurs de cinq secteurs. Dernier porteur, tu es traqué aux confins de la galaxie. Survis <b>20 minutes</b> par secteur ; à <b>15:00</b>, le seigneur viendra en personne — terrasse-le, arrache-lui son fragment et saute vers le secteur suivant. <b>Réunis les cinq fragments</b> pour que la Force renaisse.',
-    'The Empire shattered the <b>last Jedi holocron</b> into five fragments, entrusted to the lords of five sectors. As its last bearer, you are hunted across the galaxy. Survive <b>20 minutes</b> per sector; at <b>15:00</b> the lord comes in person — strike him down, seize his fragment and jump to the next sector. <b>Reunite all five fragments</b> so the Force may be reborn.'],
+  ['#home .tagline', 'IL Y A BIEN LONGTEMPS, DANS UNE GALAXIE LOINTAINE…', 'A LONG TIME AGO, IN A GALAXY FAR, FAR AWAY…'],
+  ['#home .subtitle', 'Survis à l\'Empire', 'Survive the Empire'],
+  ['#home .crawl',
+    'L\'Empire a brisé le <b>dernier holocron Jedi</b> en cinq fragments, confiés aux seigneurs de cinq secteurs. Dernier porteur, tu es traqué aux confins de la galaxie. Survis <b>25 minutes</b> par secteur, en <b>4 challenges</b> ; à <b>20:00</b>, le seigneur viendra en personne — terrasse-le et arrache-lui son fragment. <b>Réunis les cinq fragments</b> pour que la Force renaisse.',
+    'The Empire shattered the <b>last Jedi holocron</b> into five fragments, entrusted to the lords of five sectors. As its last bearer, you are hunted across the galaxy. Survive <b>25 minutes</b> per sector, across <b>4 challenges</b>; at <b>20:00</b> the lord comes in person — strike him down and seize his fragment. <b>Reunite all five fragments</b> so the Force may be reborn.'],
+  ['#playBtn', 'JOUER', 'PLAY'],
+  ['#lvlseltitle', 'DESTINATION', 'DESTINATION'],
+  ['#lbldiff', 'DIFFICULTÉ', 'DIFFICULTY'],
+  ['#toTeamBtn', 'CONTINUER', 'CONTINUE'],
+  ['#backHome1', 'RETOUR', 'BACK'],
+  ['#teamtitle', 'ÉQUIPE', 'TEAM'],
+  ['#lblchampion', 'CHAMPION', 'CHAMPION'],
+  ['#lblteam', 'ÉQUIPE', 'TEAM'],
+  ['#backLevels', 'RETOUR', 'BACK'],
+  ['#menuBtn3', 'RETOUR AU QG', 'BACK TO HQ'],
   ['#creditline', 'CRÉDITS : <b id="creditsLabel">0</b> ©', 'CREDITS: <b id="creditsLabel">0</b> ©'],
   ['#hangarBtn', 'HANGAR — AMÉLIORATIONS', 'HANGAR — UPGRADES'],
   ['#startBtn', 'LANCER LA PARTIE', 'START THE RUN'],
-  ['.teamhint', 'J2-J4 : appuie sur <b>Start</b> (manette) pour rejoindre · ◄ ► choisit ton héros · <b>B</b> pour quitter',
-    'P2-P4: press <b>Start</b> (gamepad) to join · ◄ ► picks your hero · <b>B</b> to leave'],
-  ['#menu .hint', '<kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour bouger · attaques automatiques · <kbd>P</kbd> pause et liste des combos · <kbd>M</kbd> son · menu navigable à la manette (croix + <b>A</b>, <b>B</b> retour)',
+  ['.teamhint', '<b>Start</b> (manette) : prend J1, puis J2-J4 · re-Start sur J1 = passer J2 · ◄ ► choisit ton héros · <b>B</b> libère la place',
+    '<b>Start</b> (gamepad): claims P1, then P2-P4 · Start again on P1 = become P2 · ◄ ► picks your hero · <b>B</b> frees the seat'],
+  ['#home .hint', '<kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour bouger · attaques automatiques · <kbd>P</kbd> pause et liste des combos · <kbd>M</kbd> son · menu navigable à la manette (croix + <b>A</b>, <b>B</b> retour)',
     '<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to move · attacks are automatic · <kbd>P</kbd> pause and combo list · <kbd>M</kbd> sound · gamepad menu navigation (d-pad + <b>A</b>, <b>B</b> back)'],
-  ['#menu .legal',
+  ['#home .legal',
     'Fan game non commercial, sans affiliation avec Lucasfilm Ltd. ni Disney. Star Wars et les noms associés sont des marques de leurs ayants droit.',
     'Non-commercial fan game, not affiliated with Lucasfilm Ltd. or Disney. Star Wars and related names are trademarks of their respective owners.'],
   ['#gameover h1', 'TERRASSÉ', 'STRUCK DOWN'],
@@ -321,26 +344,19 @@ const STATICS = [
   ['#hangar .subtitle', 'Améliorations permanentes', 'Permanent upgrades'],
   ['#hangarcredits', 'CRÉDITS : <b>0</b> ©', 'CREDITS: <b>0</b> ©'],
   ['#hangarBack', 'RETOUR', 'BACK'],
-  ['#continueBtn', 'POURSUIVRE JUSQU\'À 20:00', 'KEEP GOING UNTIL 20:00'],
-  ['#jumpwrap .sectlabel', 'SAUT HYPERESPACE — PROCHAIN SECTEUR', 'HYPERSPACE JUMP — NEXT SECTOR'],
-  ['#paused h2', 'PAUSE', 'PAUSED'],
+  ['#continueBtn', 'POURSUIVRE JUSQU\'À 25:00', 'KEEP GOING UNTIL 25:00'],
+    ['#paused h2', 'PAUSE', 'PAUSED'],
   ['#paused .subtitle', 'Combinaisons d\'armes', 'Weapon combos'],
   ['#resumeBtn', 'REPRENDRE', 'RESUME'],
   ['#paused .hint', '<kbd>P</kbd> pour reprendre', '<kbd>P</kbd> to resume'],
   ['#combotitle', 'COMBO DÉBLOQUÉ&nbsp;!', 'COMBO UNLOCKED!'],
 ];
-// libellés DESTINATION et ÉQUIPE (2e et 3e sectlabel du menu)
-const SECTLABELS = [['CHAMPION', 'CHAMPION'], ['DESTINATION', 'DESTINATION'], ['ÉQUIPE', 'TEAM']];
-
 function applyStatics() {
   const en = lang === 'en';
   for (const [sel, fr, enTxt] of STATICS) {
     const el = document.querySelector(sel);
     if (el) el.innerHTML = en ? enTxt : fr;
   }
-  document.querySelectorAll('#menu > .sectlabel').forEach((el, i) => {
-    if (SECTLABELS[i]) el.textContent = en ? SECTLABELS[i][1] : SECTLABELS[i][0];
-  });
 }
 
 export { t, getLang, setLang, applyStatics };

@@ -763,3 +763,49 @@ button.holo:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--inkli
 .meta.market { background: linear-gradient(180deg, #ffe9a8, var(--paper)); }
 .meta.market .md i { color: #8a2be2; font-size: 12px; }
 .meta.market.maxed { opacity: .8; }
+
+
+/* ---------- Bandeau de challenge ---------- */
+#challenge {
+  position: fixed; top: 62px; left: 50%; transform: translateX(-50%);
+  font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 13px; font-weight: 800;
+  letter-spacing: .18em; color: var(--gold); text-shadow: 1.5px 1.5px 0 var(--inkline);
+}
+@media (max-width: 640px), (max-height: 520px) { #challenge { top: 50px; font-size: 10px; } }
+
+
+/* ---------- Écrans du menu : verrous, difficulté, fragments ---------- */
+.lvlchip.locked { opacity: .45; cursor: default; filter: grayscale(.6); }
+.lvlchip.locked:hover { transform: none; }
+#diffsel { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; padding: 0 14px; }
+#fragline { margin-top: 8px; font-size: 20px; letter-spacing: .3em; text-indent: .3em; color: var(--gold); text-shadow: 2px 2px 0 var(--inkline); }
+#levelselect h2, #teamtitle { margin-bottom: 6px; }
+#levelselect, #teamscreen { overflow-y: auto; padding: 30px 0; }
+#playBtn { font-size: 20px; padding: 16px 60px; }
+
+/* ---------- Splash de victoire ---------- */
+#victory.splash {
+  background:
+    repeating-conic-gradient(from 0deg at 50% 44%, rgba(255,209,102,.16) 0deg 8deg, transparent 8deg 18deg),
+    radial-gradient(rgba(255,255,255,.05) 1.6px, transparent 1.6px) 0 0 / 22px 22px,
+    radial-gradient(ellipse at 50% 44%, #3a2c12, #14102a 78%);
+}
+#victrays { display: none; }
+#victfrag {
+  font-size: 64px; color: var(--gold); text-shadow: 4px 4px 0 var(--inkline);
+  animation: fragPop .6s cubic-bezier(.2, 1.9, .4, 1) backwards, starSpin 2.6s ease-in-out .6s infinite;
+}
+@keyframes fragPop { from { opacity: 0; transform: scale(.2) rotate(-30deg); } }
+#victory.splash .title { animation: comboPop .55s cubic-bezier(.2, 1.9, .4, 1) backwards; }
+#victunlock {
+  margin-top: 12px; font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 16px; font-weight: 800;
+  letter-spacing: .12em; color: #52ff7a; text-shadow: 1.5px 1.5px 0 var(--inkline);
+  animation: cardIn .5s cubic-bezier(.2, .9, .3, 1.35) .35s backwards;
+}
+#victunlock:empty { display: none; }
+#victory.splash #victstats {
+  background: var(--paper); color: var(--inktxt); border: 3px solid var(--inkline); border-radius: 14px;
+  box-shadow: 6px 6px 0 rgba(0,0,0,.35); padding: 12px 22px; margin-top: 16px; transform: rotate(-.6deg);
+  animation: cardIn .5s cubic-bezier(.2, .9, .3, 1.35) .2s backwards;
+}
+#victory.splash #victstats b { color: #8a2be2; }

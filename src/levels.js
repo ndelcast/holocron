@@ -3,8 +3,8 @@ import { rand } from './core.js';
 import { TILE } from './background.js';
 
 // ------------------------------ Niveaux ------------------------------
-const RUN_TIME = 1200;        // 20 minutes, fin de partie
-const FINAL_BOSS_TIME = 900;  // le boss du niveau surgit à 15:00
+const RUN_TIME = 1500;        // 25 minutes, fin de partie
+const FINAL_BOSS_TIME = 1200; // le boss du niveau surgit à 20:00 (challenge 4/4)
 // mobs : skin de sprite par palier d'ennemi (trooper = basique, droid = rapide,
 // probe = moyen, droideka = tank) ; palier absent → sprite par défaut du palier
 const LEVELS = {

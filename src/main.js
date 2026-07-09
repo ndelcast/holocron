@@ -5,10 +5,10 @@ import './lifecycle.js';
 import './ui.js';
 
 // Poignée de debug pour la console et les tests automatisés
-import { S, players, alivePlayers, nearestPlayer, teamCenter, session, runtime, campaign, vehicle, enemies, ebullets, bonuses } from './state.js';
+import { S, players, alivePlayers, nearestPlayer, teamCenter, session, runtime, vehicle, enemies, ebullets, bonuses } from './state.js';
 import { WEAPONS, PASSIVES, CHARS, COMBOS, weaponLvl } from './gamedata.js';
 import { LEVELS, BOSSES } from './levels.js';
-import { startGame, togglePause, resetGame, jumpToSector, victory } from './lifecycle.js';
+import { startGame, togglePause, resetGame, victory } from './lifecycle.js';
 import { update, updateHud } from './update.js';
 import { render } from './render.js';
 import { touch } from './input.js';
@@ -20,9 +20,9 @@ import { audioCtx } from './audio.js';
 import { startMusic, stopMusic } from './music.js';
 
 window.HS = {
-  S, players, alivePlayers, nearestPlayer, teamCenter, session, runtime, campaign, vehicle, enemies, ebullets, bonuses, touch,
+  S, players, alivePlayers, nearestPlayer, teamCenter, session, runtime, vehicle, enemies, ebullets, bonuses, touch,
   WEAPONS, PASSIVES, CHARS, COMBOS, weaponLvl,
-  LEVELS, BOSSES, startGame, togglePause, resetGame, jumpToSector, victory, update, updateHud, render,
+  LEVELS, BOSSES, startGame, togglePause, resetGame, victory, update, updateHud, render,
   spawnEnemy, spawnFinalBoss, checkCombos, openComboModal, openLevelUp, gainXp, META_STATE, metaLvl, buildHangar,
   audioCtx, startMusic, stopMusic,
 };

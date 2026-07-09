@@ -39,9 +39,9 @@ dès le palier 1, 10 paliers.
 ## Crédits (fin de partie)
 
 Bancarisation **incrémentale** à chaque écran de fin : le total mérité par
-la campagne est recalculé sur les stats cumulées (+250 © par fragment
-d'holocron), et seule la différence avec le déjà-versé est créditée —
-les secteurs enchaînés ne comptent jamais double. Le total :
+la partie (+250 © si le boss est vaincu), multiplié par la **difficulté**
+(Padawan ×1, Chevalier ×1,4, Maître ×2), moins le déjà-versé (victoire puis
+25:00 ne comptent jamais double). Le total :
 
 ```
 crédits = floor(kills × 0,5 + niveau × 5 + minutes × 10 + 250 si boss vaincu)

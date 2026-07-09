@@ -177,7 +177,7 @@ window.addEventListener('keydown', e => {
   if (S.scene === 'combo' && (e.code === 'Enter' || e.code === 'Space')) { document.getElementById('comboOk').click(); return; }
   if (S.scene !== 'levelup') return;
   const p = currentChooser();
-  if (p && p.pad != null) return; // le tour d'un joueur manette : clavier inactif
+  if (p && p.pad != null && p.idx !== 0) return; // clavier inactif sauf pour J1 (repli)
   if (e.code === 'ArrowLeft') setSel(curSel - 1);
   if (e.code === 'ArrowRight') setSel(curSel + 1);
   if ((e.code === 'Enter' || e.code === 'Space') && curCards[curSel]) applyChoice(curCards[curSel].opt);

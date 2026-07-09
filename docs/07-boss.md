@@ -4,9 +4,10 @@ Sources : `src/enemies.js` (`spawnFinalBoss`, `bossAI`), `src/levels.js` (`BOSSE
 
 ## Élites récurrentes : les seigneurs (sous-boss)
 
-Toutes les **90 s** (suspendu pendant le duel final), un sous-boss tiré au
-sort parmi ceux que le **niveau d'équipe** a débloqués (`ELITES`,
-`pickElite`). PV `380 × mult × (1 + t/70) × (1 + 0,03 × niveau) × facteur
+Toutes les **90 s** (60 s pendant LA TRAQUE, challenge 3/4 ; suspendu
+pendant le duel final), un sous-boss tiré au sort parmi ceux que le
+**niveau d'équipe** a débloqués (`ELITES`, `pickElite`). **Un boss à la
+fois** : tant que l'élite précédente vit, la suivante attend sa mort. PV `380 × mult × (1 + t/70) × (1 + 0,03 × niveau) × facteur
 coop × secteur` ; dégâts `× (1 + 0,02 × niveau)` — de plus en plus
 puissants à mesure que le build monte.
 
@@ -38,9 +39,9 @@ et le seigneur **lâche son arsenal** — l'armement lourd thématique du
 secteur (voir [08-ravitaillements.md](08-ravitaillements.md)), si aucun
 n'est déjà en jeu.
 
-## Boss finaux (15:00)
+## Boss finaux (20:00 — challenge 4/4)
 
-Annonce à 14:50, bannière + flash rouge + ralenti à l'apparition.
+Annonce à 19:50, bannière + flash rouge + ralenti à l'apparition.
 Barre de vie géante dans le HUD, flèche directionnelle si hors champ.
 À la mort : +50 PV, 160 XP en cristaux, ralenti long, flash blanc, écran VICTOIRE.
 

@@ -6,20 +6,20 @@ export const S = {
   spawnT: 0, spawnAcc: 0, bossT: 90, surgeT: 60, shake: 0, freeze: 0, beamT: 0,
   zoomKick: 0, streak: 0, streakT: 0, afterT: 0, bonusT: 12,
   banked: 0, // crédits déjà bancarisés cette campagne (bancarisation incrémentale)
+  chal: 0, // challenge courant (0-3), voir CHALLENGES dans update.js
 };
 // sélections du menu et compteurs de partie (objets pour rester mutables entre modules)
 // roster : joueurs 2-4 du salon coop — { pad: index manette, char: id héros } ;
 // chacun rejoint depuis le menu avec A sur sa manette. count = 1 + roster.length.
-export const session = { char: 'jedi', level: 'space', count: 1, roster: [] };
+export const session = { char: 'jedi', level: 'space', count: 1, roster: [], p1pad: null, difficulty: 0 };
 export const runtime = { waveId: 0, pendingLvls: 0, lvlQueue: [], comboQueue: [] };
 
-// ------------------------------ Campagne : la Route de l'Hyperespace ------------------------------
-// Une campagne = enchaîner les secteurs en conservant build, niveau et XP.
-// Chaque seigneur de secteur vaincu lâche son fragment d'holocron ;
-// les cinq fragments réunis reconstituent l'holocron (vraie fin).
-export const campaign = { sector: 1, fragments: [], prevTime: 0 };
-// pression du secteur : chaque saut durcit la traque (×1,3 / ×1,6 / ×1,9 / ×2,2)
-export function campaignMult() { return 1 + 0.3 * (campaign.sector - 1); }
+// ------------------------------ Difficulté ------------------------------
+// Choisie à l'écran DESTINATION : PADAWAN ×1, CHEVALIER ×1,5, MAÎTRE ×2,2
+// sur les PV/densité (mêmes points d'application que l'ancienne pression de
+// secteur, d'où le nom conservé) ; les crédits suivent (×1 / ×1,4 / ×2).
+export function campaignMult() { return [1, 1.5, 2.2][session.difficulty] || 1; }
+export function creditMult() { return [1, 1.4, 2][session.difficulty] || 1; }
 
 // ------------------------------ Équilibrage coop ------------------------------
 // Facteurs dérivés de la taille d'équipe choisie au menu (fixes toute la partie,

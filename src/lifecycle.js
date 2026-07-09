@@ -1,9 +1,9 @@
 // Holocron Survivors — boucle rAF, début/fin de partie, pause
 import { clamp, DEBUG } from './core.js';
-import { S, session, runtime, campaign, vehicle, players, PLAYER_TINT, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, slashes } from './state.js';
+import { S, session, runtime, vehicle, players, PLAYER_TINT, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, slashes } from './state.js';
 import { CHARS } from './gamedata.js';
 import { LEVELS, BOSSES } from './levels.js';
-import { metaLvl, bankRewards } from './meta.js';
+import { META_STATE, saveMeta, metaLvl, bankRewards } from './meta.js';
 import { audioResume, sfx } from './audio.js';
 import { startMusic, stopMusic } from './music.js';
 import { pollPadPause } from './input.js';
@@ -92,14 +92,13 @@ function resetGame() {
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; screenFlash.a = 0;
   S.zoomKick = 0; S.streak = 0; S.streakT = 0; S.afterT = 0; S.bonusT = 12;
-  S.banked = 0;
-  campaign.sector = 1; campaign.fragments.length = 0; campaign.prevTime = 0;
+  S.banked = 0; S.chal = 0;
   document.getElementById('levelup').classList.remove('on');
   document.getElementById('paused').classList.remove('on');
   document.getElementById('victory').classList.remove('on');
   // construit l'équipe depuis le salon : J1 (clavier/manette libre) + roster manettes
   players.length = 0;
-  const lineup = [{ char: session.char, pad: null }, ...session.roster];
+  const lineup = [{ char: session.char, pad: session.p1pad }, ...session.roster];
   session.count = lineup.length;
   lineup.forEach((s, i) => players.push(makePlayer(s.char, i, s.pad)));
   runtime.lvlQueue.length = 0;
@@ -114,89 +113,47 @@ function startGame() {
   audioResume();
   startMusic(session.level);
   resetGame();
-  document.getElementById('menu').classList.remove('on');
+  for (const id of ['home', 'levelselect', 'teamscreen']) document.getElementById(id).classList.remove('on');
   document.getElementById('gameover').classList.remove('on');
   document.getElementById('hud').classList.add('on');
   S.scene = 'play';
   lastT = performance.now();
 }
 function runStats() {
-  const total = campaign.prevTime + S.time;
-  const m = Math.floor(total / 60), s = Math.floor(total % 60);
+  const m = Math.floor(S.time / 60), s = Math.floor(S.time % 60);
   const clock = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
   return t('Temps de campagne : <b>{0}</b>', clock) + '<br>' +
     t('Éliminations : <b>{0}</b> · Niveau atteint : <b>{1}</b>', S.kills, S.level) + '<br>' +
-    t('Fragments d\'holocron : <b style="color:var(--gold)">{0} / 5</b>', campaign.fragments.length);
-}
-// propose les secteurs restants sur l'écran de victoire (saut hyperespace)
-function buildJumpChips() {
-  const wrap = document.getElementById('jumpwrap');
-  const el = document.getElementById('jumpchips');
-  el.innerHTML = '';
-  const remaining = Object.keys(LEVELS).filter(id => !campaign.fragments.includes(id));
-  const canJump = remaining.length > 0 && campaign.fragments.includes(session.level);
-  wrap.style.display = canJump ? '' : 'none';
-  if (!canJump) return;
-  for (const id of remaining) {
-    const lv = LEVELS[id];
-    const chip = document.createElement('div');
-    chip.className = 'lvlchip';
-    chip.innerHTML = `<div class="lico">${lv.icon}</div><div class="lname">${t(lv.name)}</div>`;
-    chip.onclick = () => jumpToSector(id);
-    el.appendChild(chip);
-  }
-}
-// saut hyperespace : nouveau secteur, build et niveau conservés, équipe réparée
-function jumpToSector(levelId) {
-  session.level = levelId;
-  campaign.sector++;
-  campaign.prevTime += S.time;
-  S.time = 0; S.spawnT = 0; S.spawnAcc = 0; S.bossT = 90; S.surgeT = 45 + Math.random() * 30; S.bonusT = 12;
-  vehicle.drop = null; vehicle.active = null;
-  S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
-  S.freeze = 0; S.beamT = 0; S.shake = 0; S.zoomKick = 0; S.streak = 0; S.streakT = 0;
-  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses, slashes]) arr.length = 0;
-  players.forEach((p, i) => {
-    p.x = i * 46 - (session.count - 1) * 23; p.y = 0;
-    p.dead = false; p.hp = p.maxHp; p.invuln = 1.5; p.afterT = 0; p.ionAura = null;
-  });
-  document.getElementById('victory').classList.remove('on');
-  document.getElementById('hud').classList.add('on');
-  S.scene = 'play';
-  startMusic(levelId);
-  flash('110,231,255', 0.5);
-  addText(0, -80, t('SECTEUR {0} — {1}', campaign.sector, t(LEVELS[levelId].name)), '#6ee7ff', 20, 3);
-  sfx.wave();
-  resetFrameClock();
+    t('Fragments d\'holocron : <b style="color:var(--gold)">{0} / 5</b>', META_STATE.fragments.length);
 }
 function victory(boss) {
   S.scene = 'victory';
   S.bossDefeated = true;
   stopMusic();
-  if (!campaign.fragments.includes(session.level)) campaign.fragments.push(session.level);
-  const c = bankRewards();
-  const n = campaign.fragments.length;
-  const stats = runStats() + '<br>' + t('Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>', c);
-  if (n >= 5) {
-    // vraie fin : les cinq fragments sont réunis
-    document.getElementById('victtitle').textContent = t('L\'HOLOCRON RENAÎT');
-    document.getElementById('victsub').textContent = t('LES CINQ FRAGMENTS SONT RÉUNIS — LA FORCE REVIENT');
-    document.getElementById('victstats').innerHTML = stats;
-    document.getElementById('continueBtn').style.display = 'none';
-    document.getElementById('jumpwrap').style.display = 'none';
-    document.getElementById('menuBtn3').textContent = t('LA LÉGENDE EST ÉCRITE');
-  } else {
-    document.getElementById('victtitle').textContent = t('SECTEUR LIBÉRÉ');
-    document.getElementById('victsub').textContent = t('{0} EST TOMBÉ — FRAGMENT {1} / 5', t(BOSSES[boss.type].name), n);
-    document.getElementById('victstats').innerHTML = stats;
-    document.getElementById('continueBtn').style.display = '';
-    document.getElementById('menuBtn3').textContent = t('ABANDONNER LA ROUTE');
-    buildJumpChips();
+  // progression persistante : fragment conservé + secteur suivant débloqué
+  const order = Object.keys(LEVELS);
+  const idx = order.indexOf(session.level);
+  let unlocked = null;
+  if (!META_STATE.fragments.includes(session.level)) META_STATE.fragments.push(session.level);
+  if (idx + 1 < order.length && idx + 2 > META_STATE.maxLevel) {
+    META_STATE.maxLevel = idx + 2;
+    unlocked = order[idx + 1];
   }
+  saveMeta();
+  const c = bankRewards();
+  const n = META_STATE.fragments.length;
+  const complete = n >= 5;
+  document.getElementById('victtitle').textContent = complete ? t('L\'HOLOCRON RENAÎT') : t('SECTEUR LIBÉRÉ');
+  document.getElementById('victsub').textContent = complete
+    ? t('LES CINQ FRAGMENTS SONT RÉUNIS — LA FORCE REVIENT')
+    : t('{0} EST TOMBÉ — FRAGMENT {1} / 5', t(BOSSES[boss.type].name), n);
+  document.getElementById('victunlock').textContent = unlocked ? t('NOUVEAU SECTEUR DÉBLOQUÉ : {0}', t(LEVELS[unlocked].name)) : '';
+  document.getElementById('victstats').innerHTML = runStats() + '<br>' + t('Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>', c);
+  document.getElementById('continueBtn').style.display = '';
   document.getElementById('victory').classList.add('on');
   document.getElementById('hud').classList.remove('on');
   document.getElementById('lowhp').classList.remove('on');
-  sfx.lvl(); setTimeout(() => sfx.lvl(), 350);
+  sfx.lvl(); setTimeout(() => sfx.lvl(), 350); setTimeout(() => sfx.boss(), 150);
 }
 function endRun() {
   S.scene = 'victory';
@@ -204,13 +161,12 @@ function endRun() {
   const c = bankRewards();
   document.getElementById('victtitle').textContent = t('SURVIE ACCOMPLIE');
   document.getElementById('victsub').textContent = S.bossDefeated
-    ? t('20 MINUTES — LE SECTEUR EST LIBÉRÉ, LA ROUTE CONTINUE')
-    : t('20 MINUTES — MAIS LE SEIGNEUR S\'EST ENFUI AVEC SON FRAGMENT');
+    ? t('25 MINUTES — LE SECTEUR EST LIBÉRÉ, LA ROUTE CONTINUE')
+    : t('25 MINUTES — MAIS LE SEIGNEUR S\'EST ENFUI AVEC SON FRAGMENT');
+  document.getElementById('victunlock').textContent = '';
   document.getElementById('victstats').innerHTML = runStats() +
     (c > 0 ? '<br>' + t('Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>', c) : '');
   document.getElementById('continueBtn').style.display = 'none';
-  document.getElementById('menuBtn3').textContent = S.bossDefeated ? 'ABANDONNER LA ROUTE' : 'RETOUR AU MENU';
-  buildJumpChips(); // saut possible uniquement si le fragment du secteur est acquis
   document.getElementById('victory').classList.add('on');
   document.getElementById('hud').classList.remove('on');
   document.getElementById('lowhp').classList.remove('on');
@@ -220,9 +176,7 @@ function gameOver() {
   S.scene = 'gameover';
   stopMusic();
   const c = bankRewards();
-  const n = campaign.fragments.length;
   document.getElementById('gostats').innerHTML = runStats() +
-    (n > 0 ? `<br><span style="color:var(--sith)">${t('Les fragments retournent à l\'Empire…')}</span>` : '') +
     '<br>' + t('Crédits gagnés : <b style="color:var(--gold)">+{0} ©</b>', c);
   document.getElementById('gameover').classList.add('on');
   document.getElementById('hud').classList.remove('on');
@@ -238,4 +192,4 @@ function togglePause() {
 
 function resetFrameClock() { lastT = performance.now(); }
 
-export { resetGame, startGame, runStats, victory, endRun, gameOver, togglePause, resetFrameClock, jumpToSector };
+export { resetGame, startGame, runStats, victory, endRun, gameOver, togglePause, resetFrameClock };
