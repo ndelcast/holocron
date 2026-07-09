@@ -115,13 +115,8 @@ function tickVehicle(dt, tc0) {
     vehicle.active = null;
     return;
   }
-  if (act.def.kind === 'ride') {
-    // les équipiers embarquent au contact
-    for (const p of players) {
-      if (p.dead || act.riders.includes(p.idx)) continue;
-      if (dist2(act.x, act.y, p.x, p.y) < (act.def.radius + p.r) * (act.def.radius + p.r)) act.riders.push(p.idx);
-    }
-    // écrasement au contact
+  if (act.def.ram) {
+    // écrasement au contact (speeders, AT-ST)
     act.ramT -= dt;
     if (act.ramT <= 0) {
       act.ramT = 0.15;
@@ -138,7 +133,7 @@ function tickVehicle(dt, tc0) {
   act.fireT -= dt;
   if (act.fireT <= 0) {
     act.fireT = act.def.cd;
-    const shots = act.def.kind === 'turret' ? 2 : Math.max(1, act.riders.length);
+    const shots = act.def.shots || 1;
     const owner = players[act.riders[0]];
     let fired = false;
     for (let i = 0; i < shots; i++) {
@@ -176,16 +171,8 @@ function update(dt) {
       }
       continue;
     }
-    // monteurs d'armement lourd : invulnérables ; tourelle et passagers arrimés
-    if (veh && veh.riders.includes(p.idx)) {
-      p.invuln = Math.max(p.invuln, 0.3);
-      if (veh.def.kind === 'turret') { p.x = veh.x; p.y = veh.y; continue; }
-      if (veh.riders[0] !== p.idx) {
-        const drv = players[veh.riders[0]];
-        p.x = drv.x + veh.riders.indexOf(p.idx) * 12 - 12; p.y = drv.y + 6;
-        continue;
-      }
-    }
+    // pilote d'armement lourd : invulnérable, vitesse de l'engin (plus bas)
+    if (veh && veh.riders[0] === p.idx) p.invuln = Math.max(p.invuln, 0.3);
     let mx = 0, my = 0;
     if (p.pad != null) {
       const pm = padMove(p.pad);
@@ -204,7 +191,7 @@ function update(dt) {
     }
     if (mx || my) {
       const l = Math.hypot(mx, my);
-      const spd = veh && veh.def.kind === 'ride' && veh.riders[0] === p.idx ? veh.def.speed : p.speed;
+      const spd = veh && veh.riders[0] === p.idx ? veh.def.speed : p.speed;
       p.x += mx / l * spd * dt;
       p.y += my / l * spd * dt;
       if (mx) p.face = Math.sign(mx);
@@ -293,8 +280,8 @@ function update(dt) {
     }
   }
 
-  // --- armement lourd (l'engin mobile suit son conducteur)
-  if (vehicle.active && vehicle.active.def.kind === 'ride') {
+  // --- armement lourd : l'engin suit son pilote
+  if (vehicle.active) {
     const drv = players[vehicle.active.riders[0]];
     vehicle.active.x = drv.x; vehicle.active.y = drv.y;
   }

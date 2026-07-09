@@ -30,12 +30,12 @@ toutes les ~90 s est le moyen de le gagner. Sprites dédiés (`v_*` dans
 | ❄️ Hoth | Snowspeeder | véhicule très rapide (370), lasers + écrasement |
 | 🌲 Endor | AT-ST détourné | véhicule lent (135) mais dévastateur (95/tir, écrasement 85) |
 
-- **Tourelle** : un seul joueur monte (contact), il est **immobile et
-  invulnérable**, feu automatique à 360° dans la portée.
-- **Véhicule** : le premier joueur au contact devient **conducteur** (vitesse
-  de l'engin) ; les équipiers **embarquent au contact** et sont arrimés,
-  tous invulnérables. Un laser automatique **par monteur**, plus des dégâts
-  d'écrasement au contact du châssis.
+- **Un seul pilote** : le premier joueur au contact monte à bord —
+  **invulnérable**, il se déplace à la **vitesse de l'engin** (tourelles
+  lentes : 115/90 ; speeders rapides : 350/370 ; AT-ST : 135) avec un feu
+  automatique à 360° (2 tirs par salve pour la tourelle et l'AT-ST).
+- Les speeders et l'AT-ST infligent en plus des dégâts **d'écrasement**
+  au contact du châssis.
 - Les dégâts des engins suivent le niveau d'équipe (`× (1 + 0,04 × niveau)`).
 - À expiration (60 s) : « ARMEMENT ÉPUISÉ », les monteurs redescendent avec
   1 s d'invulnérabilité.
