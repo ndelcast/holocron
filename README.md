@@ -2,6 +2,9 @@
 
 Survivor-like (type *Vampire Survivors*) sur le thème Star Wars, en vanilla JS + canvas, sans dépendance runtime.
 
+🎮 **Jouer : [ndelcast.github.io/holocron](https://ndelcast.github.io/holocron/)** (desktop et mobile)
+📚 **Spécifications complètes : [docs/](docs/README.md)**
+
 ## Lancer
 
 ```bash
