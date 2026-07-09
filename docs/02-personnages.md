@@ -2,7 +2,7 @@
 
 Source : `src/gamedata.js` (`CHARS`).
 
-Quatre héros sélectionnables au menu. Le choix persiste pour la session.
+Quatre héros sélectionnables au menu. En coop, J1 joue le héros choisi et les équipiers reçoivent les héros restants dans l'ordre du tableau — chaque joueur incarne un héros différent.
 
 | Héros | PV | Vitesse | Hitbox (r) | Arme de départ | Particularité |
 |---|---|---|---|---|---|

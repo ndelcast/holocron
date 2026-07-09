@@ -399,3 +399,50 @@ canvas#game { touch-action: none; }
   .cstate { display: none; }
   #gostats, #victstats { font-size: 15px; }
 }
+
+/* ================================================================
+   Coop local — équipe, barres de PV multiples, sélecteur
+   ================================================================ */
+#teamsel { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+.tchip {
+  pointer-events: auto; cursor: pointer; padding: 9px 20px;
+  font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  color: var(--holo); border: 1px solid rgba(110,231,255,.25); background: rgba(8,20,32,.55);
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  transition: transform .12s, border-color .12s;
+}
+.tchip:hover { transform: translateY(-2px); border-color: var(--holo); }
+.tchip.sel { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,209,102,.2); background: rgba(34,30,14,.6); }
+.teamhint { margin-top: 8px; font-size: 12px; letter-spacing: .12em; color: #5f8299; }
+
+#hpwrap { width: 240px; }
+.prow { margin-top: 7px; }
+.prow.dead { opacity: .45; }
+.plabel {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .14em;
+  margin-bottom: 3px;
+}
+.plabel .pnum { font-family: 'Rajdhani', sans-serif; font-size: 12px; letter-spacing: .06em; color: #cfeeff; }
+.pbar {
+  position: relative; height: 10px; background: rgba(255,255,255,.06);
+  border: 1px solid rgba(110,231,255,.25);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  box-shadow: inset 0 0 8px rgba(0,0,0,.5);
+}
+.pbar::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 21px, rgba(5,8,16,.55) 21px 22.5px);
+}
+.pfill { height: 100%; width: 100%; transition: width .12s; }
+
+#weapons { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.wrow { display: flex; gap: 6px; padding: 2px; border-right: 2px solid transparent; }
+
+@media (max-width: 640px), (max-height: 520px) {
+  #hpwrap { width: 46vw; }
+  .pbar { height: 8px; }
+  .plabel { font-size: 8.5px; }
+}
+
+.legal { margin-top: 18px; font-size: 10.5px; letter-spacing: .06em; color: #3d5568; max-width: 82vw; line-height: 1.5; }

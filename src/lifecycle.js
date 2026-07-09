@@ -1,10 +1,11 @@
 // Holocron Survivors — boucle rAF, début/fin de partie, pause
 import { clamp, DEBUG } from './core.js';
-import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, weapons, passives } from './state.js';
-import { CHARS, activeCombos } from './gamedata.js';
+import { S, session, runtime, players, PLAYER_TINT, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses } from './state.js';
+import { CHARS } from './gamedata.js';
 import { BOSSES } from './levels.js';
 import { metaLvl, bankRewards } from './meta.js';
 import { audioResume, sfx } from './audio.js';
+import { pollPadPause } from './input.js';
 import { screenFlash, ghosts } from './effects.js';
 import { xpFor, renderWeaponSlots, buildComboList } from './levelup.js';
 import { update, updateHud } from './update.js';
@@ -34,6 +35,7 @@ function frame(now) {
   tickFps((now - (frame._p || now)) / 1000 || rawDt);
   frame._p = now;
   screenFlash.a = Math.max(0, screenFlash.a - rawDt * 2.4);
+  pollPadPause();
   S.zoomKick = S.zoomKick > 0.001 ? S.zoomKick * Math.pow(0.0005, rawDt) : 0;
   let dt = rawDt;
   if (S.freeze > 0) { S.freeze -= rawDt; dt = rawDt * 0.15; } // ralenti dramatique
@@ -41,6 +43,45 @@ function frame(now) {
   render(); // le fond reste animé derrière les menus
 }
 requestAnimationFrame(frame);
+
+function makePlayer(charId, idx) {
+  const c = CHARS[charId];
+  const p = {
+    idx, char: charId, spr: c.spr,
+    x: idx * 46 - (session.count - 1) * 23, y: 0,
+    r: c.r, hp: c.hp, maxHp: c.hp, speed: c.speed, armor: c.armor || 1,
+    magnet: 90, dmgMult: 1, cdMult: 1, invuln: 0, face: 1,
+    comboWaveCd: 0, regen: 0, xpMult: 1, dodge: 0, crit: 0,
+    dead: false, reviveUsed: false, afterT: 0, ionAura: null,
+    weapons: [{ id: c.weapon, lvl: 1, t: 0, angle: 0 }],
+    passives: {}, combos: new Set(),
+  };
+  if (c.mods) c.mods(p);
+  // améliorations permanentes du hangar (pour toute l'équipe)
+  p.maxHp += 12 * metaLvl('hull');
+  p.hp = p.maxHp;
+  p.dmgMult *= 1 + 0.04 * metaLvl('power');
+  p.speed *= 1 + 0.03 * metaLvl('boots');
+  p.magnet *= 1 + 0.12 * metaLvl('magnet');
+  p.cdMult *= Math.pow(0.97, metaLvl('cooldown'));
+  p.xpMult += 0.05 * metaLvl('xp');
+  p.armor *= Math.pow(0.96, metaLvl('armor'));
+  return p;
+}
+
+// barres de PV du HUD, une par joueur
+function buildHpBars() {
+  const wrap = document.getElementById('hpwrap');
+  wrap.innerHTML = '';
+  for (const p of players) {
+    const row = document.createElement('div');
+    row.className = 'prow';
+    const label = session.count > 1 ? `J${p.idx + 1} · ${CHARS[p.char].name}` : 'INTÉGRITÉ';
+    row.innerHTML = `<div class="plabel" style="color:${PLAYER_TINT[p.idx]}">${label} <span class="pnum"></span></div>
+      <div class="pbar"><div class="pfill" style="background:linear-gradient(90deg, #d92b2b, ${PLAYER_TINT[p.idx]})"></div></div>`;
+    wrap.appendChild(row);
+  }
+}
 
 function resetGame() {
   S.time = 0; S.kills = 0; S.level = 1; S.xp = 0; S.xpNext = xpFor(1);
@@ -51,25 +92,14 @@ function resetGame() {
   document.getElementById('levelup').classList.remove('on');
   document.getElementById('paused').classList.remove('on');
   document.getElementById('victory').classList.remove('on');
-  const c = CHARS[session.char];
-  Object.assign(player, { x: 0, y: 0, hp: c.hp, maxHp: c.hp, speed: c.speed, r: c.r, armor: c.armor || 1, magnet: 90, dmgMult: 1, cdMult: 1, invuln: 0, face: 1, comboWaveCd: 0, regen: 0, xpMult: 1, dodge: 0, crit: 0 });
-  if (c.mods) c.mods(player);
-  // améliorations permanentes du hangar
-  player.maxHp += 12 * metaLvl('hull');
-  player.hp = player.maxHp;
-  player.dmgMult *= 1 + 0.04 * metaLvl('power');
-  player.speed *= 1 + 0.03 * metaLvl('boots');
-  player.magnet *= 1 + 0.12 * metaLvl('magnet');
-  player.cdMult *= Math.pow(0.97, metaLvl('cooldown'));
-  player.xpMult += 0.05 * metaLvl('xp');
-  player.armor *= Math.pow(0.96, metaLvl('armor'));
-  S.rewarded = false; S.reviveUsed = false;
+  // construit l'équipe : J1 avec le héros choisi, les autres avec les héros restants
+  players.length = 0;
+  const order = [session.char, ...Object.keys(CHARS).filter(id => id !== session.char)];
+  for (let i = 0; i < session.count; i++) players.push(makePlayer(order[i], i));
+  runtime.lvlQueue.length = 0;
+  buildHpBars();
+  S.rewarded = false;
   for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses]) arr.length = 0;
-  activeCombos.clear();
-  runtime.ionAura = null;
-  weapons.length = 0;
-  weapons.push({ id: c.weapon, lvl: 1, t: 0, angle: 0 });
-  for (const k in passives) delete passives[k];
   renderWeaponSlots();
   updateHud();
 }

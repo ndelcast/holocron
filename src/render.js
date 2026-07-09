@@ -11,9 +11,9 @@ import { SPR } from './sprites.js';
 import { TILE, STAR_LAYERS, stars, nebula } from './background.js';
 import { LEVELS, getGroundTile } from './levels.js';
 import {
-  S, player, session, runtime, enemies, bullets, gems, particles, texts,
-  waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals,
-  bonuses, weapons,
+  S, session, players, alivePlayers, teamCenter, PLAYER_TINT, enemies, bullets,
+  gems, particles, texts, waves, arcs, drones, booms, grenades, firePools,
+  rings, ebullets, decals, bonuses,
 } from './state.js';
 import { WEAPONS, CHARS, BONUSES } from './gamedata.js';
 import { screenFlash, ghosts } from './effects.js';
@@ -47,7 +47,8 @@ let groundTS, nebulaTS = [], starTS = [], sunSpr = [];
 let ambientSpr, flashSpr, rgbSplit;
 let gDecals, gFire, gIon, gBeacon, gFx1, gFx2, gFx3, gTrail, gFx4, gSmoke, gWeather, gMini, gArrow;
 let shadowPool, gemPool, bonusPool, enemyPool, flashPool, ghostPool, dronePool, bulletPool, ebulletPool, rectPool, glowPool, textPool;
-let playerSpr;
+let playerPool;
+let zCam = 0; // zoom caméra lissé (cadrage de l'équipe)
 let lastW = 0, lastH = 0, lastLevel = '', lastAmbKey = '';
 
 function makeCanvasTex(size, draw) {
@@ -161,8 +162,7 @@ async function init() {
   dronePool = new Pool(worldC, () => { const s2 = new Sprite(TEX.drone); s2.anchor.set(0.5); return s2; });
   gFx3 = new Graphics(); gFx3.blendMode = 'add'; // colonne + rayons de level-up, halo
   worldC.addChild(gFx3);
-  playerSpr = new Sprite(TEX.player); playerSpr.anchor.set(0.5);
-  worldC.addChild(playerSpr);
+  playerPool = new Pool(worldC, () => { const s2 = new Sprite(Texture.WHITE); s2.anchor.set(0.5); return s2; });
   gTrail = new Graphics(); gTrail.blendMode = 'add';
   worldC.addChild(gTrail);
   bulletPool = new Pool(worldC, () => { const s2 = new Sprite(Texture.WHITE); s2.anchor.set(0.5); return s2; });
@@ -231,12 +231,26 @@ function render() {
   }
   app.renderer.background.color = hexNum(LV.base);
 
-  // caméra (identique au renderer canvas)
+  // caméra : centre de l'équipe, dézoom pour cadrer tout le monde
   const shx = S.shake ? (Math.random() * 2 - 1) * S.shake * 0.5 : 0;
   const shy = S.shake ? (Math.random() * 2 - 1) * S.shake * 0.5 : 0;
-  const z = (1 + S.zoomKick) * (view.zoom || 1);
+  const alive = alivePlayers();
+  const tc = teamCenter();
+  let fit = view.zoom || 1;
+  if (alive.length > 1) {
+    let ex = 0, ey = 0;
+    for (const pl of alive) {
+      ex = Math.max(ex, Math.abs(pl.x - tc.x));
+      ey = Math.max(ey, Math.abs(pl.y - tc.y));
+    }
+    fit = Math.min(fit, (view.w / 2 - 80) / (ex + 160), (view.h / 2 - 80) / (ey + 160));
+    fit = Math.max(0.5, fit);
+  }
+  if (zCam === 0) zCam = fit;
+  zCam += (fit - zCam) * 0.08;
+  const z = (1 + S.zoomKick) * zCam;
   const vw = view.w / z, vh = view.h / z;
-  const camX = player.x - vw / 2 + shx, camY = player.y - vh / 2 + shy;
+  const camX = tc.x - vw / 2 + shx, camY = tc.y - vh / 2 + shy;
   worldC.scale.set(z);
   worldC.position.set(-camX * z, -camY * z);
 
@@ -298,10 +312,13 @@ function render() {
 
   // aura ionique
   gIon.clear();
-  if (runtime.ionAura && (S.scene === 'play' || S.scene === 'levelup')) {
-    gIon.circle(player.x, player.y, runtime.ionAura.radius)
-      .fill({ color: 0x6ee7ff, alpha: 0.045 })
-      .stroke({ width: 1.5, color: 0x6ee7ff, alpha: 0.35 });
+  if (S.scene === 'play' || S.scene === 'levelup') {
+    for (const pl of alive) {
+      if (!pl.ionAura) continue;
+      gIon.circle(pl.x, pl.y, pl.ionAura.radius)
+        .fill({ color: 0x6ee7ff, alpha: 0.045 })
+        .stroke({ width: 1.5, color: 0x6ee7ff, alpha: 0.35 });
+    }
   }
 
   // ombres portées
@@ -310,9 +327,9 @@ function render() {
     sh.position.set(e.x, e.y + e.r * 0.85);
     sh.scale.set(e.r * 2 / 64 * 1.4, e.r * 2 / 64 * 0.5);
   }
-  {
+  for (const pl of alive) {
     const sh = shadowPool.get();
-    sh.position.set(player.x, player.y + 13);
+    sh.position.set(pl.x, pl.y + 13);
     sh.scale.set(0.42, 0.16);
   }
   for (const dr of drones) {
@@ -405,23 +422,26 @@ function render() {
   flashPool.end();
 
   // sabre laser + sillage
-  const saber = weapons.find(w => w.id === 'saber');
-  if (saber && (S.scene === 'play' || S.scene === 'levelup')) {
-    const st = WEAPONS.saber.stats(saber.lvl);
-    for (let b = 0; b < st.blades; b++) {
-      const a = (saber.angle || 0) + b * Math.PI;
-      for (let k = 6; k >= 1; k--) {
-        const ga = a - k * 0.11;
-        gFx2.moveTo(player.x + Math.cos(ga) * 16, player.y + Math.sin(ga) * 16)
-          .lineTo(player.x + Math.cos(ga) * st.len, player.y + Math.sin(ga) * st.len)
-          .stroke({ width: 9 - k, color: 0x52ff7a, alpha: 0.16 * (1 - k / 7), cap: 'round' });
+  if (S.scene === 'play' || S.scene === 'levelup') {
+    for (const pl of alive) {
+      const saber = pl.weapons.find(w => w.id === 'saber');
+      if (!saber) continue;
+      const st = WEAPONS.saber.stats(saber.lvl);
+      for (let b = 0; b < st.blades; b++) {
+        const a = (saber.angle || 0) + b * Math.PI;
+        for (let k = 6; k >= 1; k--) {
+          const ga = a - k * 0.11;
+          gFx2.moveTo(pl.x + Math.cos(ga) * 16, pl.y + Math.sin(ga) * 16)
+            .lineTo(pl.x + Math.cos(ga) * st.len, pl.y + Math.sin(ga) * st.len)
+            .stroke({ width: 9 - k, color: 0x52ff7a, alpha: 0.16 * (1 - k / 7), cap: 'round' });
+        }
+        const x1 = pl.x + Math.cos(a) * 16, y1 = pl.y + Math.sin(a) * 16;
+        const x2 = pl.x + Math.cos(a) * st.len, y2 = pl.y + Math.sin(a) * st.len;
+        gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 11, color: 0x52ff7a, alpha: 0.22, cap: 'round' });
+        gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 5, color: 0x52ff7a, alpha: 0.65, cap: 'round' });
+        gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2, color: 0xeaffef, alpha: 1, cap: 'round' });
+        gFx2.circle(x2, y2, 6).fill({ color: 0xeaffef, alpha: 0.5 });
       }
-      const x1 = player.x + Math.cos(a) * 16, y1 = player.y + Math.sin(a) * 16;
-      const x2 = player.x + Math.cos(a) * st.len, y2 = player.y + Math.sin(a) * st.len;
-      gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 11, color: 0x52ff7a, alpha: 0.22, cap: 'round' });
-      gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 5, color: 0x52ff7a, alpha: 0.65, cap: 'round' });
-      gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2, color: 0xeaffef, alpha: 1, cap: 'round' });
-      gFx2.circle(x2, y2, 6).fill({ color: 0xeaffef, alpha: 0.5 });
     }
   }
 
@@ -454,27 +474,35 @@ function render() {
   if (S.beamT > 0) {
     const lr = S.beamT / 0.7;
     const rot = anim * 1.5;
-    for (let i = 0; i < 6; i++) {
-      const a = rot + i * Math.PI / 3;
-      gFx3.poly([
-        player.x + Math.cos(a) * 24, player.y + Math.sin(a) * 24,
-        player.x + Math.cos(a + 0.22) * 175, player.y + Math.sin(a + 0.22) * 175,
-        player.x + Math.cos(a - 0.22) * 175, player.y + Math.sin(a - 0.22) * 175,
-      ]).fill({ color: 0xffd166, alpha: lr * 0.07 });
+    for (const pl of alive) {
+      for (let i = 0; i < 6; i++) {
+        const a = rot + i * Math.PI / 3;
+        gFx3.poly([
+          pl.x + Math.cos(a) * 24, pl.y + Math.sin(a) * 24,
+          pl.x + Math.cos(a + 0.22) * 175, pl.y + Math.sin(a + 0.22) * 175,
+          pl.x + Math.cos(a - 0.22) * 175, pl.y + Math.sin(a - 0.22) * 175,
+        ]).fill({ color: 0xffd166, alpha: lr * 0.07 });
+      }
+      const bw2 = 26 + (1 - lr) * 34;
+      gFx3.rect(pl.x - bw2 / 2, pl.y - 300, bw2, 316).fill({ color: 0xffd166, alpha: lr * 0.22 });
+      gFx3.rect(pl.x - bw2 / 6, pl.y - 220, bw2 / 3, 232).fill({ color: 0xfff6dd, alpha: lr * 0.3 });
     }
-    const bw2 = 26 + (1 - lr) * 34;
-    gFx3.rect(player.x - bw2 / 2, player.y - 300, bw2, 316).fill({ color: 0xffd166, alpha: lr * 0.22 });
-    gFx3.rect(player.x - bw2 / 6, player.y - 220, bw2 / 3, 232).fill({ color: 0xfff6dd, alpha: lr * 0.3 });
   }
   if (S.scene === 'play' || S.scene === 'levelup') {
-    gFx3.ellipse(player.x, player.y + 12, 20, 8).fill({ color: 0x6ee7ff, alpha: 0.14 + 0.05 * Math.sin(anim * 3) });
+    for (const pl of alive) {
+      gFx3.ellipse(pl.x, pl.y + 12, 20, 8).fill({ color: hexNum(PLAYER_TINT[pl.idx]), alpha: 0.14 + 0.05 * Math.sin(anim * 3) });
+    }
   }
 
-  // joueur
-  playerSpr.texture = TEX[CHARS[session.char].spr];
-  playerSpr.position.set(player.x, player.y);
-  playerSpr.scale.set(0.5 * player.face, 0.5);
-  playerSpr.visible = player.invuln <= 0 || Math.floor(S.time * 18) % 2 === 0;
+  // équipe
+  for (const pl of alive) {
+    if (pl.invuln > 0 && Math.floor(S.time * 18) % 2 !== 0) continue; // clignote
+    const spr = playerPool.get();
+    spr.texture = TEX[pl.spr];
+    spr.position.set(pl.x, pl.y);
+    spr.scale.set(0.5 * pl.face, 0.5);
+  }
+  playerPool.end();
 
   // grenades en vol
   for (const gr of grenades) {
@@ -593,6 +621,7 @@ function render() {
     const mmX = 18, mmY = small && enemies.some(e => e.final) ? 104 : 56, half = mmS / 2;
     const cx = mmX + half, cy = mmY + half;
     const range = 1500, sc = (half - 6) / range;
+    const mc = tc; // centre radar = centre d'équipe
     gMini.poly([mmX + 10, mmY, mmX + mmS, mmY, mmX + mmS, mmY + mmS - 10, mmX + mmS - 10, mmY + mmS, mmX, mmY + mmS, mmX, mmY + 10])
       .fill({ color: 0x060e18, alpha: 0.62 })
       .stroke({ width: 1, color: 0x6ee7ff, alpha: 0.3 });
@@ -606,7 +635,7 @@ function render() {
     }
     const cl = (v, m) => v < -m ? -m : v > m ? m : v;
     for (const e of enemies) {
-      const dx = (e.x - player.x) * sc, dy = (e.y - player.y) * sc;
+      const dx = (e.x - mc.x) * sc, dy = (e.y - mc.y) * sc;
       if (e.boss) {
         gMini.circle(cx + cl(dx, half - 7), cy + cl(dy, half - 7), e.final ? 3.5 + Math.sin(anim * 6) : 3)
           .fill({ color: e.final ? 0xff3b3b : 0xff6e5a, alpha: 0.95 });
@@ -615,19 +644,22 @@ function render() {
       }
     }
     for (const b of bonuses) {
-      const dx = cl((b.x - player.x) * sc, half - 8), dy = cl((b.y - player.y) * sc, half - 8);
+      const dx = cl((b.x - mc.x) * sc, half - 8), dy = cl((b.y - mc.y) * sc, half - 8);
       const pulse3 = 0.6 + 0.4 * Math.sin(anim * 5 + b.t);
       gMini.poly([cx + dx, cy + dy - 4, cx + dx + 4, cy + dy, cx + dx, cy + dy + 4, cx + dx - 4, cy + dy])
         .fill({ color: rgbNum(BONUSES[b.type].rgb), alpha: pulse3 });
     }
-    gMini.circle(cx, cy, 2.6).fill({ color: 0x6ee7ff });
+    for (const pl of alive) {
+      gMini.circle(cx + cl((pl.x - mc.x) * sc, half - 5), cy + cl((pl.y - mc.y) * sc, half - 5), 2.6)
+        .fill({ color: hexNum(PLAYER_TINT[pl.idx]) });
+    }
   }
 
   // flèche vers le boss final
   gArrow.clear();
   const fb = enemies.find(e => e.final);
   if (fb && S.scene === 'play') {
-    const sx = view.w / 2 + (fb.x - player.x) * z, sy = view.h / 2 + (fb.y - player.y) * z;
+    const sx = view.w / 2 + (fb.x - tc.x) * z, sy = view.h / 2 + (fb.y - tc.y) * z;
     if (sx < -20 || sx > view.w + 20 || sy < -20 || sy > view.h + 20) {
       const a = Math.atan2(sy - view.h / 2, sx - view.w / 2);
       const m = Math.min(view.w, view.h) / 2 - 46;

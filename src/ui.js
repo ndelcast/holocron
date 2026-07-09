@@ -1,5 +1,5 @@
 // Holocron Survivors — menus : héros, destinations, hangar
-import { S, session } from './state.js';
+import { S, session, PLAYER_TINT } from './state.js';
 import { SPR } from './sprites.js';
 import { CHARS } from './gamedata.js';
 import { LEVELS } from './levels.js';
@@ -99,6 +99,26 @@ function buildLevelSelect() {
   }
 }
 buildLevelSelect();
+
+// ------------------------------ Taille de l'équipe ------------------------------
+function buildTeamSelect() {
+  const el = document.getElementById('teamsel');
+  el.innerHTML = '';
+  for (let n = 1; n <= 4; n++) {
+    const chip = document.createElement('div');
+    chip.className = 'tchip' + (n === session.count ? ' sel' : '');
+    chip.textContent = n === 1 ? 'SOLO' : n + ' JOUEURS';
+    if (n > 1) chip.style.color = PLAYER_TINT[n - 1];
+    chip.onclick = () => {
+      session.count = n;
+      for (const el2 of document.querySelectorAll('.tchip')) el2.classList.remove('sel');
+      chip.classList.add('sel');
+      tone(620, 0.06, 'sine', 0.03, 180);
+    };
+    el.appendChild(chip);
+  }
+}
+buildTeamSelect();
 
 document.getElementById('startBtn').onclick = startGame;
 document.getElementById('retryBtn').onclick = startGame;

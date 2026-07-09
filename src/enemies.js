@@ -1,6 +1,6 @@
 // Holocron Survivors — types, apparition, IA des boss
 import { rand, irand, view } from './core.js';
-import { S, player, session, enemies, ebullets, addRing } from './state.js';
+import { S, session, players, nearestPlayer, teamCenter, enemies, ebullets, addRing } from './state.js';
 import { LEVELS, BOSSES } from './levels.js';
 import { sfx } from './audio.js';
 import { addText, burst, flash } from './effects.js';
@@ -14,18 +14,20 @@ const ETYPES = {
 };
 function spawnEnemy(typeId, boss = false) {
   const t = ETYPES[typeId] || null;
+  const tc = teamCenter();
   const ang = Math.random() * Math.PI * 2;
-  const d = Math.hypot(view.w, view.h) / (2 * (view.zoom || 1)) + 80;
+  const spawnZoom = session.count > 1 ? Math.min(view.zoom || 1, 0.6) : (view.zoom || 1);
+  const d = Math.hypot(view.w, view.h) / (2 * spawnZoom) + 80;
   const hpScale = 1 + S.time / 30 * 0.16;
   if (boss) {
     enemies.push({
       type: 'sith', spr: 'sith', boss: true,
-      x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,
+      x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
       r: 24, hp: 380 * (1 + S.time / 70), maxHp: 380 * (1 + S.time / 70),
       spd: 62 * (LEVELS[session.level].spdMult || 1), dmg: 26, xp: 40, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
     });
     sfx.boss();
-    addText(player.x, player.y - 70, 'UN SEIGNEUR SITH APPROCHE', '#ff3b3b', 20, 2.4);
+    addText(tc.x, tc.y - 70, 'UN SEIGNEUR SITH APPROCHE', '#ff3b3b', 20, 2.4);
     const bw = document.getElementById('bosswarn');
     bw.classList.remove('on'); void bw.offsetWidth; bw.classList.add('on');
     setTimeout(() => bw.classList.remove('on'), 1600);
@@ -34,34 +36,39 @@ function spawnEnemy(typeId, boss = false) {
   const skin = (LEVELS[session.level].mobs || {})[typeId] || t.spr;
   enemies.push({
     type: typeId, spr: skin, boss: false,
-    x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,
+    x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
     r: t.r, hp: t.hp * hpScale, maxHp: t.hp * hpScale,
     spd: t.spd * rand(0.9, 1.1) * (LEVELS[session.level].spdMult || 1), dmg: t.dmg, xp: t.xp, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
   });
 }
 function spawnFinalBoss() {
+  const tc = teamCenter();
   const bid = LEVELS[session.level].boss;
   const B = BOSSES[bid];
   const ang = Math.random() * Math.PI * 2;
-  const d = Math.hypot(view.w, view.h) / (2 * (view.zoom || 1)) + 100;
+  const spawnZoom = session.count > 1 ? Math.min(view.zoom || 1, 0.6) : (view.zoom || 1);
+  const d = Math.hypot(view.w, view.h) / (2 * spawnZoom) + 100;
   enemies.push({
     type: bid, spr: B.spr, boss: true, final: true,
-    x: player.x + Math.cos(ang) * d, y: player.y + Math.sin(ang) * d,
+    x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
     r: B.r, hp: B.hp, maxHp: B.hp, spd: B.spd, dmg: B.dmg, xp: B.xp,
     flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
     atk1T: 2.5, atk2T: 6, windup: 0, dash: 0, grip: 0,
   });
   sfx.boss();
-  addText(player.x, player.y - 70, B.name + ' VOUS DÉFIE', '#ff3b3b', 22, 3);
+  addText(tc.x, tc.y - 70, B.name + ' VOUS DÉFIE', '#ff3b3b', 22, 3);
   flash('255,59,59', 0.4);
   S.freeze = 0.5;
-  addRing(player.x, player.y, 480, '255,59,59', 5, 1);
+  addRing(tc.x, tc.y, 480, '255,59,59', 5, 1);
   const bw = document.getElementById('bosswarn');
   bw.classList.remove('on'); void bw.offsetWidth; bw.classList.add('on');
   setTimeout(() => bw.classList.remove('on'), 1600);
 }
 // IA des boss finaux — renvoie true si le déplacement par défaut doit être sauté
 function bossAI(e, dt) {
+  const tgt = nearestPlayer(e.x, e.y);
+  if (!tgt) return false;
+  const player = tgt; // le boss vise le joueur vivant le plus proche
   const distP = Math.hypot(player.x - e.x, player.y - e.y);
   const aTo = Math.atan2(player.y - e.y, player.x - e.x);
   switch (e.type) {

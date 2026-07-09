@@ -52,4 +52,28 @@ window.addEventListener('touchmove', e => {
 window.addEventListener('touchend', e => { for (const t of e.changedTouches) if (t.identifier === joyId) endJoy(); });
 window.addEventListener('touchcancel', e => { for (const t of e.changedTouches) if (t.identifier === joyId) endJoy(); });
 
-export { keys, touch };
+
+// ------------------------------ Manettes (Gamepad API) ------------------------------
+let padPausePrev = false;
+function padMove(i) {
+  const gp = navigator.getGamepads ? navigator.getGamepads()[i] : null;
+  if (!gp) return null;
+  let x = gp.axes[0] || 0, y = gp.axes[1] || 0;
+  if (gp.buttons[14] && gp.buttons[14].pressed) x = -1;
+  if (gp.buttons[15] && gp.buttons[15].pressed) x = 1;
+  if (gp.buttons[12] && gp.buttons[12].pressed) y = -1;
+  if (gp.buttons[13] && gp.buttons[13].pressed) y = 1;
+  if (Math.hypot(x, y) < 0.25) return { mx: 0, my: 0 };
+  return { mx: x, my: y };
+}
+// bouton Start de n'importe quelle manette → pause (front montant)
+function pollPadPause() {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  let down = false;
+  for (const gp of pads) if (gp && gp.buttons[9] && gp.buttons[9].pressed) down = true;
+  const edge = down && !padPausePrev;
+  padPausePrev = down;
+  if (edge) togglePause();
+}
+
+export { keys, touch, padMove, pollPadPause };

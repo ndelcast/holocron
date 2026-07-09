@@ -1,9 +1,9 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
-import { keys, touch } from './input.js';
-import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, weapons, addRing } from './state.js';
+import { keys, touch, padMove } from './input.js';
+import { S, session, runtime, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
-import { CHARS, BONUSES } from './gamedata.js';
+import { BONUSES } from './gamedata.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
 import { tickWeapons, explode } from './combat.js';
 import { damageEnemy, hurtPlayer, addText, burst, sparks, flash, ghosts } from './effects.js';
@@ -12,19 +12,30 @@ import { sfx } from './audio.js';
 import { endRun } from './lifecycle.js';
 
 // ------------------------------ Bonus de ravitaillement ------------------------------
-function applyBonus(b) {
+function applyBonus(b, taker) {
   sfx.lvl();
   addRing(b.x, b.y, 170, BONUSES[b.type].rgb, 4, 0.5);
   burst(b.x, b.y, '#ffffff', 12, 230);
   S.zoomKick = Math.max(S.zoomKick, 0.05);
   switch (b.type) {
     case 'bacta':
-      player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.4);
+      for (const p of players) {
+        if (p.dead) {
+          // le bacta réanime les équipiers tombés
+          p.dead = false;
+          p.hp = p.maxHp * 0.5;
+          p.invuln = 2;
+          addText(p.x, p.y - 30, 'RÉANIMÉ !', '#52ff7a', 18, 2);
+          addRing(p.x, p.y, 240, '82,255,122', 4, 0.6);
+        } else {
+          p.hp = Math.min(p.maxHp, p.hp + p.maxHp * 0.4);
+        }
+      }
       addText(b.x, b.y - 28, 'BACTA  +40 % PV', '#52ff7a', 18, 1.6);
       break;
     case 'holo':
       addText(b.x, b.y - 28, 'HOLOCRON : NIVEAU SUPÉRIEUR', '#6ee7ff', 17, 1.8);
-      gainXp(Math.max(1, S.xpNext - S.xp + 0.5));
+      gainXp(Math.max(1, S.xpNext - S.xp + 0.5), taker);
       break;
     case 'ion':
       flash('165,130,255', 0.4);
@@ -34,7 +45,7 @@ function applyBonus(b) {
       for (const e of enemies) {
         if (e.dead) continue;
         const d = Math.hypot(e.x - b.x, e.y - b.y);
-        if (d < 700) damageEnemy(e, e.boss ? 150 : 300, Math.atan2(e.y - b.y, e.x - b.x), e.boss ? 0 : 320);
+        if (d < 700) damageEnemy(e, e.boss ? 150 : 300, Math.atan2(e.y - b.y, e.x - b.x), e.boss ? 0 : 320, false, taker);
       }
       break;
     case 'magnet':
@@ -47,36 +58,56 @@ function applyBonus(b) {
 // ------------------------------ Boucle principale ------------------------------
 function update(dt) {
   S.time += dt;
-  // --- déplacement joueur
-  let mx = 0, my = 0;
-  if (keys.KeyW || keys.ArrowUp) my -= 1;
-  if (keys.KeyS || keys.ArrowDown) my += 1;
-  if (keys.KeyA || keys.ArrowLeft) mx -= 1;
-  if (keys.KeyD || keys.ArrowRight) mx += 1;
-  if (touch.active && Math.hypot(touch.dx, touch.dy) > 0.12) { mx = touch.dx; my = touch.dy; }
-  if (mx || my) {
-    const l = Math.hypot(mx, my);
-    player.x += mx / l * player.speed * dt;
-    player.y += my / l * player.speed * dt;
-    if (mx) player.face = Math.sign(mx);
-    // image rémanente
-    S.afterT -= dt;
-    if (S.afterT <= 0) {
-      S.afterT = 0.09;
-      if (ghosts.length > 30) ghosts.shift();
-      ghosts.push({ spr: CHARS[session.char].spr, x: player.x, y: player.y, t: 0, kind: 'after', flip: player.face });
+  // --- déplacements de l'équipe
+  // J1 : clavier + tactile (+ manette 0 en solo) ; J2-J4 : manettes 0-2
+  const tc0 = teamCenter();
+  for (const p of players) {
+    if (p.dead) { p.invuln = 0; continue; }
+    let mx = 0, my = 0;
+    if (p.idx === 0) {
+      if (keys.KeyW || keys.ArrowUp) my -= 1;
+      if (keys.KeyS || keys.ArrowDown) my += 1;
+      if (keys.KeyA || keys.ArrowLeft) mx -= 1;
+      if (keys.KeyD || keys.ArrowRight) mx += 1;
+      if (touch.active && Math.hypot(touch.dx, touch.dy) > 0.12) { mx = touch.dx; my = touch.dy; }
+      if (!mx && !my && session.count === 1) {
+        const pm = padMove(0);
+        if (pm) { mx = pm.mx; my = pm.my; }
+      }
+    } else {
+      const pm = padMove(p.idx - 1);
+      if (pm) { mx = pm.mx; my = pm.my; }
     }
-    // poussière de déplacement
-    if (Math.random() < 0.55 && particles.length < 500) {
-      particles.push({
-        x: player.x - mx / l * 10 + rand(-5, 5), y: player.y + 10 + rand(-3, 3),
-        vx: -mx / l * rand(20, 55) + rand(-12, 12), vy: -my / l * rand(20, 55) - rand(4, 18),
-        life: rand(0.25, 0.5), color: LEVELS[session.level].dust, size: rand(1.5, 3.2),
-      });
+    if (mx || my) {
+      const l = Math.hypot(mx, my);
+      p.x += mx / l * p.speed * dt;
+      p.y += my / l * p.speed * dt;
+      if (mx) p.face = Math.sign(mx);
+      // laisse d'équipe : personne ne sème le groupe
+      if (session.count > 1) {
+        const dx = p.x - tc0.x, dy = p.y - tc0.y, d = Math.hypot(dx, dy);
+        if (d > 480) { p.x = tc0.x + dx / d * 480; p.y = tc0.y + dy / d * 480; }
+      }
+      // image rémanente
+      p.afterT -= dt;
+      if (p.afterT <= 0) {
+        p.afterT = 0.09;
+        if (ghosts.length > 30) ghosts.shift();
+        ghosts.push({ spr: p.spr, x: p.x, y: p.y, t: 0, kind: 'after', flip: p.face });
+      }
+      // poussière de déplacement
+      if (Math.random() < 0.55 && particles.length < 500) {
+        particles.push({
+          x: p.x - mx / l * 10 + rand(-5, 5), y: p.y + 10 + rand(-3, 3),
+          vx: -mx / l * rand(20, 55) + rand(-12, 12), vy: -my / l * rand(20, 55) - rand(4, 18),
+          life: rand(0.25, 0.5), color: LEVELS[session.level].dust, size: rand(1.5, 3.2),
+        });
+      }
     }
+    p.invuln = Math.max(0, p.invuln - dt);
+    if (p.regen > 0) p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
+    p.comboWaveCd = Math.max(0, (p.comboWaveCd || 0) - dt);
   }
-  player.invuln = Math.max(0, player.invuln - dt);
-  if (player.regen > 0) player.hp = Math.min(player.maxHp, player.hp + player.regen * dt);
 
   // --- spawn
   S.spawnT -= dt;
@@ -95,7 +126,7 @@ function update(dt) {
   // boss de fin de niveau et limite de 20 minutes
   if (!S.finalWarn && S.time >= FINAL_BOSS_TIME - 10) {
     S.finalWarn = true;
-    addText(player.x, player.y - 80, 'UNE PRÉSENCE PUISSANTE APPROCHE…', '#ff8f6b', 16, 3);
+    addText(tc0.x, tc0.y - 80, 'UNE PRÉSENCE PUISSANTE APPROCHE…', '#ff8f6b', 16, 3);
   }
   if (!S.finalSpawned && S.time >= FINAL_BOSS_TIME) {
     S.finalSpawned = true;
@@ -109,17 +140,22 @@ function update(dt) {
     S.bonusT = 24;
     if (bonuses.length < 3) {
       const a = rand(0, Math.PI * 2), d = rand(700, 1300);
-      bonuses.push({ x: player.x + Math.cos(a) * d, y: player.y + Math.sin(a) * d, type: pick(Object.keys(BONUSES)), t: 0 });
-      addText(player.x, player.y - 70, 'RAVITAILLEMENT LARGUÉ — SUIS LA BALISE', '#ffd166', 14, 2.4);
+      bonuses.push({ x: tc0.x + Math.cos(a) * d, y: tc0.y + Math.sin(a) * d, type: pick(Object.keys(BONUSES)), t: 0 });
+      addText(tc0.x, tc0.y - 70, 'RAVITAILLEMENT LARGUÉ — SUIS LA BALISE', '#ffd166', 14, 2.4);
       sfx.gem();
     }
   }
   for (let i = bonuses.length - 1; i >= 0; i--) {
     const b = bonuses[i];
     b.t += dt;
-    if (dist2(b.x, b.y, player.x, player.y) < (player.r + 18) * (player.r + 18)) {
+    let taker = null;
+    for (const p of players) {
+      if (p.dead) continue;
+      if (dist2(b.x, b.y, p.x, p.y) < (p.r + 18) * (p.r + 18)) { taker = p; break; }
+    }
+    if (taker) {
       bonuses.splice(i, 1);
-      applyBonus(b);
+      applyBonus(b, taker);
       if (S.scene !== 'play') return; // holocron : le level-up a ouvert le choix
     }
   }
@@ -137,7 +173,7 @@ function update(dt) {
       if (d < wv.r + e.r) {
         e.waveId = wv.id;
         const a = Math.atan2(e.y - wv.y, e.x - wv.x);
-        damageEnemy(e, wv.dmg, a, e.boss ? 0 : 420);
+        damageEnemy(e, wv.dmg, a, e.boss ? 0 : 420, false, players[wv.owner || 0]);
       }
     }
     if (wv.r > wv.maxR) waves.splice(i, 1);
@@ -155,10 +191,11 @@ function update(dt) {
     }
     const skipMove = e.final ? bossAI(e, dt) : false;
     if (!skipMove) {
+      const tgt = nearestPlayer(e.x, e.y);
       const esp = e.spd * (e.slowT > 0 ? e.slow : 1);
-      const a = Math.atan2(player.y - e.y, player.x - e.x);
-      e.x += (Math.cos(a) * esp + e.kx) * dt;
-      e.y += (Math.sin(a) * esp + e.ky) * dt;
+      const a = tgt ? Math.atan2(tgt.y - e.y, tgt.x - e.x) : e.kx || e.ky ? 0 : Math.random() * Math.PI * 2;
+      e.x += ((tgt ? Math.cos(a) * esp : 0) + e.kx) * dt;
+      e.y += ((tgt ? Math.sin(a) * esp : 0) + e.ky) * dt;
     }
     e.kx *= Math.pow(0.002, dt); e.ky *= Math.pow(0.002, dt);
     // séparation grossière (1 voisin aléatoire, pas cher et suffisant)
@@ -172,12 +209,14 @@ function update(dt) {
         }
       }
     }
-    // contact joueur
-    const pd = dist2(e.x, e.y, player.x, player.y);
-    const rr = e.r + player.r;
-    if (pd < rr * rr) {
-      hurtPlayer(e.dmg);
-      if (S.scene !== 'play') return;
+    // contact avec les joueurs
+    for (const p of players) {
+      if (p.dead) continue;
+      const rr = e.r + p.r;
+      if (dist2(e.x, e.y, p.x, p.y) < rr * rr) {
+        hurtPlayer(p, e.dmg);
+        if (S.scene !== 'play') return;
+      }
     }
   }
 
@@ -186,8 +225,8 @@ function update(dt) {
     const b = bullets[i];
     b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
     if (b.life <= 0) {
-      if (b.rocket) explode(b.x, b.y, b.dmg, b.radius);
-      else if (b.endor) explode(b.x, b.y, b.edmg, b.eradius);
+      if (b.rocket) explode(b.x, b.y, b.dmg, b.radius, players[b.owner || 0]);
+      else if (b.endor) explode(b.x, b.y, b.edmg, b.eradius, players[b.owner || 0]);
       bullets.splice(i, 1); continue;
     }
     if (b.rocket && particles.length < 500 && Math.random() < 0.6) {
@@ -197,10 +236,10 @@ function update(dt) {
       if (e.dead) continue;
       const rr = e.r + 5;
       if (dist2(b.x, b.y, e.x, e.y) < rr * rr) {
-        if (b.rocket) { explode(b.x, b.y, b.dmg, b.radius); bullets.splice(i, 1); break; }
-        if (b.pierce) { if (b.hit.has(e)) continue; b.hit.add(e); sparks(b.x, b.y, '255,226,176', 3, 200); damageEnemy(e, b.dmg, b.a, 120); continue; }
+        if (b.rocket) { explode(b.x, b.y, b.dmg, b.radius, players[b.owner || 0]); bullets.splice(i, 1); break; }
+        if (b.pierce) { if (b.hit.has(e)) continue; b.hit.add(e); sparks(b.x, b.y, '255,226,176', 3, 200); damageEnemy(e, b.dmg, b.a, 120, false, players[b.owner || 0]); continue; }
         sparks(b.x, b.y, b.spr === 'boltRed' ? '255,150,120' : '150,225,255', 4, 240);
-        damageEnemy(e, b.dmg, b.a, 60);
+        damageEnemy(e, b.dmg, b.a, 60, false, players[b.owner || 0]);
         bullets.splice(i, 1);
         break;
       }
@@ -219,13 +258,18 @@ function update(dt) {
       }
     }
     b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
-    const rr = (b.r || 5) + player.r;
-    if (dist2(b.x, b.y, player.x, player.y) < rr * rr && player.invuln <= 0) {
+    let hitP = null;
+    for (const p of players) {
+      if (p.dead || p.invuln > 0) continue;
+      const rr = (b.r || 5) + p.r;
+      if (dist2(b.x, b.y, p.x, p.y) < rr * rr) { hitP = p; break; }
+    }
+    if (hitP) {
       if (b.rocket) {
         booms.push({ x: b.x, y: b.y, r: b.radius, life: 0.25 });
         sfx.boom(); burst(b.x, b.y, '#ffb166', 10, 180);
       }
-      hurtPlayer(b.dmg);
+      hurtPlayer(hitP, b.dmg);
       if (!b.saber) ebullets.splice(i, 1);
       if (S.scene !== 'play') return;
       continue;
@@ -234,7 +278,10 @@ function update(dt) {
       if (b.rocket) {
         booms.push({ x: b.x, y: b.y, r: b.radius, life: 0.25 });
         sfx.boom(); burst(b.x, b.y, '#ffb166', 10, 180);
-        if (dist2(b.x, b.y, player.x, player.y) < (b.radius + player.r) * (b.radius + player.r)) hurtPlayer(b.dmg);
+        for (const p of players) {
+          if (p.dead) continue;
+          if (dist2(b.x, b.y, p.x, p.y) < (b.radius + p.r) * (b.radius + p.r)) hurtPlayer(p, b.dmg);
+        }
         if (S.scene !== 'play') return;
       }
       ebullets.splice(i, 1);
@@ -251,7 +298,7 @@ function update(dt) {
   for (let i = grenades.length - 1; i >= 0; i--) {
     const gr = grenades[i];
     gr.t += dt;
-    if (gr.t >= gr.dur) { explode(gr.tx, gr.ty, gr.dmg, gr.radius); grenades.splice(i, 1); }
+    if (gr.t >= gr.dur) { explode(gr.tx, gr.ty, gr.dmg, gr.radius, players[gr.owner || 0]); grenades.splice(i, 1); }
   }
 
   // --- nappes de feu
@@ -266,31 +313,32 @@ function update(dt) {
       fp.tick = 0.4;
       for (const e of enemies) {
         if (e.dead) continue;
-        if (dist2(e.x, e.y, fp.x, fp.y) < (fp.r + e.r) * (fp.r + e.r)) damageEnemy(e, fp.dmg, null, 0, true);
+        if (dist2(e.x, e.y, fp.x, fp.y) < (fp.r + e.r) * (fp.r + e.r)) damageEnemy(e, fp.dmg, null, 0, true, players[fp.owner || 0]);
       }
     }
     if (fp.life <= 0) firePools.splice(i, 1);
   }
-  player.comboWaveCd = Math.max(0, (player.comboWaveCd || 0) - dt);
 
   // --- cristaux
   for (let i = gems.length - 1; i >= 0; i--) {
     const g = gems[i];
     g.t += dt * 3;
-    const d = Math.hypot(g.x - player.x, g.y - player.y);
-    if (g.mag || d < player.magnet) {
-      const sp = g.mag ? 720 : 260 + (player.magnet - d) * 6;
-      g.x += (player.x - g.x) / d * sp * dt;
-      g.y += (player.y - g.y) / d * sp * dt;
+    const np = nearestPlayer(g.x, g.y);
+    if (!np) continue;
+    const d = Math.hypot(g.x - np.x, g.y - np.y);
+    if (g.mag || d < np.magnet) {
+      const sp = g.mag ? 720 : 260 + (np.magnet - d) * 6;
+      g.x += (np.x - g.x) / d * sp * dt;
+      g.y += (np.y - g.y) / d * sp * dt;
       if (Math.random() < dt * 14 && particles.length < 600) {
-        particles.push({ type: 'streak', x: g.x, y: g.y, vx: (player.x - g.x) / d * 90, vy: (player.y - g.y) / d * 90, life: 0.18, max: 0.18, rgb: '120,225,255', size: 1.4 });
+        particles.push({ type: 'streak', x: g.x, y: g.y, vx: (np.x - g.x) / d * 90, vy: (np.y - g.y) / d * 90, life: 0.18, max: 0.18, rgb: '120,225,255', size: 1.4 });
       }
     }
-    if (d < player.r + 10) {
+    if (d < np.r + 10) {
       gems.splice(i, 1);
       sfx.gem();
       sparks(g.x, g.y, g.v >= 5 ? '255,220,140' : '140,235,255', 3, 150);
-      gainXp(g.v);
+      gainXp(g.v, np);
       if (S.scene !== 'play') return; // level-up ouvert
     }
   }
@@ -347,9 +395,16 @@ function updateHud() {
   document.getElementById('kills').textContent = S.kills;
   document.getElementById('lvl').textContent = S.level;
   document.getElementById('xpfill').style.width = (S.xp / S.xpNext * 100) + '%';
-  document.getElementById('hpfill').style.width = clamp(player.hp / player.maxHp * 100, 0, 100) + '%';
-  document.getElementById('hpnum').textContent = Math.max(0, Math.ceil(player.hp)) + ' / ' + Math.round(player.maxHp);
-  document.getElementById('lowhp').classList.toggle('on', S.scene === 'play' && player.hp / player.maxHp < 0.3);
+  const fills = document.querySelectorAll('#hpwrap .pfill');
+  const nums = document.querySelectorAll('#hpwrap .pnum');
+  const rows = document.querySelectorAll('#hpwrap .prow');
+  players.forEach((p, i) => {
+    if (fills[i]) fills[i].style.width = clamp(p.hp / p.maxHp * 100, 0, 100) + '%';
+    if (nums[i]) nums[i].textContent = p.dead ? 'À TERRE' : Math.max(0, Math.ceil(p.hp)) + ' / ' + Math.round(p.maxHp);
+    if (rows[i]) rows[i].classList.toggle('dead', !!p.dead);
+  });
+  const anyLow = alivePlayers().some(p => p.hp / p.maxHp < 0.3);
+  document.getElementById('lowhp').classList.toggle('on', S.scene === 'play' && anyLow);
 }
 
 export { update, updateHud };

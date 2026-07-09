@@ -27,12 +27,30 @@ partie sont bancarisés une seule fois (voir [09-progression.md](09-progression.
 
 ## Contrôles
 
-| Plateforme | Déplacement | Pause | Son |
+| Joueur | Déplacement | Pause | Son |
 |---|---|---|---|
-| Desktop | ZQSD / WASD / flèches (mapping physique `e.code`, compatible AZERTY) | P ou Échap | M |
-| Mobile | joystick virtuel flottant (apparaît sous le pouce, course 48 px, zone morte 12 %) | bouton ⏸ | bouton ♪ |
+| J1 desktop | ZQSD / WASD / flèches (mapping physique `e.code`, compatible AZERTY) ; manette 0 en solo | P / Échap / Start | M |
+| J1 mobile | joystick virtuel flottant (course 48 px, zone morte 12 %) | bouton ⏸ | bouton ♪ |
+| J2 à J4 | manettes 0 à 2 (stick gauche ou croix, zone morte 25 %) | Start | — |
 
 Les attaques sont **entièrement automatiques** : le seul input est le déplacement.
+
+## Coop local (1 à 4 joueurs)
+
+Sélecteur « ÉQUIPE » au menu. J1 joue le héros choisi, les autres reçoivent
+automatiquement les héros restants (4 héros = 4 joueurs max).
+
+- Chaque joueur a ses **PV, armes, passifs et combos propres** ; l'XP, le
+  niveau et les crédits sont partagés.
+- À chaque niveau, **chaque joueur vivant choisit une amélioration à tour
+  de rôle** (cartes étiquetées « JOUEUR n », couleur du joueur).
+- Caméra au **centre de l'équipe** avec dézoom automatique pour cadrer
+  tout le monde ; laisse de 480 px autour du groupe.
+- Un joueur à 0 PV est **à terre** (la partie continue) ; le bonus **Bacta
+  le réanime à 50 %**. Défaite quand toute l'équipe est à terre.
+- Les ennemis et boss ciblent le joueur vivant **le plus proche** ; les
+  soins de boss vaincus profitent à toute l'équipe.
+- Couleurs : J1 cyan, J2 or, J3 vert, J4 rouge (barres de PV, halos, minimap).
 
 ## HUD
 

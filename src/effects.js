@@ -1,7 +1,7 @@
 // Holocron Survivors — particules, anneaux, flashs, dégâts
 import { rand, dist2, pick, DEBUG } from './core.js';
-import { S, player, session, runtime, enemies, gems, particles, texts, waves, addRing } from './state.js';
-import { WEAPONS, activeCombos, weaponLvl } from './gamedata.js';
+import { S, session, runtime, players, alivePlayers, teamCenter, enemies, gems, particles, texts, waves, addRing } from './state.js';
+import { WEAPONS, weaponLvl } from './gamedata.js';
 import { sfx } from './audio.js';
 import { metaLvl } from './meta.js';
 import { victory, gameOver } from './lifecycle.js';
@@ -50,12 +50,15 @@ function addGhost(e) {
   if (ghosts.length > 30) ghosts.shift();
   ghosts.push({ spr: e.spr, x: e.x, y: e.y, t: 0 });
 }
-function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
-  dmg *= player.dmgMult;
-  if (activeCombos.has('ionSurge') && runtime.ionAura &&
-      dist2(e.x, e.y, player.x, player.y) < (runtime.ionAura.radius + e.r) * (runtime.ionAura.radius + e.r)) dmg *= 1.3;
+function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false, owner = null) {
+  const o = owner || players[0];
   let crit = false;
-  if (player.crit > 0 && Math.random() < player.crit) { dmg *= 2; crit = true; }
+  if (o) {
+    dmg *= o.dmgMult;
+    if (o.combos.has('ionSurge') && o.ionAura &&
+        dist2(e.x, e.y, o.x, o.y) < (o.ionAura.radius + e.r) * (o.ionAura.radius + e.r)) dmg *= 1.3;
+    if (o.crit > 0 && Math.random() < o.crit) { dmg *= 2; crit = true; }
+  }
   e.hp -= dmg;
   e.flash = 0.1;
   if (knockA !== null && !e.boss) { e.kx += Math.cos(knockA) * knockF; e.ky += Math.sin(knockA) * knockF; }
@@ -67,7 +70,8 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
     S.streak++; S.streakT = 1.2;
     const MILESTONES = { 10: 'SÉRIE ×10 !', 25: 'CARNAGE ×25 !', 50: 'MASSACRE ×50 !', 100: 'LÉGENDE ×100 !', 200: 'ÉLU(E) DE LA FORCE ×200 !' };
     if (MILESTONES[S.streak]) {
-      addText(player.x, player.y - 95, MILESTONES[S.streak], '#ffd166', 24, 1.6);
+      const tc = teamCenter();
+      addText(tc.x, tc.y - 95, MILESTONES[S.streak], '#ffd166', 24, 1.6);
       flash('255,209,102', 0.12);
       S.zoomKick = Math.max(S.zoomKick, 0.05);
       sfx.lvl();
@@ -85,10 +89,10 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
       S.freeze = 0.9;
       S.zoomKick = Math.max(S.zoomKick, 0.16);
       S.shake = 18;
-      player.hp = Math.min(player.maxHp, player.hp + 50);
+      for (const pl of alivePlayers()) pl.hp = Math.min(pl.maxHp, pl.hp + 50);
       victory(e);
     } else if (e.boss) {
-      player.hp = Math.min(player.maxHp, player.hp + 30);
+      for (const pl of alivePlayers()) pl.hp = Math.min(pl.maxHp, pl.hp + 30);
       addText(e.x, e.y - 30, 'SEIGNEUR SITH VAINCU  +30 PV', '#ffd166', 18, 2);
       addRing(e.x, e.y, 340, '255,209,102', 4, 0.9);
       fireball(e.x, e.y, 80);
@@ -101,51 +105,55 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
     sfx.hit();
   }
 }
-function hurtPlayer(dmg) {
-  if (DEBUG.stress) return; // benchmark : joueur invincible
-  if (player.invuln > 0 || S.scene !== 'play') return;
-  if (player.dodge > 0 && Math.random() < player.dodge) {
-    player.invuln = 0.35;
-    addText(player.x, player.y - 24, 'ESQUIVE', '#6ee7ff', 12);
+function hurtPlayer(p, dmg) {
+  if (DEBUG.stress) return; // benchmark : joueurs invincibles
+  if (!p || p.dead || p.invuln > 0 || S.scene !== 'play') return;
+  if (p.dodge > 0 && Math.random() < p.dodge) {
+    p.invuln = 0.35;
+    addText(p.x, p.y - 24, 'ESQUIVE', '#6ee7ff', 12);
     return;
   }
-  player.invuln = 0.5;
-  player.hp -= dmg * (player.armor || 1);
+  p.invuln = 0.5;
+  p.hp -= dmg * (p.armor || 1);
   sfx.hurt();
   S.shake = Math.max(S.shake, 6);
   flash('255,50,40', 0.15);
   S.zoomKick = Math.max(S.zoomKick, 0.04);
-  sparks(player.x, player.y, '255,120,110', 6, 240);
+  sparks(p.x, p.y, '255,120,110', 6, 240);
   const fl = document.getElementById('dmgflash');
   fl.style.opacity = 1; setTimeout(() => fl.style.opacity = 0, 90);
   // combo Voie du Jedi : onde de riposte
-  if (activeCombos.has('jediMaster') && player.comboWaveCd <= 0) {
-    player.comboWaveCd = 3;
-    const wst = WEAPONS.wave.stats(weaponLvl('wave'));
-    waves.push({ x: player.x, y: player.y, r: 20, maxR: wst.radius, dmg: wst.dmg, id: ++runtime.waveId });
+  if (p.combos.has('jediMaster') && p.comboWaveCd <= 0) {
+    p.comboWaveCd = 3;
+    const wst = WEAPONS.wave.stats(weaponLvl(p, 'wave'));
+    waves.push({ x: p.x, y: p.y, r: 20, maxR: wst.radius, dmg: wst.dmg, id: ++runtime.waveId, owner: p.idx });
     sfx.wave();
   }
-  if (player.hp <= 0) {
-    // Esprit de la Force : une résurrection par partie
-    if (metaLvl('revive') > 0 && !S.reviveUsed) {
-      S.reviveUsed = true;
-      player.hp = player.maxHp * 0.5;
-      player.invuln = 2;
-      addText(player.x, player.y - 40, 'LA FORCE VEILLE SUR TOI', '#6ee7ff', 20, 2.5);
-      addRing(player.x, player.y, 320, '110,231,255', 5, 0.8);
+  if (p.hp <= 0) {
+    // Esprit de la Force : une résurrection par partie et par joueur
+    if (metaLvl('revive') > 0 && !p.reviveUsed) {
+      p.reviveUsed = true;
+      p.hp = p.maxHp * 0.5;
+      p.invuln = 2;
+      addText(p.x, p.y - 40, 'LA FORCE VEILLE SUR TOI', '#6ee7ff', 20, 2.5);
+      addRing(p.x, p.y, 320, '110,231,255', 5, 0.8);
       flash('150,230,255', 0.45);
       S.freeze = 0.5;
-      // repousse violemment les assaillants
       for (const en of enemies) {
-        const d = Math.hypot(en.x - player.x, en.y - player.y);
+        const d = Math.hypot(en.x - p.x, en.y - p.y);
         if (d < 300 && !en.boss) {
-          const a = Math.atan2(en.y - player.y, en.x - player.x);
+          const a = Math.atan2(en.y - p.y, en.x - p.x);
           en.kx += Math.cos(a) * 700; en.ky += Math.sin(a) * 700;
         }
       }
       return;
     }
-    gameOver();
+    p.hp = 0;
+    p.dead = true;
+    addGhost(p);
+    addText(p.x, p.y - 30, 'JOUEUR ' + (p.idx + 1) + ' À TERRE', '#ff8f6b', 16, 2);
+    flash('255,60,50', 0.3);
+    if (alivePlayers().length === 0) gameOver();
   }
 }
 function dropGems(e) {

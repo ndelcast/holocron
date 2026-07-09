@@ -9,7 +9,7 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 | Module | Rôle |
 |---|---|
 | `core.js` | viewport (`view` : w/h/dpr/zoom, basé sur `visualViewport`), utilitaires (`rand`, `clamp`, `dist2`, `angleDiff`, `pick`) |
-| `state.js` | **état mutable partagé** : `S` (partie), `player`, `session` (sélections menu), `runtime` (compteurs), tableaux d'entités |
+| `state.js` | **état mutable partagé** : `S` (partie), `players[]` (équipe 1-4, chacun avec armes/passifs/combos), helpers (`alivePlayers`, `nearestPlayer`, `teamCenter`), `session`, `runtime`, tableaux d'entités |
 | `gamedata.js` | définitions : armes, passifs, combos, personnages, bonus |
 | `levels.js` | destinations, boss, tuiles de sol procédurales, constantes de temps |
 | `meta.js` | crédits persistants (`localStorage`), coûts du hangar |

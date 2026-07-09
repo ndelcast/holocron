@@ -48,3 +48,12 @@ src/
 ```
 
 Convention : l'état mutable partagé vit dans des objets exportés (`S`, `player`, `session`, `runtime`) ou des tableaux constants vidés sur place — jamais de réassignation d'un binding importé.
+
+## Mention légale
+
+Fan game non commercial créé pour l'apprentissage et le divertissement,
+sans affiliation avec Lucasfilm Ltd. ni The Walt Disney Company.
+Star Wars et l'ensemble des noms, personnages et lieux associés sont des
+marques et œuvres de leurs ayants droit. Aucun asset officiel (image, son,
+musique) n'est utilisé : tous les visuels et sons sont générés
+procéduralement. Ce projet ne doit générer aucun revenu.
