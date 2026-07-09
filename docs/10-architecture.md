@@ -1,6 +1,6 @@
 # Architecture
 
-Stack : vanilla JS (modules ES), canvas 2D, Vite. Aucune dépendance runtime.
+Stack : vanilla JS (modules ES), **PixiJS (WebGL)** + pixi-filters, Vite.
 
 ## Modules (`src/`)
 
@@ -8,7 +8,7 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 
 | Module | Rôle |
 |---|---|
-| `core.js` | canvas, viewport (`view` : w/h/dpr/zoom, basé sur `visualViewport`), utilitaires (`rand`, `clamp`, `dist2`, `angleDiff`, `pick`) |
+| `core.js` | viewport (`view` : w/h/dpr/zoom, basé sur `visualViewport`), utilitaires (`rand`, `clamp`, `dist2`, `angleDiff`, `pick`) |
 | `state.js` | **état mutable partagé** : `S` (partie), `player`, `session` (sélections menu), `runtime` (compteurs), tableaux d'entités |
 | `gamedata.js` | définitions : armes, passifs, combos, personnages, bonus |
 | `levels.js` | destinations, boss, tuiles de sol procédurales, constantes de temps |
@@ -22,7 +22,7 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 | `combat.js` | tick des armes, projectiles joueur, explosions |
 | `levelup.js` | XP, choix d'améliorations, listes UI (combos, slots) |
 | `update.js` | simulation par frame, projectiles ennemis, bonus, HUD |
-| `render.js` | rendu complet de la scène (voir [11-rendu-et-da.md](11-rendu-et-da.md)) |
+| `render.js` | renderer PixiJS : scene graph synchronisé chaque frame depuis l'état (voir [11-rendu-et-da.md](11-rendu-et-da.md)) |
 | `lifecycle.js` | boucle rAF, début/fin de partie, pause, ralenti (`S.freeze`) |
 | `ui.js` | menus (héros, destinations, hangar), boutons tactiles |
 
@@ -55,3 +55,12 @@ Pas de framework : tests de régression **headless** (Chrome
 `--headless=new` + `--virtual-time-budget`) pilotés via `window.HS`
 (simulation d'updates, clics DOM, captures d'écran). Voir l'historique
 des commits pour les harnais utilisés.
+
+## Historique renderer
+
+Le jeu a d'abord été rendu en canvas 2D immédiat (voir l'historique git,
+`src/render.js` avant le merge de la branche `pixi`). Le passage à PixiJS
+a été validé par benchmark (`?stress=N&fps=1`) : à parité de FPS sur
+desktop, il a été retenu pour anticiper les évolutions (hordes plus
+denses, shaders, éclairage). Le renderer expose la même API `render()` ;
+la simulation ne connaît pas Pixi.

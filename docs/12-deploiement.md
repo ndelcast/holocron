@@ -23,6 +23,11 @@ npm run preview          # sert le build (sous /holocron/)
 Toute page de test locale du build doit servir `dist/` **sous un
 sous-chemin `/holocron/`**, sinon les assets renvoient 404.
 
+## Poids
+
+Bundle de production : ~155 Ko gzip (dont PixiJS ~120 Ko). Le jeu
+lui-même reste ~30 Ko.
+
 ## Données joueurs
 
 Aucun backend : la progression (crédits, hangar) est en `localStorage`,

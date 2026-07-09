@@ -1,7 +1,7 @@
 # Holocron Survivors — Spécifications
 
 Survivor-like (type *Vampire Survivors*) sur le thème Star Wars.
-Vanilla JS + canvas, aucune dépendance runtime. Jouable sur
+Vanilla JS + PixiJS (WebGL), sprites et sons procéduraux. Jouable sur
 [ndelcast.github.io/holocron](https://ndelcast.github.io/holocron/).
 
 ## Sommaire

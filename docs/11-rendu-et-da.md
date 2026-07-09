@@ -10,21 +10,29 @@ victoires), rouge (`#ff3b3b`) pour la menace, vert sabre (`#52ff7a`).
 Typographies : Orbitron (display) + Rajdhani (texte). Scanlines, équerres
 de visée aux coins, bande de balayage, flicker holo occasionnel.
 
-## Ordre de rendu (une frame)
+## Pipeline PixiJS (une frame)
 
-1. Couleur de base de la destination
-2. Fond : étoiles/nébuleuses en parallaxe (espace, écran) ou rien ; soleils de Tatooine
-3. **Repère monde** (scale = zoom écran × zoom punch, translation caméra) :
-   sol procédural, brûlures, nappes de feu, aura ionique, **ombres portées**,
-   cristaux (pulsants), caisses + balises, ondes, explosions + anneaux,
-   ennemis (aura boss, flash de dégât, signatures des boss finaux), sabre
-   (+ sillage), fantômes, droïdes, rayons + colonne de level-up, halo, joueur,
-   grenades, traînées + projectiles, projectiles ennemis, éclairs ramifiés,
-   particules (2 passes : rects/fumée puis lueurs/traits additifs), textes détourés
-4. **Espace écran** : étalonnage colorimétrique, minimap, flèche de boss,
-   météo, poussières, flash plein écran
-5. **Post-process** : bloom (copie ¼ ré-agrandie en additif, alpha 0,20),
-   écho chromatique si secousse > 3
+Le scene graph est **synchronisé depuis l'état** à chaque frame : pools de
+sprites réutilisés (jamais de création/destruction par frame), `Graphics`
+vidés et redessinés pour les primitives, `TilingSprite` pour les sols et
+les couches d'étoiles, `BitmapText` pour les textes flottants.
+
+Hiérarchie (dans l'ordre de rendu) :
+
+1. `bgC` : nébuleuses + étoiles en parallaxe (espace) ou sol en tuiles
+   (planètes, `tileScale` = zoom), soleils de Tatooine
+2. `worldC` (scale = zoom écran × zoom punch) : brûlures, nappes de feu,
+   aura ionique, ombres portées, cristaux, caisses + balises, ondes /
+   explosions / anneaux, ennemis (+ flash additif, signatures de boss),
+   sabre + sillage, fantômes, droïdes, colonne + rayons de level-up, halo,
+   joueur, grenades, traînées + projectiles, projectiles ennemis, éclairs,
+   particules (rects teintés, lueurs additives, traits), textes bitmap
+3. Sprite d'étalonnage colorimétrique (dégradé pré-rendu par destination)
+4. `fxC` (hors filtres) : météo, minimap, flèche de boss, flash plein écran
+
+Filtres sur `bgC + worldC + étalonnage` : **AdvancedBloomFilter**
+(threshold 0,72, scale 0,45) et **RGBSplitFilter** activé quand la
+secousse dépasse 3 (écho chromatique).
 
 ## Effets clés
 
@@ -49,6 +57,7 @@ de visée aux coins, bande de balayage, flicker holo occasionnel.
 | Fantômes / rémanences | 30 |
 | Brûlures au sol | 30 |
 | DPR | 2 desktop, **1,5 mobile** |
+| Bundle | ~155 Ko gzip (PixiJS inclus) |
 
 ## Mobile
 

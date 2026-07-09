@@ -1,6 +1,4 @@
 // Holocron Survivors — canvas, redimensionnement, utilitaires
-export const canvas = document.getElementById('game');
-export const ctx = canvas.getContext('2d');
 export const view = { w: 0, h: 0, dpr: 1 };
 export const isTouch = window.matchMedia('(pointer: coarse)').matches;
 // outillage : ?fps=1 affiche le compteur, ?stress=400 sature la scène (god mode)
@@ -14,11 +12,6 @@ function resize() {
   view.dpr = Math.min(window.devicePixelRatio || 1, isTouch ? 1.5 : 2); // plafond plus bas sur mobile
   // dézoom du monde sur petits écrans : on voit plus de terrain
   view.zoom = Math.max(0.7, Math.min(1, Math.min(view.w, view.h) / 760));
-  canvas.width = view.w * view.dpr;
-  canvas.height = view.h * view.dpr;
-  canvas.style.width = view.w + 'px';
-  canvas.style.height = view.h + 'px';
-  ctx.setTransform(view.dpr, 0, 0, view.dpr, 0, 0);
 }
 window.addEventListener('resize', resize);
 if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
