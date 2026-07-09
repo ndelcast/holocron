@@ -8,7 +8,9 @@ export const S = {
   banked: 0, // crédits déjà bancarisés cette campagne (bancarisation incrémentale)
 };
 // sélections du menu et compteurs de partie (objets pour rester mutables entre modules)
-export const session = { char: 'jedi', level: 'space', count: 1 };
+// roster : joueurs 2-4 du salon coop — { pad: index manette, char: id héros } ;
+// chacun rejoint depuis le menu avec A sur sa manette. count = 1 + roster.length.
+export const session = { char: 'jedi', level: 'space', count: 1, roster: [] };
 export const runtime = { waveId: 0, pendingLvls: 0, lvlQueue: [], comboQueue: [] };
 
 // ------------------------------ Campagne : la Route de l'Hyperespace ------------------------------

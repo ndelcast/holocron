@@ -6,15 +6,19 @@ Sources : `src/levelup.js` (XP, choix), `src/meta.js` (crédits, hangar).
 
 - Les ennemis lâchent des cristaux (1 XP, fusionnés en cristaux dorés de 5).
 - Rayon d'aimant de base 90 (modifiable par passif/personnage/hangar).
-- Seuil : `xpFor(n) = floor((10 + n^1,35) × densité coop)` — courbe douce
-  (polynomiale) : ~4 niveaux/min, pensée pour atteindre le **niveau 70-80 à
-  20 min** où les armes à 25 paliers culminent. En coop × `1 + 0,5×(joueurs − 1)`
-  (suit l'afflux de cristaux, voir [01-gameplay.md](01-gameplay.md)) ;
-  multiplicateurs d'XP appliqués au gain (passif Fortune, hangar, Endor).
+- Seuil : `xpFor(n) = floor((14 + n^1,75) × densité coop)` — courbe ferme :
+  un choix toutes les **20-30 s** (pas toutes les 5 s), soit le **niveau
+  ~45-55 à 20 min** où les armes à 10 paliers culminent. En coop
+  × `1 + 0,5×(joueurs − 1)` (suit l'afflux de cristaux, voir
+  [01-gameplay.md](01-gameplay.md)) ; multiplicateurs d'XP appliqués au gain
+  (passif Fortune, hangar, Endor).
 - Level-up : pause + **3 choix** tirés parmi les armes améliorables
-  (4 slots max, **25 niveaux** chacune), nouvelles armes et passifs
+  (4 slots max, **10 niveaux** chacune), nouvelles armes et passifs
   (< niv 5, **4 passifs max**). File d'attente si plusieurs niveaux d'un
   coup. Si tout est au max : carte « Sérénité » (soin complet).
+  **Navigation manette** : le joueur dont c'est le tour choisit avec sa
+  manette (◄ ► puis A) ou au clavier (flèches + Entrée) s'il n'en a pas ;
+  la modal de combo se ferme avec A / Entrée.
 
 ## Crédits (fin de partie)
 

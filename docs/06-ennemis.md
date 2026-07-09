@@ -17,8 +17,8 @@ modificateur de la destination.
 
 ## Montée en difficulté
 
-La difficulté suit **le temps et le niveau d'équipe** : monter haut (70-80)
-déclenche la horde, pour que les armes à 25 paliers aient de quoi faucher.
+La difficulté suit **le temps et le niveau d'équipe** : monter haut (~45-55)
+déclenche la horde, pour que les armes à 10 paliers aient de quoi faucher.
 
 - **PV** : `PV base × (1 + t/30 × 0,16) × (1 + 0,035 × niveau)` × le facteur
   coop `1 + 0,25×(joueurs − 1)`. Au niveau 75 le facteur niveau vaut ×3,6.

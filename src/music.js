@@ -1,63 +1,165 @@
-// Holocron Survivors — musiques d'ambiance par destination (séquenceur WebAudio)
+// Holocron Survivors — musiques metal par destination (séquenceur WebAudio)
 import { audioCtx, isMuted } from './audio.js';
 
-// Un thème = tempo + deux voix bouclées sur 2 mesures (32 doubles-croches).
-// Les hauteurs sont des demi-tons relatifs à la fondamentale `root` (en Hz),
-// null = silence ; le lead joue une octave au-dessus de la basse. Mélodies
-// originales, mixées bas pour laisser la place aux bruitages.
+// Thèmes originaux façon metal (riffs phrygiens, chugs palm-muted, batterie
+// synthétisée) — pas de reprise : les thèmes du film sont protégés.
+// Un thème = tempo + pistes bouclées sur 32 doubles-croches :
+//   riff  : guitare saturée grave (demi-tons relatifs à root, null = silence)
+//   lead  : mélodie une octave au-dessus (clean)
+//   kick / snare / hat : 1 = frappe
 const _ = null;
 const THEMES = {
-  space: { // nappe mystérieuse en la mineur
-    bpm: 72, root: 110, bassType: 'triangle', leadType: 'sine', bassVol: 0.035, leadVol: 0.022,
-    bass: [0, _, _, _, _, _, _, _, -5, _, _, _, _, _, _, _,
-           -2, _, _, _, _, _, _, _, -4, _, _, _, _, _, _, _],
-    lead: [_, _, 12, _, _, _, _, 15, _, _, _, _, 19, _, _, _,
-           _, _, 17, _, _, _, _, _, 24, _, _, 19, _, _, _, _],
+  space: { // doom pesant, la mineur
+    bpm: 100, root: 55,
+    riff: [0, _, 0, _, 0, _, 3, _, 0, _, 0, _, 1, _, 0, _,
+           0, _, 0, _, 0, _, 3, 5, 0, _, 0, _, 1, _, _, _],
+    lead: [_, _, _, _, 12, _, _, _, _, _, _, _, _, _, _, _,
+           _, _, _, _, 15, _, 14, _, 12, _, _, _, _, _, _, _],
+    kick: [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0,
+           1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+    snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+            0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+    hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+          1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0],
   },
-  tatooine: { // marche des sables, couleur phrygienne
-    bpm: 92, root: 87.31, bassType: 'triangle', leadType: 'square', bassVol: 0.04, leadVol: 0.013,
-    bass: [0, _, 0, _, -5, _, 0, _, 0, _, 0, _, -4, _, -5, _,
-           0, _, 0, _, -5, _, 0, _, 1, _, 0, _, -5, _, _, _],
-    lead: [12, _, _, 13, _, _, 12, _, _, 16, _, _, 12, _, 13, _,
-           _, _, 17, _, 16, _, 13, _, 12, _, _, _, _, _, _, _],
+  tatooine: { // galop phrygien des sables
+    bpm: 126, root: 82.41,
+    riff: [0, 0, 0, _, 0, 1, _, 0, 0, 0, 0, _, 4, _, 3, 1,
+           0, 0, 0, _, 0, 1, _, 0, 5, _, 4, _, 1, _, 0, _],
+    lead: [_, _, _, _, _, _, _, _, 13, _, 12, _, _, _, _, _,
+           _, _, _, _, _, _, _, _, 16, _, 13, _, 12, _, _, _],
+    kick: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+           1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+    snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+            0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+    hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   },
-  deathstar: { // marche menaçante en sol mineur
-    bpm: 104, root: 98, bassType: 'sawtooth', leadType: 'square', bassVol: 0.026, leadVol: 0.011,
-    bass: [0, _, 0, _, 0, _, _, 0, 0, _, 0, _, -4, _, -2, _,
-           0, _, 0, _, 0, _, _, 0, 3, _, -4, _, 0, _, _, _],
-    lead: [12, _, _, _, _, _, 10, _, 8, _, _, _, _, _, _, _,
-           12, _, _, _, _, _, 15, _, 14, _, _, _, _, _, _, _],
+  deathstar: { // écrasant, mi-temps, sol grave
+    bpm: 92, root: 49,
+    riff: [0, _, _, _, 0, _, 3, _, _, _, 0, _, 1, _, _, _,
+           0, _, _, _, 0, _, 3, _, 6, _, 5, _, 1, _, 0, _],
+    lead: [12, _, _, _, _, _, _, _, _, _, _, _, 10, _, _, _,
+           _, _, _, _, _, _, _, _, 13, _, _, _, 12, _, _, _],
+    kick: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+           1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    snare: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+    hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+          1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
   },
-  hoth: { // froid cristallin, lent et aérien
-    bpm: 64, root: 130.81, bassType: 'sine', leadType: 'sine', bassVol: 0.04, leadVol: 0.02,
-    bass: [0, _, _, _, _, _, _, _, -5, _, _, _, _, _, _, _,
-           -3, _, _, _, _, _, _, _, -5, _, _, _, _, _, _, _],
-    lead: [_, _, _, 19, _, _, _, _, _, 24, _, _, _, _, 22, _,
-           _, _, _, 19, _, _, _, _, _, 26, _, _, _, _, _, _],
+  hoth: { // metal froid et mélodique
+    bpm: 112, root: 65.41,
+    riff: [0, _, 0, 0, _, 0, _, _, -2, _, -2, -2, _, -2, _, _,
+           -4, _, -4, -4, _, -4, _, _, 3, _, 3, 3, _, 1, _, _],
+    lead: [_, _, _, _, 12, _, 15, _, _, _, _, _, 14, _, _, _,
+           _, _, _, _, 12, _, 10, _, _, _, _, _, 8, _, _, _],
+    kick: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0,
+           1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+    snare: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+            0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    hat: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+          1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
   },
-  endor: { // groove forestier, pentatonique bondissante
-    bpm: 116, root: 82.41, bassType: 'triangle', leadType: 'square', bassVol: 0.04, leadVol: 0.012,
-    bass: [0, _, _, 0, _, _, 0, _, 5, _, _, 5, _, _, 3, _,
-           0, _, _, 0, _, _, 0, _, 7, _, 5, _, 3, _, _, _],
-    lead: [12, _, 15, _, 17, _, _, 15, _, 12, _, _, 15, _, 17, _,
-           19, _, 17, _, 15, _, 12, _, 10, _, 12, _, _, _, _, _],
+  endor: { // punk metal bondissant, pentatonique
+    bpm: 140, root: 82.41,
+    riff: [0, _, 0, _, 3, _, 0, _, 5, _, 3, _, 0, _, 3, _,
+           0, _, 0, _, 3, _, 0, _, 7, _, 5, _, 3, _, 0, _],
+    lead: [_, _, _, _, _, _, _, _, 12, _, 15, _, 17, _, _, _,
+           _, _, _, _, _, _, _, _, 19, _, 17, _, 15, _, 12, _],
+    kick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
+           1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+    snare: [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
+            0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+    hat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   },
 };
 
-// séquenceur avec anticipation : le setInterval planifie les notes ~150 ms
-// en avance sur l'horloge WebAudio, insensible aux à-coups de la frame
-let cur = null; // { th, step, nextT, timer }
+// nœuds partagés, créés paresseusement sur le contexte audio
+let shaper = null, noiseBuf = null;
+function getShaper(AC) {
+  if (!shaper) {
+    shaper = AC.createWaveShaper();
+    const n = 256, curve = new Float32Array(n);
+    for (let i = 0; i < n; i++) curve[i] = Math.tanh(4 * (i * 2 / (n - 1) - 1));
+    shaper.curve = curve;
+    shaper.connect(AC.destination);
+  }
+  return shaper;
+}
+function getNoise(AC) {
+  if (!noiseBuf) {
+    noiseBuf = AC.createBuffer(1, AC.sampleRate * 0.2, AC.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  return noiseBuf;
+}
 
-function note(freq, t, dur, type, vol) {
-  const AC = audioCtx();
-  const o = AC.createOscillator(), g = AC.createGain();
-  o.type = type; o.frequency.setValueAtTime(freq, t);
+// guitare saturée : deux dents de scie désaccordées → distorsion, chug court
+function guitar(AC, freq, t, dur, vol) {
+  const g = AC.createGain();
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  g.connect(getShaper(AC));
+  for (const det of [0, 6]) {
+    const o = AC.createOscillator();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(freq, t);
+    o.detune.setValueAtTime(det, t);
+    o.connect(g);
+    o.start(t); o.stop(t + dur + 0.03);
+  }
+}
+function lead(AC, freq, t, dur, vol) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = 'square'; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   o.connect(g).connect(AC.destination);
   o.start(t); o.stop(t + dur + 0.03);
 }
+function kick(AC, t) {
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(120, t);
+  o.frequency.exponentialRampToValueAtTime(42, t + 0.12);
+  g.gain.setValueAtTime(0.11, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+  o.connect(g).connect(AC.destination);
+  o.start(t); o.stop(t + 0.2);
+}
+function snare(AC, t) {
+  const src = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+  src.buffer = getNoise(AC);
+  f.type = 'highpass'; f.frequency.value = 1400;
+  g.gain.setValueAtTime(0.055, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
+  src.connect(f).connect(g).connect(AC.destination);
+  src.start(t); src.stop(t + 0.15);
+  const o = AC.createOscillator(), g2 = AC.createGain();
+  o.type = 'triangle'; o.frequency.setValueAtTime(190, t);
+  g2.gain.setValueAtTime(0.04, t);
+  g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+  o.connect(g2).connect(AC.destination);
+  o.start(t); o.stop(t + 0.12);
+}
+function hat(AC, t) {
+  const src = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+  src.buffer = getNoise(AC);
+  f.type = 'highpass'; f.frequency.value = 6500;
+  g.gain.setValueAtTime(0.018, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+  src.connect(f).connect(g).connect(AC.destination);
+  src.start(t); src.stop(t + 0.06);
+}
+
+// séquenceur avec anticipation : le setInterval planifie les notes ~150 ms
+// en avance sur l'horloge WebAudio, insensible aux à-coups de la frame
+let cur = null; // { th, step, nextT, timer }
 
 function tick() {
   const AC = audioCtx();
@@ -65,10 +167,13 @@ function tick() {
   const th = cur.th, step = 60 / th.bpm / 4;
   while (cur.nextT < AC.currentTime + 0.15) {
     if (!isMuted()) {
-      const b = th.bass[cur.step % th.bass.length];
-      const l = th.lead[cur.step % th.lead.length];
-      if (b !== null) note(th.root * Math.pow(2, b / 12), cur.nextT, step * 3.2, th.bassType, th.bassVol);
-      if (l !== null) note(th.root * 2 * Math.pow(2, l / 12), cur.nextT, step * 1.8, th.leadType, th.leadVol);
+      const i = cur.step % 32, t = cur.nextT;
+      const r = th.riff[i], l = th.lead[i];
+      if (r !== null) guitar(AC, th.root * Math.pow(2, r / 12), t, step * 1.6, 0.05);
+      if (l !== null) lead(AC, th.root * 4 * Math.pow(2, l / 12), t, step * 2.4, 0.014);
+      if (th.kick[i]) kick(AC, t);
+      if (th.snare[i]) snare(AC, t);
+      if (th.hat[i]) hat(AC, t);
     }
     cur.nextT += step; cur.step++;
   }

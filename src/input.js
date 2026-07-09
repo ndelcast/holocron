@@ -70,6 +70,12 @@ function padConnected(i) {
   const gp = navigator.getGamepads ? navigator.getGamepads()[i] : null;
   return !!(gp && gp.connected);
 }
+// première manette connectée hors du set fourni (manette « libre » pour J1)
+function firstFreePad(used) {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (const gp of pads) if (gp && gp.connected && !used.has(gp.index)) return gp.index;
+  return null;
+}
 // bouton Start de n'importe quelle manette → pause (front montant)
 function pollPadPause() {
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -80,4 +86,4 @@ function pollPadPause() {
   if (edge) togglePause();
 }
 
-export { keys, touch, padMove, padConnected, pollPadPause };
+export { keys, touch, padMove, padConnected, firstFreePad, pollPadPause };

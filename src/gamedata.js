@@ -2,77 +2,75 @@
 
 
 // ------------------------------ Définition des armes ------------------------------
-// 25 paliers par arme : croissance continue à chaque niveau (dégâts, cadence,
-// portée) + jalon spectaculaire tous les 5-6 niveaux (lame, tir, droïde,
-// roquette supplémentaires). Au palier 25 : 6 lames, 6 tirs, 6 droïdes…
-const MAXLVL = 25;
+// 10 paliers par arme, chacun conséquent (+20-30 % sur une stat majeure) +
+// jalon spectaculaire tous les 3-4 niveaux (lame, tir, droïde, roquette
+// supplémentaires). Au palier 10 : 4 lames, 4 tirs, 4 droïdes…
+const MAXLVL = 10;
 const g = (base, rate, l) => base * Math.pow(rate, l - 1); // croissance géométrique
-const ORD_F = ['Seconde', 'Troisième', 'Quatrième', 'Cinquième', 'Sixième'];
-const ORD_M = ['Second', 'Troisième', 'Quatrième', 'Cinquième', 'Sixième'];
+const ORD_F = ['Seconde', 'Troisième', 'Quatrième'];
+const ORD_M = ['Second', 'Troisième', 'Quatrième'];
 const WEAPONS = {
   saber: {
     name: 'Sabre laser', icon: '⚔️', tag: 'Arme',
     desc: l => l === 0 ? 'Une lame verte orbite autour de toi.'
-      : (l + 1) % 5 === 0 ? ORD_F[(l + 1) / 5 - 1] + ' lame !'
-      : 'Lame plus longue et plus vive · dégâts +9 %',
-    stats: l => ({ dmg: g(9, 1.09, l), len: 60 + l * 4, spd: 3.4 + l * 0.1, blades: 1 + Math.floor(l / 5) }),
+      : (l + 1) % 3 === 0 ? ORD_F[(l + 1) / 3 - 1] + ' lame !'
+      : 'Taille +25 % · dégâts +22 %',
+    stats: l => ({ dmg: g(9, 1.22, l), len: 60 * (1 + 0.25 * (l - 1)), spd: 3.4 + l * 0.25, blades: 1 + Math.floor(l / 3) }),
   },
   blaster: {
     name: 'Blaster', icon: '🔫', tag: 'Arme',
     desc: l => l === 0 ? 'Tire automatiquement sur l\'ennemi le plus proche.'
-      : (l + 1) % 5 === 0 ? 'Tir ' + ['double', 'triple', 'quadruple', 'quintuple', 'sextuple'][(l + 1) / 5 - 1] + ' !'
-      : 'Dégâts +7 % · cadence +3,5 %',
-    stats: l => ({ dmg: g(12, 1.07, l), cd: g(0.85, 0.965, l), shots: 1 + Math.floor(l / 5) }),
+      : (l + 1) % 3 === 0 ? 'Tir ' + ['double', 'triple', 'quadruple'][(l + 1) / 3 - 1] + ' !'
+      : 'Dégâts +18 % · cadence +8 %',
+    stats: l => ({ dmg: g(12, 1.18, l), cd: g(0.85, 0.92, l), shots: 1 + Math.floor(l / 3) }),
   },
   wave: {
     name: 'Onde de Force', icon: '🌀', tag: 'Pouvoir',
-    desc: l => l === 0 ? 'Repousse et blesse tout autour de toi.' : 'Rayon +5 % · dégâts +9 % · recharge -3 %',
-    stats: l => ({ dmg: g(15, 1.09, l), cd: g(4.2, 0.97, l), radius: 140 * (1 + 0.05 * (l - 1)) }),
+    desc: l => l === 0 ? 'Repousse et blesse tout autour de toi.' : 'Rayon +15 % · dégâts +22 % · recharge -7 %',
+    stats: l => ({ dmg: g(15, 1.22, l), cd: g(4.2, 0.93, l), radius: 140 * (1 + 0.15 * (l - 1)) }),
   },
   lightning: {
     name: 'Éclairs de Force', icon: '⚡', tag: 'Pouvoir',
-    desc: l => l === 0 ? 'Foudroie un ennemi et se propage en chaîne.'
-      : (l + 1) % 3 === 0 ? '+1 rebond · dégâts +8 %'
-      : 'Dégâts +8 % · recharge -3 %',
-    stats: l => ({ dmg: g(18, 1.08, l), cd: g(2.6, 0.97, l), chains: 2 + Math.floor(l / 3) }),
+    desc: l => l === 0 ? 'Foudroie un ennemi et se propage en chaîne.' : '+1 rebond · dégâts +18 %',
+    stats: l => ({ dmg: g(18, 1.18, l), cd: g(2.6, 0.94, l), chains: 1 + l }),
   },
   drone: {
     name: 'Droïde de combat', icon: '🛰️', tag: 'Allié',
     desc: l => l === 0 ? 'Un droïde orbite et mitraille tes ennemis.'
-      : (l + 1) % 5 === 0 ? ORD_M[(l + 1) / 5 - 1] + ' droïde !'
-      : 'Dégâts +8 % · cadence +4 %',
-    stats: l => ({ dmg: g(8, 1.08, l), cd: g(1.1, 0.96, l), count: 1 + Math.floor(l / 5) }),
+      : (l + 1) % 3 === 0 ? ORD_M[(l + 1) / 3 - 1] + ' droïde !'
+      : 'Dégâts +18 % · cadence +9 %',
+    stats: l => ({ dmg: g(8, 1.18, l), cd: g(1.1, 0.91, l), count: 1 + Math.floor(l / 3) }),
   },
   spear: {
     name: 'Lances ewoks', icon: '🏹', tag: 'Arme',
     desc: l => l === 0 ? 'Lance perforante qui traverse les rangs.'
-      : (l + 1) % 5 === 0 ? ORD_F[(l + 1) / 5 - 1] + ' lance !'
-      : 'Dégâts +8 % · cadence +3 %',
-    stats: l => ({ dmg: g(11, 1.08, l), cd: g(1.25, 0.97, l), count: 1 + Math.floor(l / 5) }),
+      : (l + 1) % 3 === 0 ? ORD_F[(l + 1) / 3 - 1] + ' lance !'
+      : 'Dégâts +18 % · cadence +8 %',
+    stats: l => ({ dmg: g(11, 1.18, l), cd: g(1.25, 0.92, l), count: 1 + Math.floor(l / 3) }),
   },
   rocket: {
     name: 'Roquettes', icon: '🚀', tag: 'Arme',
     desc: l => l === 0 ? 'Roquette qui explose en zone.'
-      : (l + 1) % 6 === 0 ? 'Roquette supplémentaire !'
-      : 'Zone +4 % · dégâts +8 %',
-    stats: l => ({ dmg: g(16, 1.08, l), cd: g(2.1, 0.975, l), radius: 65 * (1 + 0.04 * (l - 1)), count: 1 + Math.floor(l / 6) }),
+      : (l + 1) % 4 === 0 ? 'Roquette supplémentaire !'
+      : 'Zone +12 % · dégâts +20 %',
+    stats: l => ({ dmg: g(16, 1.2, l), cd: g(2.1, 0.94, l), radius: 65 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   detonator: {
     name: 'Détonateur thermique', icon: '💣', tag: 'Arme',
     desc: l => l === 0 ? 'Lobe une grenade qui explose en zone.'
-      : (l + 1) % 6 === 0 ? 'Grenade supplémentaire !'
-      : 'Zone +4,5 % · dégâts +8 %',
-    stats: l => ({ dmg: g(24, 1.08, l), cd: g(2.9, 0.972, l), radius: 80 * (1 + 0.045 * (l - 1)), count: 1 + Math.floor(l / 6) }),
+      : (l + 1) % 4 === 0 ? 'Grenade supplémentaire !'
+      : 'Zone +12 % · dégâts +20 %',
+    stats: l => ({ dmg: g(24, 1.2, l), cd: g(2.9, 0.93, l), radius: 80 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   flame: {
     name: 'Lance-flammes', icon: '🔥', tag: 'Arme',
-    desc: l => l === 0 ? 'Cône de feu soutenu vers l\'ennemi le plus proche.' : 'Portée +4,5 % · durée +3 % · dégâts +8,5 %',
-    stats: l => ({ dmg: g(7, 1.085, l), cd: g(2.4, 0.975, l), range: 130 * (1 + 0.045 * (l - 1)), dur: 0.9 * (1 + 0.03 * (l - 1)) }),
+    desc: l => l === 0 ? 'Cône de feu soutenu vers l\'ennemi le plus proche.' : 'Portée +13 % · durée +8 % · dégâts +19 %',
+    stats: l => ({ dmg: g(7, 1.19, l), cd: g(2.4, 0.94, l), range: 130 * (1 + 0.13 * (l - 1)), dur: 0.9 * (1 + 0.08 * (l - 1)) }),
   },
   ion: {
     name: 'Champ ionique', icon: '🌐', tag: 'Pouvoir',
-    desc: l => l === 0 ? 'Aura permanente qui électrocute et ralentit.' : 'Rayon +5 % · dégâts +9 % · ralentissement renforcé',
-    stats: l => ({ dmg: g(4, 1.09, l), radius: 80 * (1 + 0.05 * (l - 1)), slow: Math.min(0.75, 0.28 + l * 0.02) }),
+    desc: l => l === 0 ? 'Aura permanente qui électrocute et ralentit.' : 'Rayon +13 % · dégâts +20 % · ralentissement renforcé',
+    stats: l => ({ dmg: g(4, 1.2, l), radius: 80 * (1 + 0.13 * (l - 1)), slow: Math.min(0.75, 0.25 + l * 0.05) }),
   },
 };
 

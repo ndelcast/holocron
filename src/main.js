@@ -13,7 +13,7 @@ import { update, updateHud } from './update.js';
 import { render } from './render.js';
 import { touch } from './input.js';
 import { spawnEnemy, spawnFinalBoss } from './enemies.js';
-import { checkCombos, openComboModal } from './levelup.js';
+import { checkCombos, openComboModal, openLevelUp, gainXp } from './levelup.js';
 import { META_STATE, metaLvl } from './meta.js';
 import { buildHangar } from './ui.js';
 import { audioCtx } from './audio.js';
@@ -23,6 +23,6 @@ window.HS = {
   S, players, alivePlayers, nearestPlayer, teamCenter, session, runtime, campaign, enemies, ebullets, bonuses, touch,
   WEAPONS, PASSIVES, CHARS, COMBOS, weaponLvl,
   LEVELS, BOSSES, startGame, togglePause, resetGame, jumpToSector, victory, update, updateHud, render,
-  spawnEnemy, spawnFinalBoss, checkCombos, openComboModal, META_STATE, metaLvl, buildHangar,
+  spawnEnemy, spawnFinalBoss, checkCombos, openComboModal, openLevelUp, gainXp, META_STATE, metaLvl, buildHangar,
   audioCtx, startMusic, stopMusic,
 };

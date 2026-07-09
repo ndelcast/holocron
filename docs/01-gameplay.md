@@ -34,20 +34,23 @@ les crédits sont bancarisés incrémentalement (voir [09-progression.md](09-pro
 
 | Entrée | Déplacement | Pause | Son |
 |---|---|---|---|
-| Manette n | pilote le joueur n, J1 compris (stick gauche ou croix, zone morte 25 %) | Start | — |
-| Clavier | ZQSD / WASD / flèches (mapping physique `e.code`, compatible AZERTY) — pilote le premier joueur **sans manette connectée** (J1 si chacun a la sienne) | P / Échap | M |
-| Mobile | joystick virtuel flottant (course 48 px, zone morte 12 %) — même joueur que le clavier | bouton ⏸ | bouton ♪ |
+| Manette attitrée | pilote le joueur qui a rejoint le salon avec elle (stick gauche ou croix, zone morte 25 %) | Start | — |
+| Clavier | ZQSD / WASD / flèches (mapping physique `e.code`, compatible AZERTY) — pilote **J1** ; à défaut J1 peut aussi utiliser la première **manette libre** | P / Échap | M |
+| Mobile | joystick virtuel flottant (course 48 px, zone morte 12 %) — pilote J1 | bouton ⏸ | bouton ♪ |
 
-Exemples : solo → J1 au clavier ou à la manette 1, au choix. Duo avec une
-seule manette → celui qui la tient est J1 (héros choisi au menu), le clavier
-pilote J2. Quatre manettes → le clavier ne pilote personne d'autre que J1.
+Au level-up, **le joueur dont c'est le tour** navigue dans les cartes avec
+sa manette (◄ ► puis A) ou au clavier (flèches + Entrée) s'il n'en a pas.
+La modal de combo se ferme avec A / Entrée.
 
 Les attaques sont **entièrement automatiques** : le seul input est le déplacement.
 
 ## Coop local (1 à 4 joueurs)
 
-Sélecteur « ÉQUIPE » au menu. J1 joue le héros choisi, les autres reçoivent
-automatiquement les héros restants (4 héros = 4 joueurs max).
+**Salon au menu** (`session.roster`) : J2-J4 rejoignent en appuyant sur
+**A** (ou Start) sur leur manette, choisissent leur héros avec ◄ ► et
+quittent avec **B**. J1 choisit le sien dans la grille CHAMPION (clavier,
+souris ou tactile). Les **doublons de héros sont permis** (deux Jedi = deux
+sabres). La taille d'équipe découle des manettes présentes dans le salon.
 
 - Chaque joueur a ses **PV, armes, passifs et combos propres** ; l'XP, le
   niveau et les crédits sont partagés.

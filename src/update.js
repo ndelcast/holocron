@@ -1,6 +1,6 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
-import { keys, touch, padMove, padConnected } from './input.js';
+import { keys, touch, padMove, firstFreePad } from './input.js';
 import { S, session, runtime, campaign, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing, coopSpawnMult, campaignMult } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
 import { BONUSES } from './gamedata.js';
@@ -59,22 +59,27 @@ function applyBonus(b, taker) {
 function update(dt) {
   S.time += dt;
   // --- déplacements de l'équipe
-  // manette n → joueur n ; le clavier et le tactile pilotent le premier
-  // joueur sans manette connectée (J1 si chaque joueur a la sienne)
+  // chaque joueur du roster est piloté par sa manette attitrée (p.pad) ;
+  // J1 (pad null) : clavier + tactile, ou la première manette libre
   const tc0 = teamCenter();
-  let kbIdx = 0;
-  for (const p of players) if (!padConnected(p.idx)) { kbIdx = p.idx; break; }
+  const assignedPads = new Set(players.map(p => p.pad).filter(v => v != null));
   for (const p of players) {
     if (p.dead) { p.invuln = 0; continue; }
     let mx = 0, my = 0;
-    const pm = padMove(p.idx);
-    if (pm) { mx = pm.mx; my = pm.my; }
-    if (p.idx === kbIdx && !mx && !my) {
+    if (p.pad != null) {
+      const pm = padMove(p.pad);
+      if (pm) { mx = pm.mx; my = pm.my; }
+    } else {
       if (keys.KeyW || keys.ArrowUp) my -= 1;
       if (keys.KeyS || keys.ArrowDown) my += 1;
       if (keys.KeyA || keys.ArrowLeft) mx -= 1;
       if (keys.KeyD || keys.ArrowRight) mx += 1;
       if (touch.active && Math.hypot(touch.dx, touch.dy) > 0.12) { mx = touch.dx; my = touch.dy; }
+      if (!mx && !my) {
+        const free = firstFreePad(assignedPads);
+        const pm = free != null ? padMove(free) : null;
+        if (pm) { mx = pm.mx; my = pm.my; }
+      }
     }
     if (mx || my) {
       const l = Math.hypot(mx, my);
@@ -108,7 +113,7 @@ function update(dt) {
   }
 
   // --- spawn (quantité × facteur coop × niveau d'équipe, fraction reportée au tick suivant)
-  // La densité suit aussi S.level : monter haut (70-80) déclenche la horde.
+  // La densité suit aussi S.level : monter haut (~45-55) déclenche la horde.
   S.spawnT -= dt;
   const interval = DEBUG.stress ? 0.05 : Math.max(0.16, (1.15 - S.time * 0.0032) * (LEVELS[session.level].spawnMult || 1));
   const cap = DEBUG.stress || Math.min(650, 230 + S.level * 4 + 40 * (session.count - 1));

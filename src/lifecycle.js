@@ -45,10 +45,10 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 
-function makePlayer(charId, idx) {
+function makePlayer(charId, idx, pad = null) {
   const c = CHARS[charId];
   const p = {
-    idx, char: charId, spr: c.spr,
+    idx, char: charId, spr: c.spr, pad, // pad : manette attitrée (null = clavier/tactile)
     x: idx * 46 - (session.count - 1) * 23, y: 0,
     r: c.r, hp: c.hp, maxHp: c.hp, speed: c.speed, armor: c.armor || 1,
     magnet: 90, dmgMult: 1, cdMult: 1, invuln: 0, face: 1,
@@ -95,10 +95,11 @@ function resetGame() {
   document.getElementById('levelup').classList.remove('on');
   document.getElementById('paused').classList.remove('on');
   document.getElementById('victory').classList.remove('on');
-  // construit l'équipe : J1 avec le héros choisi, les autres avec les héros restants
+  // construit l'équipe depuis le salon : J1 (clavier/manette libre) + roster manettes
   players.length = 0;
-  const order = [session.char, ...Object.keys(CHARS).filter(id => id !== session.char)];
-  for (let i = 0; i < session.count; i++) players.push(makePlayer(order[i], i));
+  const lineup = [{ char: session.char, pad: null }, ...session.roster];
+  session.count = lineup.length;
+  lineup.forEach((s, i) => players.push(makePlayer(s.char, i, s.pad)));
   runtime.lvlQueue.length = 0;
   runtime.comboQueue.length = 0;
   document.getElementById('combomodal').classList.remove('on');

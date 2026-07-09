@@ -7,22 +7,25 @@ procédural, un étalonnage colorimétrique, un modificateur de gameplay,
 un bestiaire (skins des paliers d'ennemis), un boss final et un thème
 musical (`src/music.js`).
 
-| Destination | Modificateur | Boss final | Décor | Musique |
+| Destination | Modificateur | Boss final | Décor | Musique (metal) |
 |---|---|---|---|---|
-| 🌌 Espace profond | aucun (référence) | Dark Maul | Étoiles en parallaxe 3 couches, nébuleuses | Nappe mystérieuse, la mineur, 72 bpm |
-| 🏜️ Tatooine | Ennemis **+10 %** rapides | Jabba le Hutt | Dunes, rochers, soleils jumeaux à l'écran | Marche des sables, couleur phrygienne, 92 bpm |
-| ⚫ Étoile de la Mort | Vagues **+15 %** denses (intervalle ×0,85) | Dark Vador | Plaques métalliques, voyants, hublots | Marche menaçante, sol mineur, 104 bpm |
-| ❄️ Hoth | Ennemis **-10 %** lents | Boba Fett | Glace craquelée, congères, neige qui tombe | Froid cristallin, lent et aérien, 64 bpm |
-| 🌲 Endor | XP **+15 %** | L'Empereur | Sous-bois, rondins, fougères, lucioles | Groove forestier, pentatonique, 116 bpm |
+| 🌌 Espace profond | aucun (référence) | Dark Maul | Étoiles en parallaxe 3 couches, nébuleuses | Doom pesant, la mineur, 100 bpm |
+| 🏜️ Tatooine | Ennemis **+10 %** rapides | Jabba le Hutt | Dunes, rochers, soleils jumeaux à l'écran | Galop phrygien des sables, 126 bpm |
+| ⚫ Étoile de la Mort | Vagues **+15 %** denses (intervalle ×0,85) | Dark Vador | Plaques métalliques, voyants, hublots | Écrasant, mi-temps, sol grave, 92 bpm |
+| ❄️ Hoth | Ennemis **-10 %** lents | Boba Fett | Glace craquelée, congères, neige qui tombe | Metal froid et mélodique, 112 bpm |
+| 🌲 Endor | XP **+15 %** | L'Empereur | Sous-bois, rondins, fougères, lucioles | Punk metal bondissant, pentatonique, 140 bpm |
 
 ## Musique
 
-Thèmes **originaux synthétisés en WebAudio** (aucun asset, cohérent avec
-`audio.js`) : séquenceur pas à pas avec anticipation de ~150 ms sur
-l'horloge audio, deux voix (basse + lead) bouclées sur 2 mesures, mixées
-bas sous les bruitages. Démarre au lancement de la partie, s'arrête sur
-les écrans de fin ; continue pendant la pause et les choix de level-up.
-La touche <kbd>M</kbd> / le bouton ♪ coupent musique et bruitages ensemble.
+Thèmes **metal originaux synthétisés en WebAudio** (aucun asset — pas de
+reprise des thèmes du film, protégés) : séquenceur pas à pas avec
+anticipation de ~150 ms sur l'horloge audio. Par thème, quatre pistes
+bouclées sur 2 mesures : **riff** de guitare saturée grave (deux dents de
+scie désaccordées dans un WaveShaper `tanh`), **lead** clean, **batterie**
+synthétisée (kick à chute de hauteur, snare bruit + corps, charley bruit
+filtré). Mixé sous les bruitages. Démarre au lancement, s'arrête sur les
+écrans de fin ; continue pendant pause et level-up. La touche <kbd>M</kbd> /
+le bouton ♪ coupent musique et bruitages ensemble.
 
 ## Bestiaires
 

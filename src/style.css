@@ -403,7 +403,19 @@ canvas#game { touch-action: none; }
 /* ================================================================
    Coop local — équipe, barres de PV multiples, sélecteur
    ================================================================ */
-#teamsel { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+#teamsel { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+.pslot {
+  width: 150px; padding: 12px 8px 10px; text-align: center;
+  border: 2px dashed rgba(110,231,255,.25); border-radius: 18px;
+  background: rgba(8,20,32,.4);
+}
+.pslot.filled { border-style: solid; background: rgba(8,20,32,.6); }
+.pslot.empty { opacity: .6; }
+.pslot canvas { width: 44px; height: 44px; margin-top: 6px; }
+.pslot .pjoin { font-size: 30px; margin-top: 6px; }
+.pslot .ptag { font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #5f8299; }
+.pslot .pname { font-family: 'Baloo 2', 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: #fff; margin-top: 4px; }
+.pslot .phint { font-size: 11px; color: #5f8299; margin-top: 3px; line-height: 1.3; }
 .tchip {
   pointer-events: auto; cursor: pointer; padding: 9px 20px;
   font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .12em;
@@ -503,6 +515,8 @@ button.holo:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(58,150
 /* ---------- Rebonds et pops ---------- */
 .card:hover { transform: translateY(-8px) rotate(-1.6deg) scale(1.05); }
 .card:nth-child(2):hover { transform: translateY(-8px) rotate(1.6deg) scale(1.05); }
+/* carte ciblée à la manette / au clavier */
+.card.sel { border-color: var(--gold); box-shadow: 0 0 34px rgba(255,209,102,.22); transform: translateY(-7px) scale(1.03); }
 .card:hover .icon { animation: wiggle .45s ease-in-out; }
 @keyframes wiggle {
   25% { transform: rotate(-9deg) scale(1.12); }

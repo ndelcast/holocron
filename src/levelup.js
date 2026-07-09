@@ -7,11 +7,11 @@ import { burst, sparks, flash } from './effects.js';
 import { resetFrameClock } from './lifecycle.js';
 
 // ------------------------------ Level up ------------------------------
-// Courbe douce (polynomiale, pas exponentielle) : ~4 niveaux/min pour viser
-// le niveau 70-80 à 20 min, où les armes à 25 paliers déploient tout leur
-// spectacle. Seuil × densité coop : l'afflux d'XP suit le nombre d'ennemis,
-// et chaque niveau distribue déjà un choix par joueur.
-function xpFor(level) { return Math.floor((10 + Math.pow(level, 1.35)) * coopSpawnMult()); }
+// Courbe polynomiale ferme : un choix toutes les ~20-30 s (pas toutes les
+// 5 s), soit le niveau ~45-55 à 20 min avec les armes à 10 paliers.
+// Seuil × densité coop : l'afflux d'XP suit le nombre d'ennemis, et chaque
+// niveau distribue déjà un choix par joueur.
+function xpFor(level) { return Math.floor((14 + Math.pow(level, 1.75)) * coopSpawnMult()); }
 
 function gainXp(v, owner = null) {
   const mult = ((owner && owner.xpMult) || 1) * (LEVELS[session.level].xpMult || 1);
@@ -69,6 +69,16 @@ function currentChooser() {
   return runtime.lvlQueue.length ? players[runtime.lvlQueue[0]] : null;
 }
 
+// cartes du choix courant, navigables à la manette (curSel) et au clic
+let curCards = []; // [{ opt, el }]
+let curSel = 0;
+
+function setSel(i) {
+  if (!curCards.length) return;
+  curSel = (i + curCards.length) % curCards.length;
+  curCards.forEach((c, k) => c.el.classList.toggle('sel', k === curSel));
+}
+
 function openLevelUp() {
   const p = currentChooser();
   if (!p) { closeLevelUp(); return; }
@@ -79,6 +89,7 @@ function openLevelUp() {
   h2.style.color = session.count > 1 ? PLAYER_TINT[p.idx] : '';
   const cardsEl = document.getElementById('cards');
   cardsEl.innerHTML = '';
+  curCards = [];
   for (const opt of buildChoices(p)) {
     const card = document.createElement('div');
     card.className = 'card';
@@ -97,9 +108,54 @@ function openLevelUp() {
     card.innerHTML = `<div class="icon">${icon}</div><div class="name">${name}</div><div class="tag">${tag}</div><div class="desc">${desc}</div>`;
     card.onclick = () => applyChoice(opt);
     cardsEl.appendChild(card);
+    curCards.push({ opt, el: card });
   }
+  setSel(0);
   document.getElementById('levelup').classList.add('on');
 }
+
+// ------------------------------ Choix à la manette / au clavier ------------------------------
+// Seul le joueur dont c'est le tour navigue : sa manette attitrée, ou une
+// manette libre / le clavier s'il n'en a pas. Sondé par setInterval (comme
+// le salon) : indépendant du rAF, que Chrome suspend fenêtre masquée.
+const padPrev = {};
+function padSnapshot(gp) {
+  const b = i => !!(gp.buttons[i] && gp.buttons[i].pressed);
+  return { a: b(0), left: b(14) || gp.axes[0] < -0.5, right: b(15) || gp.axes[0] > 0.5 };
+}
+function pollChoiceInput() {
+  if (S.scene !== 'levelup' && S.scene !== 'combo') return;
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  const chooser = S.scene === 'levelup' ? currentChooser() : null;
+  const assigned = new Set(players.map(pl => pl.pad).filter(v => v != null));
+  for (const gp of pads) {
+    if (!gp || !gp.connected) continue;
+    const allowed = !chooser ? true // modal de combo : n'importe quelle manette
+      : chooser.pad != null ? gp.index === chooser.pad
+      : !assigned.has(gp.index); // joueur clavier : manettes libres uniquement
+    const prev = padPrev[gp.index] || {};
+    const cur = padSnapshot(gp);
+    padPrev[gp.index] = cur;
+    if (!allowed) continue;
+    if (S.scene === 'combo') {
+      if (cur.a && !prev.a) document.getElementById('comboOk').click();
+      continue;
+    }
+    if (cur.left && !prev.left) { setSel(curSel - 1); sfx.gem(); }
+    if (cur.right && !prev.right) { setSel(curSel + 1); sfx.gem(); }
+    if (cur.a && !prev.a && curCards[curSel]) applyChoice(curCards[curSel].opt);
+  }
+}
+setInterval(pollChoiceInput, 50);
+window.addEventListener('keydown', e => {
+  if (S.scene === 'combo' && (e.code === 'Enter' || e.code === 'Space')) { document.getElementById('comboOk').click(); return; }
+  if (S.scene !== 'levelup') return;
+  const p = currentChooser();
+  if (p && p.pad != null) return; // le tour d'un joueur manette : clavier inactif
+  if (e.code === 'ArrowLeft') setSel(curSel - 1);
+  if (e.code === 'ArrowRight') setSel(curSel + 1);
+  if ((e.code === 'Enter' || e.code === 'Space') && curCards[curSel]) applyChoice(curCards[curSel].opt);
+});
 
 function applyChoice(opt) {
   const p = currentChooser();
@@ -216,4 +272,4 @@ function buildComboList() {
   }
 }
 
-export { xpFor, gainXp, openLevelUp, applyChoice, checkCombos, openComboModal, renderWeaponSlots, buildComboList };
+export { xpFor, gainXp, openLevelUp, applyChoice, checkCombos, openComboModal, pollChoiceInput, renderWeaponSlots, buildComboList };
