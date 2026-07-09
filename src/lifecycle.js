@@ -1,5 +1,5 @@
 // Holocron Survivors — boucle rAF, début/fin de partie, pause
-import { clamp } from './core.js';
+import { clamp, DEBUG } from './core.js';
 import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, weapons, passives } from './state.js';
 import { CHARS, activeCombos } from './gamedata.js';
 import { BOSSES } from './levels.js';
@@ -11,11 +11,28 @@ import { update, updateHud } from './update.js';
 import { render } from './render.js';
 
 // ------------------------------ Cycle de vie ------------------------------
+// compteur FPS (?fps=1)
+let fpsAcc = 0, fpsCount = 0, fpsEl = null;
+function tickFps(rawDt) {
+  if (!DEBUG.fps) return;
+  fpsAcc += rawDt; fpsCount++;
+  if (fpsAcc >= 0.5) {
+    if (!fpsEl) {
+      fpsEl = document.createElement('div');
+      fpsEl.style.cssText = 'position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99;font:700 13px Rajdhani,monospace;color:#ffd166;background:rgba(0,0,0,.55);padding:2px 10px;pointer-events:none;letter-spacing:.1em';
+      document.body.appendChild(fpsEl);
+    }
+    fpsEl.textContent = Math.round(fpsCount / fpsAcc) + ' FPS';
+    fpsAcc = 0; fpsCount = 0;
+  }
+}
 let lastT = performance.now();
 function frame(now) {
   requestAnimationFrame(frame);
   const rawDt = clamp((now - lastT) / 1000, 0, 0.05);
   lastT = now;
+  tickFps((now - (frame._p || now)) / 1000 || rawDt);
+  frame._p = now;
   screenFlash.a = Math.max(0, screenFlash.a - rawDt * 2.4);
   S.zoomKick = S.zoomKick > 0.001 ? S.zoomKick * Math.pow(0.0005, rawDt) : 0;
   let dt = rawDt;

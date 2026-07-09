@@ -1,5 +1,5 @@
 // Holocron Survivors — simulation par frame, HUD
-import { rand, irand, dist2, clamp, pick } from './core.js';
+import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
 import { keys, touch } from './input.js';
 import { S, player, session, runtime, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, weapons, addRing } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
@@ -80,9 +80,9 @@ function update(dt) {
 
   // --- spawn
   S.spawnT -= dt;
-  const interval = Math.max(0.16, (1.15 - S.time * 0.0032) * (LEVELS[session.level].spawnMult || 1));
-  const perSpawn = 1 + Math.floor(S.time / 55);
-  if (S.spawnT <= 0 && enemies.length < 230) {
+  const interval = DEBUG.stress ? 0.05 : Math.max(0.16, (1.15 - S.time * 0.0032) * (LEVELS[session.level].spawnMult || 1));
+  const perSpawn = DEBUG.stress ? 10 : 1 + Math.floor(S.time / 55);
+  if (S.spawnT <= 0 && enemies.length < (DEBUG.stress || 230)) {
     S.spawnT = interval;
     for (let i = 0; i < perSpawn; i++) spawnEnemy(pickEnemyType());
   }

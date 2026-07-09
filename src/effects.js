@@ -1,5 +1,5 @@
 // Holocron Survivors — particules, anneaux, flashs, dégâts
-import { rand, dist2, pick } from './core.js';
+import { rand, dist2, pick, DEBUG } from './core.js';
 import { S, player, session, runtime, enemies, gems, particles, texts, waves, addRing } from './state.js';
 import { WEAPONS, activeCombos, weaponLvl } from './gamedata.js';
 import { sfx } from './audio.js';
@@ -102,6 +102,7 @@ function damageEnemy(e, dmg, knockA = null, knockF = 0, quiet = false) {
   }
 }
 function hurtPlayer(dmg) {
+  if (DEBUG.stress) return; // benchmark : joueur invincible
   if (player.invuln > 0 || S.scene !== 'play') return;
   if (player.dodge > 0 && Math.random() < player.dodge) {
     player.invuln = 0.35;
