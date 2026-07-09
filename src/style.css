@@ -756,3 +756,10 @@ button.holo:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--inkli
 @media (max-width: 640px), (max-height: 520px) {
   #levelup h2, #paused h2, #hangar h2, #optionstitle { font-size: 28px; }
 }
+
+
+/* ---------- Hangar : marché noir ---------- */
+.marketlabel { margin: 18px 0 4px; color: var(--gold); }
+.meta.market { background: linear-gradient(180deg, #ffe9a8, var(--paper)); }
+.meta.market .md i { color: #8a2be2; font-size: 12px; }
+.meta.market.maxed { opacity: .8; }

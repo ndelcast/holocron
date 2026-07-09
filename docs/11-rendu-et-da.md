@@ -14,7 +14,15 @@ d'action en éventail derrière la modal de combo. Accents : or `#ffd166`,
 rouge `--red #ff4954`, violet BD pour les emphases. Typos : Bangers
 (titres), Baloo 2 (UI), Rajdhani (texte courant). Les textes flottants
 en jeu passent en Baloo 2 avec contour d'encre épais (BitmapFont).
-Le chrome holo (scanlines, équerres, balayage) est retiré.
+Le chrome holo (scanlines, équerres, balayage) est retiré. Tous les
+**sprites** reçoivent un **contour d'encre automatique** (`inkOutline` dans
+`sprites.js` : silhouette à seuil d'alpha décalée en couronne, teintée
+encre). Les 17 sprites principaux (héros, 4 ennemis, élite, 5 boss, drone,
+cristaux) sont en outre **redessinés en proportions cartoon** : grosses
+têtes expressives, cel-shading en aplats (base + ombre + reflet), traits
+d'encre internes (`ink()`), regards et attitudes typés BD. Les skins de
+bestiaire par destination conservent leurs dessins d'origine (avec le
+contour automatique).
 
 Historique : v2 = chrome holographique, v3 = rondeurs cartoon (Baloo 2,
 `popIn`, `wiggle` — les animations restent actives sous la v4).

@@ -16,9 +16,9 @@ const META = {
 function loadMeta() {
   try {
     const d = JSON.parse(localStorage.getItem('holocron_meta'));
-    if (d && typeof d.credits === 'number' && d.up) return d;
+    if (d && typeof d.credits === 'number' && d.up) { d.weapons = Array.isArray(d.weapons) ? d.weapons : []; return d; }
   } catch (e) { /* sauvegarde corrompue : repart de zéro */ }
-  return { credits: 0, up: {} };
+  return { credits: 0, up: {}, weapons: [] };
 }
 const META_STATE = loadMeta();
 function saveMeta() { try { localStorage.setItem('holocron_meta', JSON.stringify(META_STATE)); } catch (e) {} }

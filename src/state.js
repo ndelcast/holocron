@@ -60,7 +60,7 @@ export const vehicle = { drop: null, active: null };
 // entités : tableaux constants, vidés sur place à chaque partie
 export const enemies = [], bullets = [], gems = [], particles = [], texts = [],
   waves = [], arcs = [], drones = [], booms = [], grenades = [], firePools = [],
-  rings = [], ebullets = [], decals = [], bonuses = [];
+  rings = [], ebullets = [], decals = [], bonuses = [], slashes = [];
 export function addRing(x, y, maxR, color, width = 3, life = 0.35) {
   if (rings.length > 40) rings.shift();
   rings.push({ x, y, maxR, color, width, life, maxLife: life });

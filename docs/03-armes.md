@@ -41,6 +41,11 @@ et libère un slot d'arme. Le combo reste actif. `EVOLUTIONS` dans
 | Mandalorien | ☄️ Inferno (Lance-flammes + Roquettes) | 🌋 **Tempête de feu** — jusqu'à 5 roquettes lourdes |
 | Contrebandier | 🛩️ Escadron rogue (Droïde + Blaster) | 🪐 **Escadre rogue** — jusqu'à 7 drones en rafale |
 
+## Marché noir
+
+Quatre armes **légendaires** achetables au hangar (achat unique, très cher),
+débloquées pour **tous les héros** — voir [09-progression.md](09-progression.md).
+
 ## Variantes d'arsenal (`type`)
 
 Les 10 nouvelles armes réutilisent la **mécanique** d'une arme de base via
@@ -49,7 +54,7 @@ w.id`), avec leurs propres stats :
 
 | Variante | Mécanique | Nuance |
 |---|---|---|
-| 🪃 Sabre lancé (Jedi) | `spear` (perforant) | plus lent, plus lourd (13 dégâts, cd 1,6) |
+| 🪃 Sabre lancé (Jedi) | `throwsaber` (boomerang) | lame rotative qui part à 290 px puis **revient** — perce à l'aller ET au retour (13 dégâts, cd 1,6) ; Cœur de kyber : explose à l'apogée |
 | 💠 Emprise de la Force (Jedi) | `ion` (aura) | rayon réduit (70) mais emprise jusqu'à 80 % |
 | 🪨 Fronde (Ewok) | `blaster` | tir un peu plus lent que le blaster (0,9) |
 | 🧚 Nuée de wisties (Ewok) | `drone` | plus faibles (7) mais cadence vive (1,0) |
@@ -69,10 +74,13 @@ w.id`), avec leurs propres stats :
 Valeurs « niv 1 → niv 10 » (avant `dmgMult`/`cdMult`).
 
 ### ⚔️ Sabre laser (arme de départ Jedi)
-Lame verte orbitale, dégâts au contact (fenêtre de 0,28 s par ennemi).
-- Dégâts `g(9, ×1,22)` : 9 → 54 ; rotation 3,65 → 5,9 rad/s
-- Longueur `60 × (1 + 0,25/niv)` : 60 → **195 px** (+25 % par palier)
-- **+1 lame aux niveaux 3, 6 et 9** (réparties uniformément) : 4 lames
+**Coups de sabre** : fauchages en arc (±0,75 rad) vers l'ennemi le plus
+proche, ×1,6 dégâts par coup, fort knockback. `st.spd` = fréquence de coups
+(2/spd s), `st.blades` = arcs simultanés répartis autour du joueur.
+- Dégâts `g(9, ×1,22) × 1,6` par fauchage ; cadence 0,55 → 0,34 s
+- Portée `60 × (1 + 0,25/niv)` : 60 → **195 px** (+25 % par palier)
+- **+1 arc aux niveaux 3, 6 et 9** : 4 fauchages simultanés
+- S'applique aussi au Sabre noir (marché) et à l'Avatar de la Force (fusion).
 
 ### 🔫 Blaster (arme de départ Contrebandier)
 Tir automatique sur la cible la plus proche (portée 560).

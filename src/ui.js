@@ -1,7 +1,7 @@
 // Holocron Survivors — menus : héros, destinations, hangar
 import { S, session, PLAYER_TINT } from './state.js';
 import { SPR } from './sprites.js';
-import { CHARS } from './gamedata.js';
+import { CHARS, WEAPONS } from './gamedata.js';
 import { LEVELS } from './levels.js';
 import { tone, sfx, toggleMute, musicVol, sfxVol, setMusicVol, setSfxVol } from './audio.js';
 import { META, META_STATE, saveMeta, metaLvl, metaCost, updateCreditsUI } from './meta.js';
@@ -62,6 +62,38 @@ function buildHangar() {
         if (META_STATE.credits < cost) return;
         META_STATE.credits -= cost;
         META_STATE.up[id] = lvl + 1;
+        saveMeta();
+        updateCreditsUI();
+        buildHangar();
+        sfx.lvl();
+      };
+    }
+    row.appendChild(btn);
+    el.appendChild(row);
+  }
+  // ---- marché noir : armes légendaires, achat définitif pour tous les héros
+  const divider = document.createElement('div');
+  divider.className = 'sectlabel marketlabel';
+  divider.textContent = t('MARCHÉ NOIR — ARMES LÉGENDAIRES');
+  el.appendChild(divider);
+  for (const id in WEAPONS) {
+    const w = WEAPONS[id];
+    if (!w.market) continue;
+    const owned = META_STATE.weapons.includes(id);
+    const row = document.createElement('div');
+    row.className = 'meta market' + (owned ? ' maxed' : '');
+    row.innerHTML = `<div class="mico">${w.icon}</div>
+      <div class="mbody"><div class="mn">${t(w.name)}</div><div class="md">${t(w.desc(0))}<br><i>${t('Débloque cette arme pour tous les héros, définitivement.')}</i></div></div>`;
+    const btn = document.createElement('button');
+    btn.className = 'buy';
+    if (owned) { btn.textContent = t('ACQUIS ✔'); btn.disabled = true; }
+    else {
+      btn.textContent = `${w.price} ©`;
+      btn.disabled = META_STATE.credits < w.price;
+      btn.onclick = () => {
+        if (META_STATE.credits < w.price) return;
+        META_STATE.credits -= w.price;
+        META_STATE.weapons.push(id);
         saveMeta();
         updateCreditsUI();
         buildHangar();

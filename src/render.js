@@ -13,7 +13,7 @@ import { LEVELS, getGroundTile } from './levels.js';
 import {
   S, session, players, alivePlayers, teamCenter, PLAYER_TINT, enemies, bullets,
   gems, particles, texts, waves, arcs, drones, booms, grenades, firePools,
-  rings, ebullets, decals, bonuses, vehicle,
+  rings, ebullets, decals, bonuses, vehicle, slashes,
 } from './state.js';
 import { WEAPONS, CHARS, BONUSES } from './gamedata.js';
 import { screenFlash, ghosts } from './effects.js';
@@ -467,27 +467,23 @@ function render() {
       .stroke({ width: 3, color: 0xffd166, alpha: 0.75 });
   }
 
-  // sabre laser + sillage
+  // coups de sabre : arcs de fauchage verts qui s'estompent
   if (S.scene === 'play' || S.scene === 'levelup') {
-    for (const pl of alive) {
-      const saber = pl.weapons.find(w => w.id === 'saber');
-      if (!saber) continue;
-      const st = WEAPONS.saber.stats(saber.lvl);
-      for (let b = 0; b < st.blades; b++) {
-        const a = (saber.angle || 0) + b * (Math.PI * 2 / st.blades);
-        for (let k = 6; k >= 1; k--) {
-          const ga = a - k * 0.11;
-          gFx2.moveTo(pl.x + Math.cos(ga) * 16, pl.y + Math.sin(ga) * 16)
-            .lineTo(pl.x + Math.cos(ga) * st.len, pl.y + Math.sin(ga) * st.len)
-            .stroke({ width: 9 - k, color: 0x52ff7a, alpha: 0.16 * (1 - k / 7), cap: 'round' });
-        }
-        const x1 = pl.x + Math.cos(a) * 16, y1 = pl.y + Math.sin(a) * 16;
-        const x2 = pl.x + Math.cos(a) * st.len, y2 = pl.y + Math.sin(a) * st.len;
-        gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 11, color: 0x52ff7a, alpha: 0.22, cap: 'round' });
-        gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 5, color: 0x52ff7a, alpha: 0.65, cap: 'round' });
-        gFx2.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2, color: 0xeaffef, alpha: 1, cap: 'round' });
-        gFx2.circle(x2, y2, 6).fill({ color: 0xeaffef, alpha: 0.5 });
-      }
+    for (const sl of slashes) {
+      const k = Math.max(0, sl.life / sl.max);
+      const r = sl.r * (1.12 - 0.16 * k);
+      const a0 = sl.ang - 0.78, a1 = sl.ang + 0.78;
+      gFx2.moveTo(sl.x + Math.cos(a0) * r, sl.y + Math.sin(a0) * r)
+        .arc(sl.x, sl.y, r, a0, a1)
+        .stroke({ width: 16 * k, color: 0x52ff7a, alpha: 0.28 * k, cap: 'round' });
+      gFx2.moveTo(sl.x + Math.cos(a0) * r, sl.y + Math.sin(a0) * r)
+        .arc(sl.x, sl.y, r, a0, a1)
+        .stroke({ width: 4.5 * k + 1.5, color: 0xeaffef, alpha: 0.95 * k, cap: 'round' });
+      // lame au bord avant du fauchage
+      const lead = a1 - (1 - k) * 1.2;
+      gFx2.moveTo(sl.x + Math.cos(lead) * r * 0.25, sl.y + Math.sin(lead) * r * 0.25)
+        .lineTo(sl.x + Math.cos(lead) * r, sl.y + Math.sin(lead) * r)
+        .stroke({ width: 3, color: 0x52ff7a, alpha: 0.8 * k, cap: 'round' });
     }
   }
 
@@ -563,6 +559,16 @@ function render() {
   gTrail.clear();
   const TRAILS = { boltCyan: 0x6ee7ff, boltRed: 0xff6e5a, spear: 0xffd296, rocket: 0xffaa5a };
   for (const b of bullets) {
+    if (b.boomer) {
+      // sabre lancé : lame verte qui tournoie
+      for (const off of [0, Math.PI / 2]) {
+        gTrail.moveTo(b.x + Math.cos(b.spin + off) * 17, b.y + Math.sin(b.spin + off) * 17)
+          .lineTo(b.x - Math.cos(b.spin + off) * 17, b.y - Math.sin(b.spin + off) * 17)
+          .stroke({ width: 3.5, color: 0x52ff7a, alpha: 0.95, cap: 'round' });
+      }
+      gTrail.circle(b.x, b.y, 4.5).fill({ color: 0xeaffef, alpha: 0.9 });
+      continue;
+    }
     const col = TRAILS[b.spr] || 0x6ee7ff;
     gTrail.moveTo(b.x - b.vx * 0.07, b.y - b.vy * 0.07).lineTo(b.x, b.y)
       .stroke({ width: 6, color: col, alpha: 0.18, cap: 'round' });

@@ -1,7 +1,7 @@
 // Holocron Survivors — simulation par frame, HUD
 import { rand, irand, dist2, clamp, pick, DEBUG } from './core.js';
 import { keys, touch, padMove, firstFreePad } from './input.js';
-import { S, session, runtime, campaign, vehicle, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, addRing, coopSpawnMult, campaignMult } from './state.js';
+import { S, session, runtime, campaign, vehicle, players, alivePlayers, nearestPlayer, teamCenter, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, slashes, addRing, coopSpawnMult, campaignMult } from './state.js';
 import { LEVELS, BOSSES, RUN_TIME, FINAL_BOSS_TIME } from './levels.js';
 import { BONUSES } from './gamedata.js';
 import { spawnEnemy, spawnFinalBoss, bossAI, pickEnemyType } from './enemies.js';
@@ -290,6 +290,12 @@ function update(dt) {
   // --- armes
   tickWeapons(dt);
 
+  // --- fauchages de sabre : simple décroissance visuelle
+  for (let i = slashes.length - 1; i >= 0; i--) {
+    slashes[i].life -= dt;
+    if (slashes[i].life <= 0) slashes.splice(i, 1);
+  }
+
   // --- ondes de Force
   for (let i = waves.length - 1; i >= 0; i--) {
     const wv = waves[i];
@@ -351,6 +357,22 @@ function update(dt) {
   for (let i = bullets.length - 1; i >= 0; i--) {
     const b = bullets[i];
     b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    if (b.boomer) {
+      // sabre lancé : tournoie, fait demi-tour à l'apogée et revient au porteur
+      b.spin += dt * 15;
+      const own = players[b.owner || 0];
+      if (b.phase === 'out' && dist2(b.x, b.y, b.sx, b.sy) > b.maxD * b.maxD) {
+        b.phase = 'back';
+        b.hit.clear(); // la lame frappe aussi au retour
+        if (own && own.combos.has('kyberheart')) explode(b.x, b.y, b.dmg * 1.3, 75, own);
+      }
+      if (b.phase === 'back') {
+        if (!own || own.dead) { bullets.splice(i, 1); continue; }
+        const a2 = Math.atan2(own.y - b.y, own.x - b.x);
+        b.vx = Math.cos(a2) * 460; b.vy = Math.sin(a2) * 460;
+        if (dist2(b.x, b.y, own.x, own.y) < 32 * 32) { bullets.splice(i, 1); continue; }
+      }
+    }
     if (b.life <= 0) {
       if (b.rocket) explode(b.x, b.y, b.dmg, b.radius, players[b.owner || 0]);
       else if (b.endor) explode(b.x, b.y, b.edmg, b.eradius, players[b.owner || 0]);

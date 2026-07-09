@@ -20,6 +20,21 @@ Sources : `src/levelup.js` (XP, choix), `src/meta.js` (crédits, hangar).
   manette (◄ ► puis A) ou au clavier (flèches + Entrée) s'il n'en a pas ;
   la modal de combo se ferme avec A / Entrée.
 
+## Marché noir (hangar)
+
+Sous les améliorations du hangar, **quatre armes légendaires** en achat
+**unique et définitif** (`META_STATE.weapons`, persisté) : une fois acquise,
+l'arme rejoint le **tirage de level-up de tous les héros**, en plus de leur
+arsenal (toujours 4 slots max). Statistiquement au-dessus des armes de base
+dès le palier 1, 10 paliers.
+
+| Arme | Mécanique | Prix |
+|---|---|---|
+| 🗡️ Sabre noir | `saber` (2 lames de base, jusqu'à 4) | 6000 © |
+| 🟢 Canon superlaser | `rocket` (45 dégâts, zone 120) | 4500 © |
+| 🛫 Escorte de chasseurs | `drone` (2 de base, jusqu'à 4) | 4000 © |
+| 🔻 Holocron sith | `lightning` (4+niv rebonds) | 3500 © |
+
 ## Crédits (fin de partie)
 
 Bancarisation **incrémentale** à chaque écran de fin : le total mérité par

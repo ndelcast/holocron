@@ -1,6 +1,6 @@
 // Holocron Survivors — tir des armes, explosions
 import { rand, irand, dist2, angleDiff, pick } from './core.js';
-import { S, players, nearestPlayer, runtime, enemies, bullets, waves, arcs, grenades, drones, particles, booms, firePools, decals, addRing } from './state.js';
+import { S, players, nearestPlayer, runtime, enemies, bullets, waves, arcs, grenades, drones, particles, booms, firePools, decals, addRing, slashes } from './state.js';
 import { WEAPONS, weaponLvl } from './gamedata.js';
 import { sfx, tone } from './audio.js';
 import { damageEnemy, burst, sparks, fireball, flash, addText } from './effects.js';
@@ -60,21 +60,50 @@ function tickPlayerWeapons(p, dt) {
     // les variantes d'arsenal (def.type) réutilisent la mécanique de leur arme de base
     switch (def.type || w.id) {
       case 'saber': {
-        w.angle = (w.angle || 0) + st.spd * dt;
-        const blades = st.blades;
-        for (let b = 0; b < blades; b++) {
-          const ba = w.angle + b * (Math.PI * 2 / blades);
-          for (const e of enemies) {
-            if (S.time - e.saberHit < 0.28) continue;
-            const d = Math.hypot(e.x - player.x, e.y - player.y);
-            if (d < st.len + e.r && d > 6) {
-              const ea = Math.atan2(e.y - player.y, e.x - player.x);
-              if (Math.abs(angleDiff(ea, ba)) < 0.42) {
-                e.saberHit = S.time;
-                damageEnemy(e, st.dmg, ea, 190, false, p);
+        // coups de sabre : fauchages en arc vers l'ennemi le plus proche
+        // (st.spd ≈ fréquence de coups, st.blades = nombre d'arcs simultanés)
+        w.t = (w.t || 0) - dt;
+        if (w.t <= 0) {
+          const tgt = nearestEnemy(player.x, player.y, st.len + 30);
+          if (tgt) {
+            w.t = 2 / st.spd * player.cdMult;
+            const aTo = Math.atan2(tgt.y - player.y, tgt.x - player.x);
+            player.face = Math.cos(aTo) >= 0 ? 1 : -1;
+            for (let b = 0; b < st.blades; b++) {
+              const dir = aTo + b * (Math.PI * 2 / st.blades);
+              if (slashes.length > 40) slashes.shift();
+              slashes.push({ x: player.x, y: player.y, ang: dir, r: st.len, life: 0.18, max: 0.18 });
+              for (const e of enemies) {
+                if (e.dead) continue;
+                const d = Math.hypot(e.x - player.x, e.y - player.y);
+                if (d < st.len + e.r && Math.abs(angleDiff(Math.atan2(e.y - player.y, e.x - player.x), dir)) < 0.75) {
+                  damageEnemy(e, st.dmg * 1.6, dir, 280, false, p);
+                }
               }
             }
-          }
+            tone(190, 0.09, 'sawtooth', 0.03, -70);
+          } else w.t = 0.08;
+        }
+        break;
+      }
+      case 'throwsaber': {
+        // boomerang : la lame tournoie, perce à l'aller puis revient (update.js)
+        w.t -= dt;
+        if (w.t <= 0) {
+          const tgt = nearestEnemy(player.x, player.y, 480);
+          if (tgt) {
+            w.t = st.cd * player.cdMult;
+            sfx.throw();
+            const base = Math.atan2(tgt.y - player.y, tgt.x - player.x);
+            for (let i = 0; i < st.count; i++) {
+              const a = base + (i - (st.count - 1) / 2) * 0.5;
+              bullets.push({
+                x: player.x, y: player.y, vx: Math.cos(a) * 400, vy: Math.sin(a) * 400, a,
+                dmg: st.dmg, life: 6, spr: 'spear', pierce: true, hit: new Set(),
+                boomer: true, phase: 'out', maxD: 290, sx: player.x, sy: player.y, spin: 0, owner: p.idx,
+              });
+            }
+          } else w.t = 0.1;
         }
         break;
       }

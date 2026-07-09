@@ -12,7 +12,7 @@ const ORD_M = ['Second', 'Troisième', 'Quatrième'];
 const WEAPONS = {
   saber: {
     name: 'Sabre laser', icon: '⚔️', tag: 'Arme',
-    desc: l => l === 0 ? 'Une lame verte orbite autour de toi.'
+    desc: l => l === 0 ? 'Des coups de sabre fauchent les ennemis proches.'
       : (l + 1) % 3 === 0 ? ORD_F[(l + 1) / 3 - 1] + ' lame !'
       : 'Taille +25 % · dégâts +22 %',
     stats: l => ({ dmg: g(9, 1.22, l), len: 60 * (1 + 0.25 * (l - 1)), spd: 3.4 + l * 0.25, blades: 1 + Math.floor(l / 3) }),
@@ -75,8 +75,8 @@ const WEAPONS = {
 
   // --- variantes par héros : `type` désigne la mécanique de combat réutilisée
   throwsaber: {
-    type: 'spear', name: 'Sabre lancé', icon: '🪃', tag: 'Pouvoir',
-    desc: l => l === 0 ? 'Ta lame perce les rangs et file droit.'
+    type: 'throwsaber', name: 'Sabre lancé', icon: '🪃', tag: 'Pouvoir',
+    desc: l => l === 0 ? 'Ta lame tournoie en boomerang et frappe à l\'aller comme au retour.'
       : (l + 1) % 3 === 0 ? ORD_M[(l + 1) / 3 - 1] + ' sabre !'
       : 'Dégâts +18 % · cadence +8 %',
     stats: l => ({ dmg: g(13, 1.18, l), cd: g(1.6, 0.92, l), count: 1 + Math.floor(l / 3) }),
@@ -165,10 +165,39 @@ const WEAPONS = {
     stats: l => ({ dmg: g(14, 1.22, l), cd: g(4.0, 0.93, l), radius: 135 * (1 + 0.15 * (l - 1)) }),
   },
 
+  // --- marché noir : achetées au hangar (crédits), débloquées pour tous les héros
+  darksaber: {
+    type: 'saber', market: true, price: 6000, name: 'Sabre noir', icon: '🗡️', tag: 'Légendaire',
+    desc: l => l === 0 ? 'La lame noire des Mandaloriens, plus lourde à chaque main qui la gagne.'
+      : (l + 1) % 4 === 0 ? '+1 lame !'
+      : 'Taille +20 % · dégâts +22 %',
+    stats: l => ({ dmg: g(20, 1.22, l), len: 90 * (1 + 0.2 * (l - 1)), spd: 4 + l * 0.3, blades: 2 + Math.floor(l / 4) }),
+  },
+  superlaser: {
+    type: 'rocket', market: true, price: 4500, name: 'Canon superlaser', icon: '🟢', tag: 'Légendaire',
+    desc: l => l === 0 ? 'Un fragment du superlaser de l\'Étoile de la Mort, monté à l\'épaule.'
+      : (l + 1) % 5 === 0 ? 'Roquette supplémentaire !'
+      : 'Zone +12 % · dégâts +20 %',
+    stats: l => ({ dmg: g(45, 1.2, l), cd: g(2.8, 0.93, l), radius: 120 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 5) }),
+  },
+  sithholo: {
+    type: 'lightning', market: true, price: 3500, name: 'Holocron sith', icon: '🔻', tag: 'Légendaire',
+    desc: l => l === 0 ? 'Un holocron interdit qui crache la foudre des anciens Sith.'
+      : '+1 rebond · dégâts +18 %',
+    stats: l => ({ dmg: g(30, 1.18, l), cd: g(2.0, 0.94, l), chains: 4 + l }),
+  },
+  escort: {
+    type: 'drone', market: true, price: 4000, name: 'Escorte de chasseurs', icon: '🛫', tag: 'Légendaire',
+    desc: l => l === 0 ? 'Deux chasseurs d\'escorte en orbite de combat permanente.'
+      : (l + 1) % 4 === 0 ? '+1 drone !'
+      : 'Dégâts +18 % · cadence +8 %',
+    stats: l => ({ dmg: g(18, 1.18, l), cd: g(0.7, 0.92, l), count: 2 + Math.floor(l / 4) }),
+  },
+
   // --- armes évoluées : obtenues par FUSION (combo actif + deux armes au palier max)
   avatar: {
     type: 'saber', evolved: true, name: 'Avatar de la Force', icon: '☀️', tag: 'Évolution',
-    desc: l => l === 0 ? 'La Force incarnée : des lames géantes orbitent sans fin.'
+    desc: l => l === 0 ? 'La Force incarnée : des fauchages géants rasent la horde.'
       : (l + 1) % 3 === 0 ? '+1 lame géante !'
       : 'Dégâts +20 % · taille +10 %',
     stats: l => ({ dmg: g(40, 1.2, l), len: 200 * (1 + 0.1 * (l - 1)), spd: 5 + l * 0.3, blades: 4 + Math.floor(l / 3) }),

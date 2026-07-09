@@ -1,5 +1,6 @@
 // Holocron Survivors — expérience, choix d'améliorations, listes UI
 import { S, session, runtime, players, alivePlayers, PLAYER_TINT, addRing, coopSpawnMult } from './state.js';
+import { META_STATE } from './meta.js';
 import { MAXLVL, WEAPONS, PASSIVES, COMBOS, EVOLUTIONS, CHARS, weaponLvl } from './gamedata.js';
 import { LEVELS } from './levels.js';
 import { sfx } from './audio.js';
@@ -45,14 +46,15 @@ function startLevelUpFlow() {
 
 function buildChoices(p) {
   const opts = [];
-  for (const id of CHARS[p.char].pool) { // seules les armes de l'arsenal du héros
+  // arsenal du héros + armes légendaires achetées au marché noir (tous héros)
+  for (const id of [...CHARS[p.char].pool, ...META_STATE.weapons]) {
     const lvl = weaponLvl(p, id);
     if (lvl === 0 && p.weapons.length >= 4) continue; // 4 armes max par joueur
     if (lvl < MAXLVL) opts.push({ kind: 'weapon', id, lvl });
   }
-  // armes évoluées possédées (hors pool) : toujours améliorables
+  // armes évoluées possédées (hors pool et hors marché) : toujours améliorables
   for (const w of p.weapons) {
-    if (CHARS[p.char].pool.includes(w.id)) continue;
+    if (CHARS[p.char].pool.includes(w.id) || META_STATE.weapons.includes(w.id)) continue;
     if (w.lvl < MAXLVL) opts.push({ kind: 'weapon', id: w.id, lvl: w.lvl });
   }
   // FUSION : combo actif dont les deux armes sont au palier max → évolution

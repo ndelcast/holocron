@@ -1,6 +1,6 @@
 // Holocron Survivors — boucle rAF, début/fin de partie, pause
 import { clamp, DEBUG } from './core.js';
-import { S, session, runtime, campaign, vehicle, players, PLAYER_TINT, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses } from './state.js';
+import { S, session, runtime, campaign, vehicle, players, PLAYER_TINT, enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, decals, bonuses, slashes } from './state.js';
 import { CHARS } from './gamedata.js';
 import { LEVELS, BOSSES } from './levels.js';
 import { metaLvl, bankRewards } from './meta.js';
@@ -106,7 +106,7 @@ function resetGame() {
   runtime.comboQueue.length = 0;
   document.getElementById('combomodal').classList.remove('on');
   buildHpBars();
-  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses]) arr.length = 0;
+  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses, slashes]) arr.length = 0;
   renderWeaponSlots();
   updateHud();
 }
@@ -155,7 +155,7 @@ function jumpToSector(levelId) {
   vehicle.drop = null; vehicle.active = null;
   S.finalWarn = false; S.finalSpawned = false; S.bossDefeated = false;
   S.freeze = 0; S.beamT = 0; S.shake = 0; S.zoomKick = 0; S.streak = 0; S.streakT = 0;
-  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses]) arr.length = 0;
+  for (const arr of [enemies, bullets, gems, particles, texts, waves, arcs, drones, booms, grenades, firePools, rings, ebullets, ghosts, decals, bonuses, slashes]) arr.length = 0;
   players.forEach((p, i) => {
     p.x = i * 46 - (session.count - 1) * 23; p.y = 0;
     p.dead = false; p.hp = p.maxHp; p.invuln = 1.5; p.afterT = 0; p.ionAura = null;
