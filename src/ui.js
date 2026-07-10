@@ -1,5 +1,6 @@
 // Holocron Survivors — menus : héros, destinations, hangar
 import { S, session, PLAYER_TINT } from './state.js';
+import { DEBUG } from './core.js';
 import { SPR } from './sprites.js';
 import { CHARS, WEAPONS } from './gamedata.js';
 import { LEVELS } from './levels.js';
@@ -112,11 +113,13 @@ function buildLevelSelect() {
   const el = document.getElementById('levels');
   el.innerHTML = '';
   const order = Object.keys(LEVELS);
+  // ?unlock=1 : tout est jouable pour la session, sans toucher la sauvegarde
+  const maxL = DEBUG.unlock ? order.length : META_STATE.maxLevel;
   // si la destination sélectionnée est verrouillée (nouvelle sauvegarde), repli
-  if (order.indexOf(session.level) >= META_STATE.maxLevel) session.level = order[0];
+  if (order.indexOf(session.level) >= maxL) session.level = order[0];
   order.forEach((id, i) => {
     const lv = LEVELS[id];
-    const locked = i >= META_STATE.maxLevel; // déblocage 1 par 1 (boss vaincu)
+    const locked = i >= maxL; // déblocage 1 par 1 (boss vaincu)
     const chip = document.createElement('div');
     chip.className = 'lvlchip' + (id === session.level ? ' sel' : '') + (locked ? ' locked' : '');
     chip.innerHTML = locked

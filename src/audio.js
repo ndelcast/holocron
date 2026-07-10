@@ -19,15 +19,17 @@ function audioInit() { if (!AC) { try { AC = new (window.AudioContext || window.
 // Chargés au premier geste utilisateur ; chaque événement pioche une variante
 // au hasard avec une légère variation de hauteur. Repli : synthèse tone().
 const SAMPLES = {
-  pew:  ['laserSmall_000', 'laserSmall_001', 'laserSmall_002', 'laserSmall_003', 'laserSmall_004'],
-  zap:  ['laserRetro_000', 'laserRetro_001', 'laserRetro_002', 'laserRetro_003', 'laserRetro_004'],
-  wave: ['forceField_000', 'forceField_001', 'forceField_002'],
-  boom: ['explosionCrunch_000', 'explosionCrunch_001', 'explosionCrunch_002', 'explosionCrunch_003', 'explosionCrunch_004'],
-  boss: ['lowFrequency_explosion_000', 'lowFrequency_explosion_001'],
-  hit:  ['impactGeneric_light_000', 'impactGeneric_light_001', 'impactGeneric_light_002', 'impactGeneric_light_003', 'impactGeneric_light_004'],
-  die:  ['impactMetal_light_000', 'impactMetal_light_001', 'impactMetal_light_002', 'impactMetal_light_003', 'impactMetal_light_004'],
-  hurt: ['impactMetal_medium_000', 'impactMetal_medium_001', 'impactMetal_medium_002'],
-  gem:  ['impactGlass_light_000', 'impactGlass_light_001', 'impactGlass_light_002', 'impactGlass_light_003', 'impactGlass_light_004'],
+  pew:   ['px_laser.mp3'],
+  slash: ['px_saber1.mp3', 'px_saber2.mp3', 'px_saber3.mp3'],
+  lvl:   ['px_levelup.mp3'],
+  boss:  ['px_braam.mp3'],
+  zap:   ['laserRetro_000.ogg', 'laserRetro_001.ogg', 'laserRetro_002.ogg', 'laserRetro_003.ogg', 'laserRetro_004.ogg'],
+  wave:  ['forceField_000.ogg', 'forceField_001.ogg', 'forceField_002.ogg'],
+  boom:  ['explosionCrunch_000.ogg', 'explosionCrunch_001.ogg', 'explosionCrunch_002.ogg', 'explosionCrunch_003.ogg', 'explosionCrunch_004.ogg'],
+  hit:   ['impactGeneric_light_000.ogg', 'impactGeneric_light_001.ogg', 'impactGeneric_light_002.ogg', 'impactGeneric_light_003.ogg', 'impactGeneric_light_004.ogg'],
+  die:   ['impactMetal_light_000.ogg', 'impactMetal_light_001.ogg', 'impactMetal_light_002.ogg', 'impactMetal_light_003.ogg', 'impactMetal_light_004.ogg'],
+  hurt:  ['impactMetal_medium_000.ogg', 'impactMetal_medium_001.ogg', 'impactMetal_medium_002.ogg'],
+  gem:   ['impactGlass_light_000.ogg', 'impactGlass_light_001.ogg', 'impactGlass_light_002.ogg', 'impactGlass_light_003.ogg', 'impactGlass_light_004.ogg'],
 };
 const buffers = {};
 let samplesRequested = false;
@@ -38,7 +40,7 @@ function loadSamples() {
   for (const key in SAMPLES) {
     buffers[key] = [];
     for (const name of SAMPLES[key]) {
-      fetch(base + name + '.ogg')
+      fetch(base + name)
         .then(r => r.arrayBuffer())
         .then(ab => AC.decodeAudioData(ab))
         .then(b => buffers[key].push(b))
@@ -82,11 +84,12 @@ const sfx = {
   hit:   () => playSample('hit', 0.2, 0.04) || tone(180, 0.06, 'sawtooth', 0.025, -60),
   die:   () => playSample('die', 0.25, 0.05) || tone(140, 0.18, 'sawtooth', 0.04, -100),
   gem:   () => playSample('gem', 0.14, 0.05) || tone(1220, 0.07, 'sine', 0.03, 340),
-  lvl:   () => { tone(523, 0.12, 'sine', 0.05); setTimeout(() => tone(659, 0.12, 'sine', 0.05), 110); setTimeout(() => tone(784, 0.2, 'sine', 0.05), 220); },
+  lvl:   () => playSample('lvl', 0.5, 0.25) || (tone(523, 0.12, 'sine', 0.05), setTimeout(() => tone(659, 0.12, 'sine', 0.05), 110), setTimeout(() => tone(784, 0.2, 'sine', 0.05), 220)),
+  slash: () => playSample('slash', 0.3, 0.09) || tone(190, 0.09, 'sawtooth', 0.03, -70),
   hurt:  () => playSample('hurt', 0.5, 0.1) || tone(90, 0.22, 'sawtooth', 0.06, -40),
   wave:  () => playSample('wave', 0.35, 0.08) || tone(70, 0.4, 'sine', 0.08, 60),
   zap:   () => playSample('zap', 0.16, 0.05) || tone(1600, 0.1, 'sawtooth', 0.02, -1200),
-  boss:  () => playSample('boss', 0.75, 0.2) || (tone(65, 0.7, 'sawtooth', 0.09, -15), setTimeout(() => tone(62, 0.7, 'sawtooth', 0.09, -15), 500)),
+  boss:  () => playSample('boss', 0.65, 0.4) || (tone(65, 0.7, 'sawtooth', 0.09, -15), setTimeout(() => tone(62, 0.7, 'sawtooth', 0.09, -15), 500)),
   boom:  () => playSample('boom', 0.3, 0.06) || tone(110, 0.28, 'sawtooth', 0.06, -75),
   throw: () => tone(500, 0.08, 'triangle', 0.03, -220),
 };

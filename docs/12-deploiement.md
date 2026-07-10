@@ -38,3 +38,11 @@ la méta-progression.
 
 - **itch.io** : rebuilder avec `base: './'` puis zipper `dist/` (HTML5).
 - **Serveur perso** : servir `dist/` tel quel (nginx/Caddy), ajuster `base`.
+
+## Paramètres d'URL de debug
+
+- `?fps=1` : compteur FPS.
+- `?stress=N` : mode stress (spawn massif plafonné à N).
+- `?unlock=1` : toutes les destinations jouables pour la session (la
+  sauvegarde n'est pas modifiée ; la victoire ne débloque que le vrai
+  `maxLevel`).

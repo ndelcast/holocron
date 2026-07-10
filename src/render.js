@@ -3,7 +3,7 @@
 // Graphics pour les primitives, filtres pour le bloom et l'écho chromatique).
 import {
   Application, Container, Sprite, Texture, Graphics, TilingSprite,
-  BitmapText, BitmapFont, TextStyle,
+  BitmapText, BitmapFont, TextStyle, Assets,
 } from 'pixi.js';
 import { AdvancedBloomFilter, RGBSplitFilter } from 'pixi-filters';
 import { view } from './core.js';
@@ -70,6 +70,8 @@ async function init() {
 
   // textures depuis les sprites canvas existants
   for (const k in SPR) TEX[k] = Texture.from(SPR[k]);
+  // missile Kenney (Space Shooter Extension, CC0) pour les roquettes
+  Assets.load(import.meta.env.BASE_URL + 'img/rocket.png').then(t2 => { TEX.rocket = t2; }).catch(() => {});
   TEX._shadow = makeCanvasTex(64, g => {
     const grd = g.createRadialGradient(32, 32, 0, 32, 32, 30);
     grd.addColorStop(0, 'rgba(0,0,0,.9)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
@@ -593,7 +595,7 @@ function render() {
       .stroke({ width: 2, color: col, alpha: 0.55, cap: 'round' });
     const spr = bulletPool.get();
     spr.texture = TEX[b.spr];
-    spr.scale.set(0.5);
+    spr.scale.set(b.spr === 'rocket' ? 0.42 : 0.5); // le missile Kenney est plus grand
     spr.position.set(b.x, b.y);
     spr.rotation = b.a + Math.PI / 2;
   }

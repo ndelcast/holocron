@@ -81,7 +81,7 @@ function tickPlayerWeapons(p, dt) {
                 }
               }
             }
-            tone(190, 0.09, 'sawtooth', 0.03, -70);
+            sfx.slash();
           } else w.t = 0.08;
         }
         break;

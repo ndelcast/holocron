@@ -1,17 +1,18 @@
 // Holocron Survivors — crédits, sauvegarde localStorage, hangar (logique)
 import { S, session, creditMult } from './state.js';
+import { gi } from './gamedata.js';
 
 // ------------------------------ Méta-progression (crédits persistants) ------------------------------
 const META = {
-  hull:     { name: 'Coque renforcée', icon: '💚', max: 5, base: 80,  desc: '+12 PV max par niveau' },
-  power:    { name: 'Cristaux surcadencés', icon: '🔥', max: 5, base: 120, desc: '+4 % de dégâts par niveau' },
-  boots:    { name: 'Servomoteurs', icon: '👢', max: 5, base: 90,  desc: '+3 % de vitesse par niveau' },
-  magnet:   { name: 'Collecteur magnétique', icon: '🧲', max: 5, base: 70,  desc: '+12 % de rayon d\'aimant par niveau' },
-  cooldown: { name: 'Condensateurs', icon: '⚡', max: 5, base: 130, desc: '-3 % de recharge par niveau' },
-  xp:       { name: 'Mémoire d\'holocron', icon: '🔷', max: 5, base: 100, desc: '+5 % d\'expérience par niveau' },
-  armor:    { name: 'Plaques de beskar', icon: '🛡️', max: 5, base: 120, desc: '-4 % de dégâts subis par niveau' },
-  greed:    { name: 'Contacts au cartel', icon: '💰', max: 5, base: 100, desc: '+10 % de crédits gagnés par niveau' },
-  revive:   { name: 'Esprit de la Force', icon: '✨', max: 1, base: 800, desc: 'Résurrection à 50 % des PV, une fois par partie' },
+  hull:     { name: 'Coque renforcée', icon: gi('m_hull'), max: 5, base: 80,  desc: '+12 PV max par niveau' },
+  power:    { name: 'Cristaux surcadencés', icon: gi('m_power'), max: 5, base: 120, desc: '+4 % de dégâts par niveau' },
+  boots:    { name: 'Servomoteurs', icon: gi('m_boots'), max: 5, base: 90,  desc: '+3 % de vitesse par niveau' },
+  magnet:   { name: 'Collecteur magnétique', icon: gi('m_magnet'), max: 5, base: 70,  desc: '+12 % de rayon d\'aimant par niveau' },
+  cooldown: { name: 'Condensateurs', icon: gi('m_cooldown'), max: 5, base: 130, desc: '-3 % de recharge par niveau' },
+  xp:       { name: 'Mémoire d\'holocron', icon: gi('m_xp'), max: 5, base: 100, desc: '+5 % d\'expérience par niveau' },
+  armor:    { name: 'Plaques de beskar', icon: gi('m_armor'), max: 5, base: 120, desc: '-4 % de dégâts subis par niveau' },
+  greed:    { name: 'Contacts au cartel', icon: gi('m_greed'), max: 5, base: 100, desc: '+10 % de crédits gagnés par niveau' },
+  revive:   { name: 'Esprit de la Force', icon: gi('m_revive'), max: 1, base: 800, desc: 'Résurrection à 50 % des PV, une fois par partie' },
 };
 function loadMeta() {
   try {

@@ -16,7 +16,7 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 | `i18n.js` | bilingue FR/EN : `t()` traduit à l'affichage (le français reste la source dans le code), textes statiques du menu, langue persistée |
 | `sprites.js` | sprites pré-rendus en canvas (2× pour la netteté) |
 | `background.js` | étoiles, nébuleuses, constante `TILE` (1400) |
-| `audio.js` | effets : échantillons CC0 (Kenney.nl, `public/sfx/`, variantes + pitch aléatoire, anti-mitraille) avec repli synthé WebAudio ; volumes musique/effets persistés |
+| `audio.js` | effets : échantillons Kenney.nl (CC0) + Pixabay (sabre, laser, level-up, braam) dans `public/sfx/`, variantes + pitch aléatoire, anti-mitraille, repli synthé WebAudio ; volumes persistés |
 | `music.js` | musiques par destination : pistes de Luis Humanoide (Pixabay, `public/music/`) en boucle, repli séquenceur WebAudio |
 | `input.js` | clavier (`keys`) + joystick tactile (`touch`) |
 | `enemies.js` | apparition, types, IA des boss |

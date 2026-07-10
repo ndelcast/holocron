@@ -3,7 +3,7 @@ export const view = { w: 0, h: 0, dpr: 1 };
 export const isTouch = window.matchMedia('(pointer: coarse)').matches;
 // outillage : ?fps=1 affiche le compteur, ?stress=400 sature la scène (god mode)
 const _params = new URLSearchParams(location.search);
-export const DEBUG = { fps: _params.get('fps') === '1' || _params.has('stress'), stress: parseInt(_params.get('stress'), 10) || 0 };
+export const DEBUG = { fps: _params.get('fps') === '1' || _params.has('stress'), stress: parseInt(_params.get('stress'), 10) || 0, unlock: _params.get('unlock') === '1' };
 function resize() {
   // viewport visible (la barre d'URL mobile fausse innerHeight)
   const vp = window.visualViewport;

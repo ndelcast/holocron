@@ -344,6 +344,7 @@ const STATICS = [
   ['#creditstitle', 'CRÉDITS', 'CREDITS'],
   ['#crmusic', 'MUSIQUES', 'MUSIC'],
   ['#crsfx', 'EFFETS SONORES', 'SOUND EFFECTS'],
+  ['#cricons', 'ICÔNES', 'ICONS'],
   ['#crtech', 'POLICES ET MOTEUR', 'FONTS & ENGINE'],
   ['#creditsBack', 'RETOUR', 'BACK'],
   ['#hangartitle', 'HANGAR', 'HANGAR'],

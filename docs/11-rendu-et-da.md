@@ -32,6 +32,14 @@ la déformation) ; les héros ont un **cycle de course** (rebond, balancement,
 squash au rythme des pas via `p.moving`) et une **respiration calme** à
 l'arrêt.
 
+**Icônes** : les armes, passifs, combos et améliorations du hangar utilisent
+des icônes **game-icons.net** (CC BY 3.0 — Lorc, Delapouite, Carl Olsen),
+SVG recolorées à l'encre de la DA (`public/icons/`, helper `gi()` dans
+`gamedata.js`, classe `.gi` dimensionnée en `em` pour hériter de la taille
+des emojis qu'elles remplacent). Les **roquettes** utilisent un missile du
+pack Kenney Space Shooter Extension (CC0, `public/img/rocket.png`), chargé
+par `Assets.load` par-dessus la texture canvas.
+
 Historique : v2 = chrome holographique, v3 = rondeurs cartoon (Baloo 2,
 `popIn`, `wiggle` — les animations restent actives sous la v4).
 

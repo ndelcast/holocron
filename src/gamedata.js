@@ -1,5 +1,8 @@
 // Holocron Survivors — armes, passifs, combos, personnages
 
+// icône de jeu (game-icons.net, recolorée encre) : rendue en <img> dans l'UI
+const gi = id => `<img class="gi" src="${import.meta.env.BASE_URL}icons/${id}.svg" alt="">`;
+
 
 // ------------------------------ Définition des armes ------------------------------
 // 10 paliers par arme, chacun conséquent (+20-30 % sur une stat majeure) +
@@ -11,183 +14,183 @@ const ORD_F = ['Seconde', 'Troisième', 'Quatrième'];
 const ORD_M = ['Second', 'Troisième', 'Quatrième'];
 const WEAPONS = {
   saber: {
-    name: 'Sabre laser', icon: '⚔️', tag: 'Arme',
+    name: 'Sabre laser', icon: gi('saber'), tag: 'Arme',
     desc: l => l === 0 ? 'Des coups de sabre fauchent les ennemis proches.'
       : (l + 1) % 3 === 0 ? ORD_F[(l + 1) / 3 - 1] + ' lame !'
       : 'Taille +25 % · dégâts +22 %',
     stats: l => ({ dmg: g(9, 1.22, l), len: 60 * (1 + 0.25 * (l - 1)), spd: 3.4 + l * 0.25, blades: 1 + Math.floor(l / 3) }),
   },
   blaster: {
-    name: 'Blaster', icon: '🔫', tag: 'Arme',
+    name: 'Blaster', icon: gi('blaster'), tag: 'Arme',
     desc: l => l === 0 ? 'Tire automatiquement sur l\'ennemi le plus proche.'
       : (l + 1) % 3 === 0 ? 'Tir ' + ['double', 'triple', 'quadruple'][(l + 1) / 3 - 1] + ' !'
       : 'Dégâts +18 % · cadence +8 %',
     stats: l => ({ dmg: g(12, 1.18, l), cd: g(0.85, 0.92, l), shots: 1 + Math.floor(l / 3) }),
   },
   wave: {
-    name: 'Onde de Force', icon: '🌀', tag: 'Pouvoir',
+    name: 'Onde de Force', icon: gi('wave'), tag: 'Pouvoir',
     desc: l => l === 0 ? 'Repousse et blesse tout autour de toi.' : 'Rayon +15 % · dégâts +22 % · recharge -7 %',
     stats: l => ({ dmg: g(15, 1.22, l), cd: g(4.2, 0.93, l), radius: 140 * (1 + 0.15 * (l - 1)) }),
   },
   lightning: {
-    name: 'Éclairs de Force', icon: '⚡', tag: 'Pouvoir',
+    name: 'Éclairs de Force', icon: gi('lightning'), tag: 'Pouvoir',
     desc: l => l === 0 ? 'Foudroie un ennemi et se propage en chaîne.' : '+1 rebond · dégâts +18 %',
     stats: l => ({ dmg: g(18, 1.18, l), cd: g(2.6, 0.94, l), chains: 1 + l }),
   },
   drone: {
-    name: 'Droïde de combat', icon: '🛰️', tag: 'Allié',
+    name: 'Droïde de combat', icon: gi('drone'), tag: 'Allié',
     desc: l => l === 0 ? 'Un droïde orbite et mitraille tes ennemis.'
       : (l + 1) % 3 === 0 ? ORD_M[(l + 1) / 3 - 1] + ' droïde !'
       : 'Dégâts +18 % · cadence +9 %',
     stats: l => ({ dmg: g(8, 1.18, l), cd: g(1.1, 0.91, l), count: 1 + Math.floor(l / 3) }),
   },
   spear: {
-    name: 'Lances ewoks', icon: '🏹', tag: 'Arme',
+    name: 'Lances ewoks', icon: gi('spear'), tag: 'Arme',
     desc: l => l === 0 ? 'Lance perforante qui traverse les rangs.'
       : (l + 1) % 3 === 0 ? ORD_F[(l + 1) / 3 - 1] + ' lance !'
       : 'Dégâts +18 % · cadence +8 %',
     stats: l => ({ dmg: g(11, 1.18, l), cd: g(1.25, 0.92, l), count: 1 + Math.floor(l / 3) }),
   },
   rocket: {
-    name: 'Roquettes', icon: '🚀', tag: 'Arme',
+    name: 'Roquettes', icon: gi('rocket'), tag: 'Arme',
     desc: l => l === 0 ? 'Roquette qui explose en zone.'
       : (l + 1) % 4 === 0 ? 'Roquette supplémentaire !'
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(16, 1.2, l), cd: g(2.1, 0.94, l), radius: 65 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   detonator: {
-    name: 'Détonateur thermique', icon: '💣', tag: 'Arme',
+    name: 'Détonateur thermique', icon: gi('detonator'), tag: 'Arme',
     desc: l => l === 0 ? 'Lobe une grenade qui explose en zone.'
       : (l + 1) % 4 === 0 ? 'Grenade supplémentaire !'
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(24, 1.2, l), cd: g(2.9, 0.93, l), radius: 80 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   flame: {
-    name: 'Lance-flammes', icon: '🔥', tag: 'Arme',
+    name: 'Lance-flammes', icon: gi('flame'), tag: 'Arme',
     desc: l => l === 0 ? 'Cône de feu soutenu vers l\'ennemi le plus proche.' : 'Portée +13 % · durée +8 % · dégâts +19 %',
     stats: l => ({ dmg: g(7, 1.19, l), cd: g(2.4, 0.94, l), range: 130 * (1 + 0.13 * (l - 1)), dur: 0.9 * (1 + 0.08 * (l - 1)) }),
   },
   ion: {
-    name: 'Champ ionique', icon: '🌐', tag: 'Pouvoir',
+    name: 'Champ ionique', icon: gi('ion'), tag: 'Pouvoir',
     desc: l => l === 0 ? 'Aura permanente qui électrocute et ralentit.' : 'Rayon +13 % · dégâts +20 % · ralentissement renforcé',
     stats: l => ({ dmg: g(4, 1.2, l), radius: 80 * (1 + 0.13 * (l - 1)), slow: Math.min(0.75, 0.25 + l * 0.05) }),
   },
 
   // --- variantes par héros : `type` désigne la mécanique de combat réutilisée
   throwsaber: {
-    type: 'throwsaber', name: 'Sabre lancé', icon: '🪃', tag: 'Pouvoir',
+    type: 'throwsaber', name: 'Sabre lancé', icon: gi('throwsaber'), tag: 'Pouvoir',
     desc: l => l === 0 ? 'Ta lame tournoie en boomerang et frappe à l\'aller comme au retour.'
       : (l + 1) % 3 === 0 ? ORD_M[(l + 1) / 3 - 1] + ' sabre !'
       : 'Dégâts +18 % · cadence +8 %',
     stats: l => ({ dmg: g(13, 1.18, l), cd: g(1.6, 0.92, l), count: 1 + Math.floor(l / 3) }),
   },
   forcegrip: {
-    type: 'ion', name: 'Emprise de la Force', icon: '💠', tag: 'Pouvoir',
+    type: 'ion', name: 'Emprise de la Force', icon: gi('forcegrip'), tag: 'Pouvoir',
     desc: l => l === 0 ? 'Une emprise qui broie et ralentit tout autour de toi.' : 'Rayon +13 % · dégâts +20 % · emprise renforcée',
     stats: l => ({ dmg: g(5, 1.2, l), radius: 70 * (1 + 0.13 * (l - 1)), slow: Math.min(0.8, 0.3 + l * 0.05) }),
   },
   taser: {
-    type: 'lightning', name: 'Arc électrique', icon: '🔌', tag: 'Gadget',
+    type: 'lightning', name: 'Arc électrique', icon: gi('taser'), tag: 'Gadget',
     desc: l => l === 0 ? 'Un arc de contrebande qui saute d\'ennemi en ennemi.' : '+1 rebond · dégâts +18 %',
     stats: l => ({ dmg: g(15, 1.18, l), cd: g(2.2, 0.94, l), chains: 1 + l }),
   },
   gauntlet: {
-    type: 'blaster', name: 'Laser de gantelet', icon: '🧤', tag: 'Arme',
+    type: 'blaster', name: 'Laser de gantelet', icon: gi('gauntlet'), tag: 'Arme',
     desc: l => l === 0 ? 'Tir rapide monté au poignet.'
       : (l + 1) % 3 === 0 ? 'Tir ' + ['double', 'triple', 'quadruple'][(l + 1) / 3 - 1] + ' !'
       : 'Dégâts +18 % · cadence +8 %',
     stats: l => ({ dmg: g(10, 1.18, l), cd: g(0.7, 0.92, l), shots: 1 + Math.floor(l / 3) }),
   },
   mines: {
-    type: 'detonator', name: 'Mines soniques', icon: '🧿', tag: 'Arme',
+    type: 'detonator', name: 'Mines soniques', icon: gi('mines'), tag: 'Arme',
     desc: l => l === 0 ? 'Charge lobée qui explose en zone.'
       : (l + 1) % 4 === 0 ? 'Mine supplémentaire !'
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(20, 1.2, l), cd: g(2.5, 0.93, l), radius: 75 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   birds: {
-    type: 'spear', name: 'Oiseaux siffleurs', icon: '🕊️', tag: 'Arme',
+    type: 'spear', name: 'Oiseaux siffleurs', icon: gi('birds'), tag: 'Arme',
     desc: l => l === 0 ? 'Micro-missiles qui percent les rangs.'
       : (l + 1) % 3 === 0 ? '+1 oiseau !'
       : 'Dégâts +18 % · cadence +8 %',
     stats: l => ({ dmg: g(9, 1.18, l), cd: g(1.1, 0.92, l), count: 1 + Math.floor(l / 3) }),
   },
   sling: {
-    type: 'blaster', name: 'Fronde', icon: '🪨', tag: 'Arme',
+    type: 'blaster', name: 'Fronde', icon: gi('sling'), tag: 'Arme',
     desc: l => l === 0 ? 'Des pierres bien senties sur l\'ennemi le plus proche.'
       : (l + 1) % 3 === 0 ? 'Pierre ' + ['double', 'triple', 'quadruple'][(l + 1) / 3 - 1] + ' !'
       : 'Dégâts +18 % · cadence +8 %',
     stats: l => ({ dmg: g(11, 1.18, l), cd: g(0.9, 0.92, l), shots: 1 + Math.floor(l / 3) }),
   },
   wisties: {
-    type: 'drone', name: 'Nuée de wisties', icon: '🧚', tag: 'Allié',
+    type: 'drone', name: 'Nuée de wisties', icon: gi('wisties'), tag: 'Allié',
     desc: l => l === 0 ? 'Des lucioles qui harcèlent tes ennemis.'
       : (l + 1) % 3 === 0 ? '+1 wistie !'
       : 'Dégâts +18 % · cadence +9 %',
     stats: l => ({ dmg: g(7, 1.18, l), cd: g(1.0, 0.91, l), count: 1 + Math.floor(l / 3) }),
   },
   drums: {
-    type: 'wave', name: 'Tambours de guerre', icon: '🥁', tag: 'Pouvoir',
+    type: 'wave', name: 'Tambours de guerre', icon: gi('drums'), tag: 'Pouvoir',
     desc: l => l === 0 ? 'Un roulement qui repousse et assomme la horde.' : 'Rayon +15 % · dégâts +22 % · recharge -7 %',
     stats: l => ({ dmg: g(13, 1.22, l), cd: g(3.8, 0.93, l), radius: 130 * (1 + 0.15 * (l - 1)) }),
   },
   log: {
-    type: 'rocket', name: 'Tronc roulant', icon: '🪵', tag: 'Arme',
+    type: 'rocket', name: 'Tronc roulant', icon: gi('log'), tag: 'Arme',
     desc: l => l === 0 ? 'Un tronc dévale et éclate en échardes.'
       : (l + 1) % 4 === 0 ? 'Tronc supplémentaire !'
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(18, 1.2, l), cd: g(2.4, 0.94, l), radius: 70 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   kyber: {
-    type: 'rocket', name: 'Éclat kyber', icon: '💎', tag: 'Pouvoir',
+    type: 'rocket', name: 'Éclat kyber', icon: gi('kyber'), tag: 'Pouvoir',
     desc: l => l === 0 ? 'Un cristal instable qui explose en éclats de lumière.'
       : (l + 1) % 4 === 0 ? 'Éclat supplémentaire !'
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(17, 1.2, l), cd: g(2.2, 0.94, l), radius: 68 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   hive: {
-    type: 'detonator', name: 'Ruche piquante', icon: '🐝', tag: 'Arme',
+    type: 'detonator', name: 'Ruche piquante', icon: gi('hive'), tag: 'Arme',
     desc: l => l === 0 ? 'Une ruche lobée qui éclate en essaim vengeur.'
       : (l + 1) % 4 === 0 ? 'Ruche supplémentaire !'
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(22, 1.2, l), cd: g(2.7, 0.93, l), radius: 78 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 4) }),
   },
   seeker: {
-    type: 'drone', name: 'Drone traqueur', icon: '🛸', tag: 'Allié',
+    type: 'drone', name: 'Drone traqueur', icon: gi('seeker'), tag: 'Allié',
     desc: l => l === 0 ? 'Un drone de chasse mandalorien qui traque tes cibles.'
       : (l + 1) % 3 === 0 ? '+1 drone !'
       : 'Dégâts +18 % · cadence +9 %',
     stats: l => ({ dmg: g(9, 1.18, l), cd: g(1.05, 0.91, l), count: 1 + Math.floor(l / 3) }),
   },
   shockwave: {
-    type: 'wave', name: 'Générateur de choc', icon: '📡', tag: 'Gadget',
+    type: 'wave', name: 'Générateur de choc', icon: gi('shockwave'), tag: 'Gadget',
     desc: l => l === 0 ? 'Une décharge concentrique de contrebande.' : 'Rayon +15 % · dégâts +22 % · recharge -7 %',
     stats: l => ({ dmg: g(14, 1.22, l), cd: g(4.0, 0.93, l), radius: 135 * (1 + 0.15 * (l - 1)) }),
   },
 
   // --- marché noir : achetées au hangar (crédits), débloquées pour tous les héros
   darksaber: {
-    type: 'saber', market: true, price: 6000, name: 'Sabre noir', icon: '🗡️', tag: 'Légendaire',
+    type: 'saber', market: true, price: 6000, name: 'Sabre noir', icon: gi('darksaber'), tag: 'Légendaire',
     desc: l => l === 0 ? 'La lame noire des Mandaloriens, plus lourde à chaque main qui la gagne.'
       : (l + 1) % 4 === 0 ? '+1 lame !'
       : 'Taille +20 % · dégâts +22 %',
     stats: l => ({ dmg: g(20, 1.22, l), len: 90 * (1 + 0.2 * (l - 1)), spd: 4 + l * 0.3, blades: 2 + Math.floor(l / 4) }),
   },
   superlaser: {
-    type: 'rocket', market: true, price: 4500, name: 'Canon superlaser', icon: '🟢', tag: 'Légendaire',
+    type: 'rocket', market: true, price: 4500, name: 'Canon superlaser', icon: gi('superlaser'), tag: 'Légendaire',
     desc: l => l === 0 ? 'Un fragment du superlaser de l\'Étoile de la Mort, monté à l\'épaule.'
       : (l + 1) % 5 === 0 ? 'Roquette supplémentaire !'
       : 'Zone +12 % · dégâts +20 %',
     stats: l => ({ dmg: g(45, 1.2, l), cd: g(2.8, 0.93, l), radius: 120 * (1 + 0.12 * (l - 1)), count: 1 + Math.floor(l / 5) }),
   },
   sithholo: {
-    type: 'lightning', market: true, price: 3500, name: 'Holocron sith', icon: '🔻', tag: 'Légendaire',
+    type: 'lightning', market: true, price: 3500, name: 'Holocron sith', icon: gi('sithholo'), tag: 'Légendaire',
     desc: l => l === 0 ? 'Un holocron interdit qui crache la foudre des anciens Sith.'
       : '+1 rebond · dégâts +18 %',
     stats: l => ({ dmg: g(30, 1.18, l), cd: g(2.0, 0.94, l), chains: 4 + l }),
   },
   escort: {
-    type: 'drone', market: true, price: 4000, name: 'Escorte de chasseurs', icon: '🛫', tag: 'Légendaire',
+    type: 'drone', market: true, price: 4000, name: 'Escorte de chasseurs', icon: gi('escort'), tag: 'Légendaire',
     desc: l => l === 0 ? 'Deux chasseurs d\'escorte en orbite de combat permanente.'
       : (l + 1) % 4 === 0 ? '+1 drone !'
       : 'Dégâts +18 % · cadence +8 %',
@@ -196,28 +199,28 @@ const WEAPONS = {
 
   // --- armes évoluées : obtenues par FUSION (combo actif + deux armes au palier max)
   avatar: {
-    type: 'saber', evolved: true, name: 'Avatar de la Force', icon: '☀️', tag: 'Évolution',
+    type: 'saber', evolved: true, name: 'Avatar de la Force', icon: gi('avatar'), tag: 'Évolution',
     desc: l => l === 0 ? 'La Force incarnée : des fauchages géants rasent la horde.'
       : (l + 1) % 3 === 0 ? '+1 lame géante !'
       : 'Dégâts +20 % · taille +10 %',
     stats: l => ({ dmg: g(40, 1.2, l), len: 200 * (1 + 0.1 * (l - 1)), spd: 5 + l * 0.3, blades: 4 + Math.floor(l / 3) }),
   },
   forestwrath: {
-    type: 'spear', evolved: true, name: 'Colère de la forêt', icon: '🌳', tag: 'Évolution',
+    type: 'spear', evolved: true, name: 'Colère de la forêt', icon: gi('forestwrath'), tag: 'Évolution',
     desc: l => l === 0 ? 'La forêt entière se soulève et transperce tout.'
       : (l + 1) % 3 === 0 ? '+1 lance !'
       : 'Dégâts +18 % · cadence +6 %',
     stats: l => ({ dmg: g(45, 1.18, l), cd: g(0.7, 0.94, l), count: 3 + Math.floor(l / 3) }),
   },
   firestorm: {
-    type: 'rocket', evolved: true, name: 'Tempête de feu', icon: '🌋', tag: 'Évolution',
+    type: 'rocket', evolved: true, name: 'Tempête de feu', icon: gi('firestorm'), tag: 'Évolution',
     desc: l => l === 0 ? 'Un déluge de feu qui rase des pans entiers de horde.'
       : (l + 1) % 3 === 0 ? 'Roquette supplémentaire !'
       : 'Zone +10 % · dégâts +20 %',
     stats: l => ({ dmg: g(70, 1.2, l), cd: g(1.4, 0.95, l), radius: 130 * (1 + 0.1 * (l - 1)), count: 2 + Math.floor(l / 3) }),
   },
   roguewing: {
-    type: 'drone', evolved: true, name: 'Escadre rogue', icon: '🪐', tag: 'Évolution',
+    type: 'drone', evolved: true, name: 'Escadre rogue', icon: gi('roguewing'), tag: 'Évolution',
     desc: l => l === 0 ? 'Une escadre entière en orbite de combat.'
       : (l + 1) % 3 === 0 ? '+1 drone !'
       : 'Dégâts +18 % · cadence +6 %',
@@ -228,18 +231,18 @@ const WEAPONS = {
 // ------------------------------ Combos d'armes ------------------------------
 // Chaque combo associe deux armes du MÊME arsenal (deux par héros)
 const COMBOS = {
-  jediMaster:   { name: 'Voie du Jedi', icon: '☯️', parts: ['saber', 'wave'], desc: 'Subir un coup déclenche une onde de Force vengeresse (toutes les 3 s max).' },
-  forceStorm:   { name: 'Tempête de Force', icon: '🌪️', parts: ['lightning', 'wave'], desc: 'Les éclairs gagnent +3 rebonds et ralentissent les ennemis foudroyés.' },
-  bountyHunter: { name: 'Chasseur de primes', icon: '💰', parts: ['gauntlet', 'rocket'], desc: 'Chaque tir du gantelet a 20 % de chance de partir avec une roquette.' },
-  inferno:      { name: 'Inferno', icon: '☄️', parts: ['flame', 'rocket'], desc: 'Les explosions laissent une nappe de feu qui brûle pendant 3 s.' },
-  squadron:     { name: 'Escadron rogue', icon: '🛩️', parts: ['drone', 'blaster'], desc: 'Les droïdes tirent des rafales de trois tirs.' },
-  ionSurge:     { name: 'Surcharge ionique', icon: '💫', parts: ['ion', 'taser'], desc: 'Les ennemis dans le champ ionique subissent +30 % de dégâts, toutes sources confondues.' },
-  endor:        { name: 'Guérilla d\'Endor', icon: '🪓', parts: ['spear', 'drums'], desc: 'Les lances explosent en fin de course.' },
-  ruse:         { name: 'Ruse ewok', icon: '🪤', parts: ['sling', 'wisties'], desc: 'Les wisties crachent des rafales de trois étincelles.' },
-  kyberheart:   { name: 'Cœur de kyber', icon: '🔮', parts: ['throwsaber', 'kyber'], desc: 'Les sabres lancés explosent en fin de course.' },
-  essaim:       { name: 'Essaim furieux', icon: '🍯', parts: ['hive', 'drums'], desc: 'Les explosions laissent une nuée furieuse qui pique pendant 3 s.' },
-  chasse:       { name: 'Escadrille de chasse', icon: '✈️', parts: ['seeker', 'gauntlet'], desc: 'Les drones traqueurs tirent des rafales de trois tirs.' },
-  ondeion:      { name: 'Onde ionique', icon: '🌩️', parts: ['shockwave', 'ion'], desc: 'Subir un coup déclenche une onde de choc vengeresse (toutes les 3 s max).' },
+  jediMaster:   { name: 'Voie du Jedi', icon: gi('c_jediMaster'), parts: ['saber', 'wave'], desc: 'Subir un coup déclenche une onde de Force vengeresse (toutes les 3 s max).' },
+  forceStorm:   { name: 'Tempête de Force', icon: gi('c_forceStorm'), parts: ['lightning', 'wave'], desc: 'Les éclairs gagnent +3 rebonds et ralentissent les ennemis foudroyés.' },
+  bountyHunter: { name: 'Chasseur de primes', icon: gi('c_bountyHunter'), parts: ['gauntlet', 'rocket'], desc: 'Chaque tir du gantelet a 20 % de chance de partir avec une roquette.' },
+  inferno:      { name: 'Inferno', icon: gi('c_inferno'), parts: ['flame', 'rocket'], desc: 'Les explosions laissent une nappe de feu qui brûle pendant 3 s.' },
+  squadron:     { name: 'Escadron rogue', icon: gi('c_squadron'), parts: ['drone', 'blaster'], desc: 'Les droïdes tirent des rafales de trois tirs.' },
+  ionSurge:     { name: 'Surcharge ionique', icon: gi('c_ionSurge'), parts: ['ion', 'taser'], desc: 'Les ennemis dans le champ ionique subissent +30 % de dégâts, toutes sources confondues.' },
+  endor:        { name: 'Guérilla d\'Endor', icon: gi('c_endor'), parts: ['spear', 'drums'], desc: 'Les lances explosent en fin de course.' },
+  ruse:         { name: 'Ruse ewok', icon: gi('c_ruse'), parts: ['sling', 'wisties'], desc: 'Les wisties crachent des rafales de trois étincelles.' },
+  kyberheart:   { name: 'Cœur de kyber', icon: gi('c_kyberheart'), parts: ['throwsaber', 'kyber'], desc: 'Les sabres lancés explosent en fin de course.' },
+  essaim:       { name: 'Essaim furieux', icon: gi('c_essaim'), parts: ['hive', 'drums'], desc: 'Les explosions laissent une nuée furieuse qui pique pendant 3 s.' },
+  chasse:       { name: 'Escadrille de chasse', icon: gi('c_chasse'), parts: ['seeker', 'gauntlet'], desc: 'Les drones traqueurs tirent des rafales de trois tirs.' },
+  ondeion:      { name: 'Onde ionique', icon: gi('c_ondeion'), parts: ['shockwave', 'ion'], desc: 'Subir un coup déclenche une onde de choc vengeresse (toutes les 3 s max).' },
 };
 
 // ------------------------------ Évolutions (fusions) ------------------------------
@@ -261,16 +264,16 @@ const CHARS = {
   smuggler: { name: 'CONTREBANDIER', spr: 'smuggler', weapon: 'blaster', pool: ['blaster', 'drone', 'detonator', 'ion', 'taser', 'shockwave'], hp: 95, speed: 188, r: 13, desc: 'Blaster<br>Dégâts +15 % · véloce', mods: p => { p.dmgMult = 1.15; } },
 };
 const PASSIVES = {
-  speed:  { name: 'Bottes de pilote', icon: '👢', tag: 'Passif', max: 5, desc: () => 'Vitesse de déplacement +8 %.', apply: p => { p.speed *= 1.08; } },
-  vital:  { name: 'Entraînement Jedi', icon: '💚', tag: 'Passif', max: 5, desc: () => 'PV max +25 et soigne 25 PV.', apply: p => { p.maxHp += 25; p.hp = Math.min(p.maxHp, p.hp + 25); } },
-  magnet: { name: 'Cristal Kyber', icon: '🧲', tag: 'Passif', max: 5, desc: () => 'Rayon d\'attraction des fragments +30 %.', apply: p => { p.magnet *= 1.3; } },
-  power:  { name: 'Colère maîtrisée', icon: '🔥', tag: 'Passif', max: 5, desc: () => 'Tous les dégâts +12 %.', apply: p => { p.dmgMult *= 1.12; } },
-  haste:  { name: 'Méditation', icon: '🧘', tag: 'Passif', max: 5, desc: () => 'Recharge de toutes les armes -8 %.', apply: p => { p.cdMult *= 0.92; } },
-  deflect: { name: 'Champ déflecteur', icon: '🛡️', tag: 'Passif', max: 5, desc: () => 'Dégâts subis -7 %.', apply: p => { p.armor *= 0.93; } },
-  bacta:   { name: 'Bacta portatif', icon: '💧', tag: 'Passif', max: 5, desc: () => 'Régénère 0,6 PV par seconde.', apply: p => { p.regen += 0.6; } },
-  fortune: { name: 'Fortune du contrebandier', icon: '🎲', tag: 'Passif', max: 5, desc: () => 'Expérience gagnée +10 %.', apply: p => { p.xpMult += 0.10; } },
-  reflex:  { name: 'Réflexes de pilote', icon: '💨', tag: 'Passif', max: 5, desc: () => 'Chance d\'esquiver un coup +8 %.', apply: p => { p.dodge = Math.min(0.4, p.dodge + 0.08); } },
-  crit:    { name: 'Visée assistée', icon: '🎯', tag: 'Passif', max: 5, desc: () => 'Chance de coup critique +8 % (dégâts ×2).', apply: p => { p.crit += 0.08; } },
+  speed:  { name: 'Bottes de pilote', icon: gi('p_speed'), tag: 'Passif', max: 5, desc: () => 'Vitesse de déplacement +8 %.', apply: p => { p.speed *= 1.08; } },
+  vital:  { name: 'Entraînement Jedi', icon: gi('p_vital'), tag: 'Passif', max: 5, desc: () => 'PV max +25 et soigne 25 PV.', apply: p => { p.maxHp += 25; p.hp = Math.min(p.maxHp, p.hp + 25); } },
+  magnet: { name: 'Cristal Kyber', icon: gi('p_magnet'), tag: 'Passif', max: 5, desc: () => 'Rayon d\'attraction des fragments +30 %.', apply: p => { p.magnet *= 1.3; } },
+  power:  { name: 'Colère maîtrisée', icon: gi('p_power'), tag: 'Passif', max: 5, desc: () => 'Tous les dégâts +12 %.', apply: p => { p.dmgMult *= 1.12; } },
+  haste:  { name: 'Méditation', icon: gi('p_haste'), tag: 'Passif', max: 5, desc: () => 'Recharge de toutes les armes -8 %.', apply: p => { p.cdMult *= 0.92; } },
+  deflect: { name: 'Champ déflecteur', icon: gi('p_deflect'), tag: 'Passif', max: 5, desc: () => 'Dégâts subis -7 %.', apply: p => { p.armor *= 0.93; } },
+  bacta:   { name: 'Bacta portatif', icon: gi('p_bacta'), tag: 'Passif', max: 5, desc: () => 'Régénère 0,6 PV par seconde.', apply: p => { p.regen += 0.6; } },
+  fortune: { name: 'Fortune du contrebandier', icon: gi('p_fortune'), tag: 'Passif', max: 5, desc: () => 'Expérience gagnée +10 %.', apply: p => { p.xpMult += 0.10; } },
+  reflex:  { name: 'Réflexes de pilote', icon: gi('p_reflex'), tag: 'Passif', max: 5, desc: () => 'Chance d\'esquiver un coup +8 %.', apply: p => { p.dodge = Math.min(0.4, p.dodge + 0.08); } },
+  crit:    { name: 'Visée assistée', icon: gi('p_crit'), tag: 'Passif', max: 5, desc: () => 'Chance de coup critique +8 % (dégâts ×2).', apply: p => { p.crit += 0.08; } },
 };
 
 function weaponLvl(p, id) { const w = p.weapons.find(w => w.id === id); return w ? w.lvl : 0; }
@@ -297,4 +300,4 @@ const BONUSES = {
   magnet: { rgb: '255,209,102', name: 'AIMANT GALACTIQUE' },
 };
 
-export { MAXLVL, WEAPONS, PASSIVES, COMBOS, EVOLUTIONS, CHARS, BONUSES, VEHICLES, weaponLvl };
+export { gi, MAXLVL, WEAPONS, PASSIVES, COMBOS, EVOLUTIONS, CHARS, BONUSES, VEHICLES, weaponLvl };
