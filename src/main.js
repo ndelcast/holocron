@@ -16,7 +16,7 @@ import { spawnEnemy, spawnFinalBoss } from './enemies.js';
 import { checkCombos, openComboModal, openLevelUp, gainXp } from './levelup.js';
 import { META_STATE, metaLvl } from './meta.js';
 import { buildHangar } from './ui.js';
-import { audioCtx } from './audio.js';
+import { audioCtx, sfxReady } from './audio.js';
 import { startMusic, stopMusic } from './music.js';
 
 window.HS = {
@@ -24,5 +24,5 @@ window.HS = {
   WEAPONS, PASSIVES, CHARS, COMBOS, weaponLvl,
   LEVELS, BOSSES, startGame, togglePause, resetGame, victory, update, updateHud, render,
   spawnEnemy, spawnFinalBoss, checkCombos, openComboModal, openLevelUp, gainXp, META_STATE, metaLvl, buildHangar,
-  audioCtx, startMusic, stopMusic,
+  audioCtx, sfxReady, startMusic, stopMusic,
 };
