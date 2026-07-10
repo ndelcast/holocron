@@ -160,7 +160,7 @@ function buildDiffSelect() {
 buildDiffSelect();
 
 // ------------------------------ Écrans du menu ------------------------------
-const SCREENS = ['home', 'levelselect', 'teamscreen', 'hangar', 'options'];
+const SCREENS = ['home', 'levelselect', 'teamscreen', 'hangar', 'options', 'credits'];
 function showScreen(id) {
   for (const sid of SCREENS) document.getElementById(sid).classList.remove('on');
   document.getElementById('victory').classList.remove('on');
@@ -241,7 +241,9 @@ function menuZones() {
     [document.getElementById('playBtn')],
     [document.getElementById('hangarBtn')],
     [document.getElementById('optionsBtn')],
+    [document.getElementById('creditsBtn')],
   ];
+  if (overlayOn('credits')) return [[document.getElementById('creditsBack')]];
   if (overlayOn('levelselect')) return [
     visibleEls('#levels .lvlchip:not(.locked)'),
     visibleEls('#diffsel .lvlchip'),
@@ -283,7 +285,8 @@ function moveFocus(dr, dc) {
 }
 
 function backFocus() {
-  if (overlayOn('options')) document.getElementById('optionsBack').click();
+  if (overlayOn('credits')) document.getElementById('creditsBack').click();
+  else if (overlayOn('options')) document.getElementById('optionsBack').click();
   else if (overlayOn('hangar')) document.getElementById('hangarBack').click();
   else if (overlayOn('levelselect')) document.getElementById('backHome1').click();
   else if (overlayOn('teamscreen')) document.getElementById('backLevels').click();
@@ -393,6 +396,8 @@ musicRange.oninput = () => { setMusicVol(musicRange.value / 100); syncOptions();
 sfxRange.oninput = () => { setSfxVol(sfxRange.value / 100); syncOptions(); tone(620, 0.08, 'square', 0.05, 120); };
 document.getElementById('optionsBtn').onclick = () => { syncOptions(); showScreen('options'); };
 document.getElementById('optionsBack').onclick = () => showScreen('home');
+document.getElementById('creditsBtn').onclick = () => showScreen('credits');
+document.getElementById('creditsBack').onclick = () => showScreen('home');
 syncOptions();
 
 // ------------------------------ Langue (FR / EN) ------------------------------

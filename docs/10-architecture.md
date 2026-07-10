@@ -17,7 +17,7 @@ Chargés via `main.js` (point d'entrée, expose `window.HS` pour debug/tests).
 | `sprites.js` | sprites pré-rendus en canvas (2× pour la netteté) |
 | `background.js` | étoiles, nébuleuses, constante `TILE` (1400) |
 | `audio.js` | effets : échantillons CC0 (Kenney.nl, `public/sfx/`, variantes + pitch aléatoire, anti-mitraille) avec repli synthé WebAudio ; volumes musique/effets persistés |
-| `music.js` | musique d'ambiance par destination (séquenceur pas à pas WebAudio) |
+| `music.js` | musiques par destination : pistes de Luis Humanoide (Pixabay, `public/music/`) en boucle, repli séquenceur WebAudio |
 | `input.js` | clavier (`keys`) + joystick tactile (`touch`) |
 | `enemies.js` | apparition, types, IA des boss |
 | `effects.js` | particules, anneaux, flashs, fantômes, `damageEnemy`/`hurtPlayer` |

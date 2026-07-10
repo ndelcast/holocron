@@ -17,15 +17,16 @@ musical (`src/music.js`).
 
 ## Musique
 
-Thèmes **metal originaux synthétisés en WebAudio** (aucun asset — pas de
-reprise des thèmes du film, protégés) : séquenceur pas à pas avec
-anticipation de ~150 ms sur l'horloge audio. Par thème, quatre pistes
-bouclées sur 2 mesures : **riff** de guitare saturée grave (deux dents de
-scie désaccordées dans un WaveShaper `tanh`), **lead** clean, **batterie**
-synthétisée (kick à chute de hauteur, snare bruit + corps, charley bruit
-filtré). Mixé sous les bruitages. Démarre au lancement, s'arrête sur les
-écrans de fin ; continue pendant pause et level-up. La touche <kbd>M</kbd> /
-le bouton ♪ coupent musique et bruitages ensemble.
+**Pistes orchestrales cinématiques de Luis Humanoide** (Pixabay, Pixabay
+Content License — voir la page CRÉDITS du jeu), converties en M4A 128k
+dans `public/music/` (0,8-2,2 Mo par destination) : Space Fleet (Espace),
+Space Cantina (Tatooine), March of the Troopers (Étoile de la Mort),
+Invasion March (Hoth), Star Wars Style Chase Music (Endor),
+jouées en boucle via un élément `<audio>` (gain de base 0,55, volume du
+curseur OPTIONS et touche <kbd>M</kbd> synchronisés en continu). Démarre au
+lancement, s'arrête sur les écrans de fin. Si un fichier manque, le
+**séquenceur metal WebAudio** d'origine (riff saturé + batterie synthétisée)
+prend le relais — il reste dans `music.js` comme repli.
 
 ## Bestiaires
 

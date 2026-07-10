@@ -809,3 +809,16 @@ button.holo:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--inkli
   animation: cardIn .5s cubic-bezier(.2, .9, .3, 1.35) .2s backwards;
 }
 #victory.splash #victstats b { color: #8a2be2; }
+
+
+/* ---------- Page credits ---------- */
+#credits h2 { color: var(--gold); }
+#creditslist { width: min(560px, 92vw); max-height: 62vh; overflow-y: auto; }
+.crcard {
+  background: var(--paper); color: var(--inktxt); text-align: left;
+  border: 3px solid var(--inkline); border-radius: 14px;
+  box-shadow: 5px 5px 0 rgba(0,0,0,.35);
+  padding: 12px 18px; margin-top: 10px; font-size: 14.5px; line-height: 1.5;
+}
+.crcard ul { margin: 6px 0 2px 18px; }
+.crcard a { color: #8a2be2; font-weight: 700; pointer-events: auto; }

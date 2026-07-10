@@ -1,5 +1,42 @@
-// Holocron Survivors — musiques metal par destination (séquenceur WebAudio)
+// Holocron Survivors — musiques metal par destination
+// Pistes CC0 de nene (OpenGameArt.org), converties en M4A dans public/music/ ;
+// le séquenceur WebAudio d'origine sert de repli si un fichier manque.
 import { audioCtx, isMuted, musicVol } from './audio.js';
+
+// ------------------------------ Lecture des pistes (fichiers) ------------------------------
+const MUSIC_GAIN = 0.55; // les pistes de nene sont masterisées fort
+let musicEl = null, volTimer = null;
+
+function playTrack(levelId) {
+  if (!musicEl) {
+    musicEl = new Audio();
+    musicEl.loop = true;
+  }
+  musicEl.src = import.meta.env.BASE_URL + 'music/' + levelId + '.m4a';
+  musicEl.volume = Math.min(1, musicVol() * MUSIC_GAIN);
+  let fellBack = false;
+  musicEl.onerror = () => { // fichier absent : repli synthé
+    if (fellBack) return;
+    fellBack = true;
+    startSynth(levelId);
+  };
+  const p = musicEl.play();
+  if (p) p.catch(() => {
+    // autoplay refusé : réessaie au prochain geste utilisateur
+    const retry = () => {
+      musicEl.play().catch(() => {});
+      window.removeEventListener('pointerdown', retry);
+      window.removeEventListener('keydown', retry);
+    };
+    window.addEventListener('pointerdown', retry);
+    window.addEventListener('keydown', retry);
+  });
+  // synchronise volume et sourdine en continu (curseur OPTIONS, touche M)
+  clearInterval(volTimer);
+  volTimer = setInterval(() => {
+    if (musicEl) musicEl.volume = isMuted() ? 0 : Math.min(1, musicVol() * MUSIC_GAIN);
+  }, 150);
+}
 
 // Thèmes originaux façon metal (riffs phrygiens, chugs palm-muted, batterie
 // synthétisée) — pas de reprise : les thèmes du film sont protégés.
@@ -180,14 +217,20 @@ function tick() {
   }
 }
 
-function startMusic(levelId) {
-  stopMusic();
+function startSynth(levelId) {
   const AC = audioCtx();
   if (!AC) return; // pas de contexte audio (appel avant le premier geste utilisateur)
   cur = { th: THEMES[levelId] || THEMES.space, step: 0, nextT: AC.currentTime + 0.15, timer: setInterval(tick, 45) };
 }
 
+function startMusic(levelId) {
+  stopMusic();
+  playTrack(levelId);
+}
+
 function stopMusic() {
+  if (musicEl) { musicEl.pause(); musicEl.currentTime = 0; }
+  clearInterval(volTimer);
   if (!cur) return;
   clearInterval(cur.timer);
   cur = null;

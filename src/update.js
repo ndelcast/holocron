@@ -224,6 +224,7 @@ function update(dt) {
         if (pm) { mx = pm.mx; my = pm.my; }
       }
     }
+    p.moving = !!(mx || my);
     if (mx || my) {
       const l = Math.hypot(mx, my);
       const spd = veh && veh.riders[0] === p.idx ? veh.def.speed : p.speed;

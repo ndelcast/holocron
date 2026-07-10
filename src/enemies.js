@@ -84,6 +84,7 @@ function spawnEnemy(typeId, boss = false, fixedAng = null) {
       type: eid, spr: skin.spr, boss: true, ename: skin.name + roman, rank,
       sc: (1 + (rank - 1) * 0.18) * 1.35, // les élites dominent la horde d'une tête
       x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
+      ph: Math.random() * Math.PI * 2,
       r: def.r * (1 + (rank - 1) * 0.18), hp: bossHp, maxHp: bossHp,
       spd: def.spd * (LEVELS[session.level].spdMult || 1),
       dmg: def.dmg * rankMult * (1 + S.level * 0.02), xp: def.xp * rank,
@@ -99,7 +100,7 @@ function spawnEnemy(typeId, boss = false, fixedAng = null) {
   }
   const skin = (LEVELS[session.level].mobs || {})[typeId] || et.spr;
   enemies.push({
-    type: typeId, spr: skin, boss: false,
+    type: typeId, spr: skin, boss: false, ph: Math.random() * Math.PI * 2,
     x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
     r: et.r, hp: et.hp * hpScale, maxHp: et.hp * hpScale,
     spd: et.spd * rand(0.9, 1.1) * (LEVELS[session.level].spdMult || 1), dmg: et.dmg, xp: et.xp, flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,
@@ -114,7 +115,7 @@ function spawnFinalBoss() {
   const spawnZoom = session.count > 1 ? Math.min(view.zoom || 1, 0.6) : (view.zoom || 1);
   const d = Math.hypot(view.w, view.h) / (2 * spawnZoom) + 100;
   enemies.push({
-    type: bid, spr: B.spr, boss: true, final: true,
+    type: bid, spr: B.spr, boss: true, final: true, ph: Math.random() * Math.PI * 2,
     x: tc.x + Math.cos(ang) * d, y: tc.y + Math.sin(ang) * d,
     r: B.r, hp: bossHp, maxHp: bossHp, spd: B.spd, dmg: B.dmg, xp: B.xp,
     flash: 0, kx: 0, ky: 0, saberHit: -9, waveId: -1, slowT: 0, slow: 1,

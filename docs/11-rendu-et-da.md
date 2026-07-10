@@ -24,6 +24,14 @@ d'encre internes (`ink()`), regards et attitudes typés BD. Les skins de
 bestiaire par destination conservent leurs dessins d'origine (avec le
 contour automatique).
 
+**Animation procédurale** (render.js, aucune frame supplémentaire) : les
+ennemis marchent en **dandinement + rebond** (phase aléatoire `e.ph` par
+individu, cadence ralentie pour les boss) et encaissent un **squash &
+stretch élastique** à l'impact (piloté par `e.flash`, l'overlay blanc suit
+la déformation) ; les héros ont un **cycle de course** (rebond, balancement,
+squash au rythme des pas via `p.moving`) et une **respiration calme** à
+l'arrêt.
+
 Historique : v2 = chrome holographique, v3 = rondeurs cartoon (Baloo 2,
 `popIn`, `wiggle` — les animations restent actives sous la v4).
 

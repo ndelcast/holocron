@@ -64,6 +64,7 @@
   <button class="holo" id="playBtn">JOUER</button>
   <button class="holo" id="hangarBtn" style="margin-top:12px; font-size:13px; padding:10px 30px;">HANGAR — AMÉLIORATIONS</button>
   <button class="holo" id="optionsBtn" style="margin-top:8px; font-size:13px; padding:10px 30px;">OPTIONS</button>
+  <button class="holo" id="creditsBtn" style="margin-top:8px; font-size:13px; padding:10px 30px;">CRÉDITS</button>
   <div class="hint">
     <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> ou flèches pour bouger ·
     attaques automatiques · <kbd>P</kbd> pause et liste des combos · <kbd>M</kbd> son
@@ -128,6 +129,37 @@
   <div class="sectlabel" id="optsfx">EFFETS SONORES</div>
   <div class="optrow"><input type="range" id="sfxRange" min="0" max="100" step="5"><span class="optval" id="sfxVal"></span></div>
   <button class="holo" id="optionsBack">RETOUR</button>
+</div>
+
+<div id="credits" class="overlay">
+  <h2 id="creditstitle">CRÉDITS</h2>
+  <div id="creditslist">
+    <div class="sectlabel" id="crmusic">MUSIQUES</div>
+    <div class="crcard">
+      <b>Luis Humanoide</b> — <a href="https://pixabay.com/es/users/luis_humanoide-13252924/" target="_blank" rel="noopener">Pixabay</a> (Pixabay Content License)
+      <ul>
+        <li>Space Fleet (Sci-fi Orchestral Music) — Espace profond</li>
+        <li>Space Cantina — Tatooine</li>
+        <li>March of the Troopers — Étoile de la Mort</li>
+        <li>Invasion March — Hoth</li>
+        <li>Star Wars Style Chase Music — Endor</li>
+      </ul>
+    </div>
+    <div class="sectlabel" id="crsfx">EFFETS SONORES</div>
+    <div class="crcard">
+      <b>Kenney</b> — <a href="https://kenney.nl" target="_blank" rel="noopener">kenney.nl</a> (CC0)
+      <ul><li>Sci-Fi Sounds</li><li>Impact Sounds</li></ul>
+    </div>
+    <div class="sectlabel" id="crtech">POLICES ET MOTEUR</div>
+    <div class="crcard">
+      <ul>
+        <li>Bangers, Baloo 2, Rajdhani — Google Fonts (licence OFL)</li>
+        <li>PixiJS + pixi-filters (MIT)</li>
+        <li>Sprites, animations et musique de repli : faits maison</li>
+      </ul>
+    </div>
+  </div>
+  <button class="holo" id="creditsBack">RETOUR</button>
 </div>
 
 <div id="hangar" class="overlay">

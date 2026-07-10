@@ -421,13 +421,19 @@ function render() {
     }
     const spr = enemyPool.get();
     spr.texture = TEX[e.spr];
-    spr.scale.set(0.5 * (e.sc || 1)); // les élites de rang II/III sont plus imposantes
-    spr.position.set(e.x, e.y);
+    // cycle de marche cartoon : dandinement + rebond, squash elastique a l'impact
+    const wob = Math.sin(anim * (e.boss ? 6 : 9) + (e.ph || 0));
+    const sq = e.flash > 0 ? Math.min(1, e.flash * 6) : 0;
+    const esc = 0.5 * (e.sc || 1);
+    spr.rotation = wob * (e.boss ? 0.05 : 0.09);
+    spr.scale.set(esc * (1 + sq * 0.22), esc * (1 - sq * 0.26));
+    spr.position.set(e.x, e.y - Math.abs(wob) * (e.boss ? 1.6 : 2.4) + sq * e.r * 0.13);
     if (e.flash > 0) {
       const fl = flashPool.get();
       fl.texture = TEX[e.spr];
-      fl.scale.set(0.5 * (e.sc || 1));
-      fl.position.set(e.x, e.y);
+      fl.rotation = spr.rotation;
+      fl.scale.set(spr.scale.x, spr.scale.y);
+      fl.position.set(spr.position.x, spr.position.y);
       fl.alpha = Math.min(1, e.flash * 8);
     }
     if (e.final) {
@@ -541,8 +547,19 @@ function render() {
     if (pl.invuln > 0 && Math.floor(S.time * 18) % 2 !== 0) continue; // clignote
     const spr = playerPool.get();
     spr.texture = TEX[pl.spr];
-    spr.position.set(pl.x, pl.y);
-    spr.scale.set(0.5 * pl.face, 0.5);
+    if (pl.moving) {
+      // course : rebond marque, balancement, leger squash au rythme des pas
+      const wob = Math.sin(anim * 13 + pl.idx * 2.1);
+      spr.rotation = wob * 0.08 * pl.face;
+      spr.position.set(pl.x, pl.y - Math.abs(wob) * 3);
+      spr.scale.set(0.5 * pl.face * (1 - Math.abs(wob) * 0.03), 0.5 * (1 + Math.abs(wob) * 0.05));
+    } else {
+      // repos : respiration calme
+      const br = Math.sin(anim * 2.4 + pl.idx);
+      spr.rotation = 0;
+      spr.position.set(pl.x, pl.y);
+      spr.scale.set(0.5 * pl.face * (1 + br * 0.012), 0.5 * (1 - br * 0.018));
+    }
   }
   playerPool.end();
 
